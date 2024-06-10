@@ -1,0 +1,162 @@
+<form [formGroup]="reclutamientoForm" (ngSubmit)="enviarReclutamiento()">
+  <mat-form-field>
+    <mat-label>Identificación</mat-label>
+    <input matInput type="text" placeholder="Ingrese su indetificación" formControlName="identificacion" />
+    <mat-error *ngIf="errorHandling('identificacion','required')">
+        La identificacion es <strong>requerida</strong>
+    </mat-error>
+    <mat-error *ngIf="errorHandling('identificacion','maxLength')">
+        La identificacion debe tener como máximo <strong>20 carácteres</strong>
+    </mat-error>
+  </mat-form-field>
+
+  <br>
+  <br>
+
+  <mat-form-field>
+    <mat-label>Nombre Completo</mat-label>
+    <input matInput type="text" placeholder="Ingrese su nombre completo" formControlName="nombre" />
+    <mat-error *ngIf="errorHandling('nombre','required')">
+        El nombre completo es <strong>requerido</strong>
+    </mat-error>
+    <mat-error *ngIf="errorHandling('nombre','maxLength')">
+        El nombre debe tener como máximo <strong>250 carácteres</strong>
+    </mat-error>
+  </mat-form-field>
+
+  <br>
+  <br>
+
+  <mat-form-field>
+    <mat-label>Correo Electrónico</mat-label>
+    <input matInput type="text" placeholder="Ingrese su correo electrónico" formControlName="correo" />
+    <mat-error *ngIf="errorHandling('correo','required')">
+        El Correo Electrónico es <strong>requerido</strong>
+    </mat-error>
+    <mat-error *ngIf="errorHandling('correo','email')">
+        El correo ingresado es <strong>inválido</strong>
+    </mat-error>
+    <mat-error *ngIf="errorHandling('correo','maxLength')">
+        El correo debe tener como máximo <strong>250 carácteres</strong>
+    </mat-error>
+  </mat-form-field>
+  
+  <br>
+  <br>
+
+  <mat-form-field>
+    <mat-label>Número de Teléfono</mat-label>
+    <input matInput type="text" placeholder="Ingrese su número de teléfono" formControlName="telefono" (keyup)="formatearTelefono()" />
+    <mat-error *ngIf="errorHandling('telefono','required')">
+      El número telefónico es <strong>requerido</strong>
+    </mat-error>
+    <mat-error *ngIf="errorHandling('telefono','pattern')">
+      El telefono ingresado es <strong>inválido</strong>
+    </mat-error>
+  </mat-form-field>
+  
+  <br>
+  <br>
+  
+  <mat-form-field>
+    <mat-label>Provincia:</mat-label>
+    <mat-select formControlName="provincia" (selectionChange)="onProvinciaChange()">
+      <mat-option *ngFor="let provincia of provincias" [value]="provincia">
+        {{ provincia.NOM_PROV }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="errorHandling('provincia','required')">
+        La provincia es <strong>requerida</strong>
+    </mat-error>
+  </mat-form-field>
+  
+  <mat-form-field>
+    <mat-label>Cantón:</mat-label>
+    <mat-select formControlName="canton" (selectionChange)="onCantonChange()">
+      <mat-option *ngFor="let canton of cantones" [value]="canton">
+        {{ canton.NOM_CANT }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="errorHandling('canton','required')">
+        El canton es <strong>requerido</strong>
+    </mat-error>
+  </mat-form-field>
+  
+  <mat-form-field>
+    <mat-label>Distrito:</mat-label>
+    <mat-select formControlName="distrito">
+      <mat-option *ngFor="let distrito of distritos" [value]="distrito">
+        {{ distrito.NOM_DIST }}
+      </mat-option>
+    </mat-select>
+    <mat-error *ngIf="errorHandling('distrito','required')">
+        El distrito es <strong>requerido</strong>
+    </mat-error>
+  </mat-form-field>
+
+  <br>
+
+  <mat-form-field>
+    <mat-label>Fecha de Nacimiento</mat-label>
+    <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fecha">
+    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker startView="multi-year"></mat-datepicker>
+    <mat-error *ngIf="errorHandling('fecha','required')">
+        Su fecha de nacimiento es <strong>requerida</strong>
+    </mat-error>
+  </mat-form-field>
+
+  <br>
+  
+  <mat-form-field>
+    <mat-label>Quiero aplicar en:</mat-label>
+    <mat-select formControlName="trabajo">
+      <mat-option value="cobros">Cobranza</mat-option>
+      <mat-option value="servicio">Servicio al cliente</mat-option>
+      <mat-option value="ventas">Ventas</mat-option>
+    </mat-select>
+    <mat-error *ngIf="errorHandling('trabajo','required')">
+        La selección del puesto es <strong>requerida</strong>
+    </mat-error>
+  </mat-form-field>
+  
+  <br>
+
+  <div>
+    <mat-label>Tengo Expeciencia:</mat-label>
+    <br>
+    <mat-checkbox class="example-margin" formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">{{textoExperiencia}}</mat-checkbox>
+  </div>
+  
+  <mat-form-field>
+    <mat-label>Experiencia:</mat-label>
+    <mat-select formControlName="tiempoExperiencia">
+      <mat-option value="1-3">1-3 años</mat-option>
+      <mat-option value="3-5">3-5 años</mat-option>
+      <mat-option value="5-10">5-10 años</mat-option>
+      <mat-option value="10+">10+ años</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <br>
+
+  <label for="cv">Curriculum</label>
+  <input type="file" (change)="seleccionarArchivo($event)" accept=".pdf,.doc,.docx,.txt" >
+  <mat-error *ngIf="errorHandling('cv','size')">
+      El archivo no puede exceder <strong>{{sizeError}}MB</strong>
+  </mat-error>
+  <mat-error *ngIf="errorHandling('cv','required')">
+      El Curriculum es <strong>requerido</strong>
+  </mat-error>
+  
+  <br>
+
+  <mat-form-field>
+    <mat-label>Comentarios</mat-label>
+    <textarea matInput formControlName="comentario"></textarea>
+  </mat-form-field>
+
+  <br>
+
+  <button type="submit">Submit</button>
+</form>
