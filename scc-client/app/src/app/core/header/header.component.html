@@ -1,1 +1,30 @@
-<p>header works!</p>
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid">
+        <div class="logo-container">
+            <img src="assets/img/logoSCC.webp" alt="">
+            <h3>SCC Inc</h3>
+        </div>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <a routerLink="/inicio">Inicio</a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/sobre-nosotros">Sobre nosotros</a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/reclutamiento">Únete a nosotros</a>
+          </li>
+          <li class="nav-item">
+            <a routerLink="/contacto">Contáctenos</a>
+          </li>
+        </ul>
+        <div class="sesion-container d-flex">
+            <button mat-button color="primary" routerLink="/login" class="primary-button">Inicio de Sesión</button>
+        </div>
+      </div>
+    </div>
+  </nav>

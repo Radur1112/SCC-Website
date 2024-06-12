@@ -1,1 +1,35 @@
-<p>footer works!</p>
+<footer class="footer">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-md-12 text-center">
+                <h3 class="mt-5 mb-5">
+                    SCC Inc
+                </h3>
+                <p class="menu mb-2">
+                    <a routerLink="/inicio">Inicio</a>
+                    <a routerLink="/sobre-nosotros">Sobre nosotros</a>
+                    <a routerLink="/reclutamiento">Únete a nosotros</a>
+                    <a routerLink="/contacto">Contáctenos</a>
+                </p>
+                <div class="mt-5 mb-5">
+                    <button mat-fab class="social whats">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </button>
+                    <button mat-fab class="social" (click)="redirectToPage('https://www.facebook.com/sccinc.cr')">
+                        <i class="fa-brands fa-facebook"></i>
+                    </button>
+                    <button mat-fab class="social" (click)="redirectToPage('https://www.linkedin.com/company/scc-inc-centro-de-contacto/')"  >
+                        <i class="fa-brands fa-linkedin"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5">
+            <div class="col-md-12 text-center">
+                <p class="copyright">
+                    Copyright ©2024 SCC Inc
+                </p>    
+            </div>
+        </div>
+    </div>
+</footer>
