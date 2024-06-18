@@ -1,8 +1,6 @@
 @use '../../../variables' as *;
 
 .footer {
-    position: fixed;
-    bottom: 0;
     width: 100%;
     background-color: $primary-color;
     color: #ffffff;
@@ -12,7 +10,6 @@
 
 a {
     color: #ffffff;
-    margin: 0 20px;
 }
 
 a:hover {

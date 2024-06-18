@@ -1,0 +1,250 @@
+@use '../../../variables' as *;
+
+.card-title {
+    width: 99%;
+    height: 600px;
+    margin: 0 auto;
+    border-top-left-radius: 55px;
+    border-top-right-radius: 55px;
+    box-shadow: none;
+}
+
+.background-image {
+    position: absolute; 
+    width: 100%;
+    height: 100%;   
+    border-top-left-radius: 55px;
+    border-top-right-radius: 55px;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    opacity: 0.3;
+    z-index: 1;
+}
+
+.content-container {
+    z-index: 2;
+}
+
+.second-card {
+    margin-top: -60px;
+    width: 100%;
+}
+
+.title-width {
+    width: 75%;
+}
+
+.corner-image-bottom-right {
+    position: absolute; 
+    width: 50%;
+    height: 100%;   
+    bottom: 0;
+    right: 0;
+    object-fit: cover;
+    clip-path: polygon(100% 100%, 0 100%, 85% 0, 100% 0);
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.row {
+    z-index: 2;
+}
+
+.content-container-half {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+
+.lista {
+    list-style: none;
+    padding-left: 0;
+}
+
+.lista li {
+    display: flex;
+}
+
+.vision, .mision {
+    display: flex;
+}
+
+.valor {
+    display: flex;
+    flex-direction: column;
+}
+
+.div-image {
+    margin: auto;
+    border-radius: 55px;
+}
+
+.imagen-2 {
+    aspect-ratio: 2 / 1;
+    height: 40vh;
+    object-fit: cover;
+    text-align: center;
+    overflow: hidden;
+}
+
+.bigger-icon {
+    height: 40px;
+    width: 40px;
+    font-size: 40px;
+    margin: 10px;
+}
+
+.service-icon {
+    height: 70px;
+    width: 70px;
+    margin: 10px;
+    fill: #ffffff;
+}
+
+.desc-icon {
+    fill: $primary-color;
+}
+
+.text-change {
+    font-size: 30px;
+}
+
+  
+@media screen and (max-width: 1400px) {
+    .text-change {
+        font-size: 25px;
+    }
+}
+
+  
+@media screen and (max-width: 1200px) {
+    .text-change {
+        font-size: 20px;
+    }
+}
+
+  
+@media screen and (max-width: 991.98px) {
+    h2 {
+      font-size: 50px;
+    }
+
+    .title-width {
+        width: 85%;
+    }
+
+    .bigger-icon {
+      height: 35px;
+      width: 35px;
+      font-size: 35px;
+    }
+    
+    .service-icon {
+        height: 60px;
+        width: 60px;
+    }
+
+    .text-change {
+        font-size: 18px;
+    }
+}
+  
+@media screen and (max-width: 767.98px) {
+    h2 {
+      font-size: 40px;
+    }
+
+    .title-width {
+        width: 95%;
+    }
+
+    .bigger-icon {
+      height: 30px;
+      width: 30px;
+      font-size: 30px;
+    }
+    
+    .service-icon {
+        height: 55px;
+        width: 55px;
+    }
+
+    .div-image {
+        display: none;
+    }
+}
+  
+@media screen and (max-width: 575.98px) {
+    h2 {
+      font-size: 35px;
+    }
+
+    .title-width {
+        width: 100%;
+    }
+
+    .bigger-icon {
+      height: 25px;
+      width: 25px;
+      font-size: 25px;
+    }
+    
+    .service-icon {
+        height: 50px;
+        width: 50px;
+    }
+}
+  
+@media screen and (max-width: 488px) {
+    h2 {
+      font-size: 32px;
+    }
+
+    .title-width {
+        width: 100%;
+    }
+
+    .bigger-icon {
+      height: 20px;
+      width: 20px;
+      font-size: 20px;
+    }
+    
+    .service-icon {
+        height: 45px;
+        width: 45px;
+    }
+
+    .text-change {
+        font-size: 16px;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    h2 {
+    font-size: 30px;
+    }
+
+    .title-width {
+        width: 100%;
+    }
+
+    .bigger-icon {
+        height: 20px;
+        width: 20px;
+        font-size: 20px;
+    }
+    
+    .service-icon {
+        height: 40px;
+        width: 40px;
+    }
+
+    .text-change {
+        font-size: 14px;
+    }
+}

@@ -4,23 +4,27 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { HttpClient } from '@angular/common/http';
 import { ProvinciasService } from '../../services/provincias.service';
 import { Subject, takeUntil } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-reclutamiento',
   standalone: true,
   imports: [CommonModule,
     ReactiveFormsModule,
+    MatButtonModule,
     MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
     MatDatepickerModule,
-    MatNativeDateModule,],
+    MatNativeDateModule,
+    MatCardModule],
   templateUrl: './reclutamiento.component.html',
   styleUrl: './reclutamiento.component.scss',
   providers: [DatePipe]

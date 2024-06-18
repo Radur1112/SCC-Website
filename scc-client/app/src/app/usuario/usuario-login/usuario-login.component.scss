@@ -1,0 +1,104 @@
+@use '../../../variables' as *;
+
+.card-login {
+    height: 100%;
+    box-shadow: none;
+  }
+
+.login-gradient {
+    background: linear-gradient(to bottom, $secondary-color, $primary-color);
+}
+
+.second-card {
+    margin-top: -55px;
+    width: 100%;
+}
+
+.title-login {
+    display: flex;
+    flex-direction: column-reverse;
+    margin: 100px 0 0;
+}
+
+.div-image {
+    aspect-ratio: 1/1;
+    position: relative;
+    width: 13%;
+    overflow: hidden;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f0f0f0;
+    margin: auto;
+}
+
+.div-image img {
+    width: 70%;
+    object-fit: cover;
+    border-radius: 0;
+}
+
+:host {
+  //Fondo
+  --mdc-filled-text-field-container-color: rgba(0, 0, 0, 0);
+  //Texto del label
+  --mdc-filled-text-field-label-text-color: #ffffff;
+  //Texto del label cuando esta focus
+  --mdc-filled-text-field-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover
+  --mdc-filled-text-field-hover-label-text-color: #f19e0b;
+  //Texto del input
+  --mdc-filled-text-field-input-text-color: #ffffff;
+  //Linea de abajo del input
+  --mdc-filled-text-field-active-indicator-color: #ffffff;
+  //Linea de abajo del input cuando esta focus
+  --mdc-filled-text-field-focus-active-indicator-color: #ffffff;
+  //Linea de abajo del input cuando esta hover
+  --mdc-filled-text-field-hover-active-indicator-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+  --mdc-filled-text-field-caret-color: #ffffff;
+  
+  //Texto del label Error
+  --mdc-filled-text-field-error-label-text-color: #ffffff;
+  //Texto del label cuando esta focus Error
+  --mdc-filled-text-field-error-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover Error
+  --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
+}
+
+
+  
+@media screen and (max-width: 1400px) {
+    
+}
+
+  
+@media screen and (max-width: 1200px) {
+    
+}
+
+  
+@media screen and (max-width: 991.98px) {
+    
+}
+  
+@media screen and (max-width: 767.98px) {
+    .div-image {
+        width: 30%;
+    }
+}
+  
+@media screen and (max-width: 575.98px) {
+    
+}
+  
+@media screen and (max-width: 488px) {
+    .div-image {
+        width: 40%;
+    }
+}
+
+@media screen and (max-width: 400px) {
+
+}

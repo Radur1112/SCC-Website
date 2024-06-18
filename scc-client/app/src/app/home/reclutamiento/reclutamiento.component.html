@@ -1,162 +1,254 @@
-<form [formGroup]="reclutamientoForm" (ngSubmit)="enviarReclutamiento()">
-  <mat-form-field>
-    <mat-label>Identificación</mat-label>
-    <input matInput type="text" placeholder="Ingrese su indetificación" formControlName="identificacion" />
-    <mat-error *ngIf="errorHandling('identificacion','required')">
-        La identificacion es <strong>requerida</strong>
-    </mat-error>
-    <mat-error *ngIf="errorHandling('identificacion','maxLength')">
-        La identificacion debe tener como máximo <strong>20 carácteres</strong>
-    </mat-error>
-  </mat-form-field>
-
-  <br>
-  <br>
-
-  <mat-form-field>
-    <mat-label>Nombre Completo</mat-label>
-    <input matInput type="text" placeholder="Ingrese su nombre completo" formControlName="nombre" />
-    <mat-error *ngIf="errorHandling('nombre','required')">
-        El nombre completo es <strong>requerido</strong>
-    </mat-error>
-    <mat-error *ngIf="errorHandling('nombre','maxLength')">
-        El nombre debe tener como máximo <strong>250 carácteres</strong>
-    </mat-error>
-  </mat-form-field>
-
-  <br>
-  <br>
-
-  <mat-form-field>
-    <mat-label>Correo Electrónico</mat-label>
-    <input matInput type="text" placeholder="Ingrese su correo electrónico" formControlName="correo" />
-    <mat-error *ngIf="errorHandling('correo','required')">
-        El Correo Electrónico es <strong>requerido</strong>
-    </mat-error>
-    <mat-error *ngIf="errorHandling('correo','email')">
-        El correo ingresado es <strong>inválido</strong>
-    </mat-error>
-    <mat-error *ngIf="errorHandling('correo','maxLength')">
-        El correo debe tener como máximo <strong>250 carácteres</strong>
-    </mat-error>
-  </mat-form-field>
-  
-  <br>
-  <br>
-
-  <mat-form-field>
-    <mat-label>Número de Teléfono</mat-label>
-    <input matInput type="text" placeholder="Ingrese su número de teléfono" formControlName="telefono" (keyup)="formatearTelefono()" />
-    <mat-error *ngIf="errorHandling('telefono','required')">
-      El número telefónico es <strong>requerido</strong>
-    </mat-error>
-    <mat-error *ngIf="errorHandling('telefono','pattern')">
-      El telefono ingresado es <strong>inválido</strong>
-    </mat-error>
-  </mat-form-field>
-  
-  <br>
-  <br>
-  
-  <mat-form-field>
-    <mat-label>Provincia:</mat-label>
-    <mat-select formControlName="provincia" (selectionChange)="onProvinciaChange()">
-      <mat-option *ngFor="let provincia of provincias" [value]="provincia">
-        {{ provincia.NOM_PROV }}
-      </mat-option>
-    </mat-select>
-    <mat-error *ngIf="errorHandling('provincia','required')">
-        La provincia es <strong>requerida</strong>
-    </mat-error>
-  </mat-form-field>
-  
-  <mat-form-field>
-    <mat-label>Cantón:</mat-label>
-    <mat-select formControlName="canton" (selectionChange)="onCantonChange()">
-      <mat-option *ngFor="let canton of cantones" [value]="canton">
-        {{ canton.NOM_CANT }}
-      </mat-option>
-    </mat-select>
-    <mat-error *ngIf="errorHandling('canton','required')">
-        El canton es <strong>requerido</strong>
-    </mat-error>
-  </mat-form-field>
-  
-  <mat-form-field>
-    <mat-label>Distrito:</mat-label>
-    <mat-select formControlName="distrito">
-      <mat-option *ngFor="let distrito of distritos" [value]="distrito">
-        {{ distrito.NOM_DIST }}
-      </mat-option>
-    </mat-select>
-    <mat-error *ngIf="errorHandling('distrito','required')">
-        El distrito es <strong>requerido</strong>
-    </mat-error>
-  </mat-form-field>
-
-  <br>
-
-  <mat-form-field>
-    <mat-label>Fecha de Nacimiento</mat-label>
-    <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fecha">
-    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-    <mat-datepicker #picker startView="multi-year"></mat-datepicker>
-    <mat-error *ngIf="errorHandling('fecha','required')">
-        Su fecha de nacimiento es <strong>requerida</strong>
-    </mat-error>
-  </mat-form-field>
-
-  <br>
-  
-  <mat-form-field>
-    <mat-label>Quiero aplicar en:</mat-label>
-    <mat-select formControlName="trabajo">
-      <mat-option value="cobros">Cobranza</mat-option>
-      <mat-option value="servicio">Servicio al cliente</mat-option>
-      <mat-option value="ventas">Ventas</mat-option>
-    </mat-select>
-    <mat-error *ngIf="errorHandling('trabajo','required')">
-        La selección del puesto es <strong>requerida</strong>
-    </mat-error>
-  </mat-form-field>
-  
-  <br>
-
-  <div>
-    <mat-label>Tengo Expeciencia:</mat-label>
-    <br>
-    <mat-checkbox class="example-margin" formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">{{textoExperiencia}}</mat-checkbox>
+<mat-card class="card-title vertical-gradient">
+  <div class="gradient-image-container">
+    <img src="assets/img/reclutamiento/reclutamiento1.jpg" alt="Corner Image" class="background-image vertical-gradient">
   </div>
+  <div class="content-container">
+    <mat-card-header class="less-width center-content p-0 pb-5">
+      <mat-card-title class="light-color">
+        <h1>
+          <span class="primary-color">Sé parte de nuestra empresa</span>
+          Contribuye al Éxito de SCC Inc
+        </h1>
+      </mat-card-title>
+    </mat-card-header>
+  </div>
+</mat-card>
+
+<div class="second-card"></div>
+
+<mat-card class="card background-primary">
+  <div class="row mx-2">
+    <div class="col-lg-6 video-container">
+      <div class="div-video">
+        <video class="video-fluid" controls>
+          <source src="assets/videos/video-reclutamiento.mp4" type="video/mp4">
+        </video>
+      </div>
+    </div>
+    <div class="col-lg-6 content-container-center">
+      <mat-card-header class="mt-xl-5 mt-lg-3 mt-sm-4 mt-3 mb-xl-5 mb-lg-3 mb-sm-4 mb-3">
+        <mat-card-title>
+          <h2>
+            <span class="secondary-color">Únete a nuestro equipo hoy: </span>
+            Comienza tu viaje profesional aquí
+          </h2>
+          <p class="mt-md-5 mt-3">
+            ¿Listo para dar el siguiente paso en tu carrera profesional? SCC Inc ofrece una variedad
+             de roles emocionantes en un ambiente innovador y estimulante. Descubre cómo puedes contribuir 
+             y crecer con nosotros. ¡Aplica ahora y sé parte de nuestro equipo!
+          </p>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="">
+      </mat-card-content>
+    </div>
+  </div>
+</mat-card>
+
+
+
+<form [formGroup]="reclutamientoForm" class="content-container-center my-5" (ngSubmit)="enviarReclutamiento()">
+  <mat-card class="card-form"> 
+    <div class="row almost-width">
+      <mat-card-header>
+        <mat-card-title>
+          <h2 class="center-content">
+            Formulario de 
+            <span class="primary-color">Reclutamiento</span>
+          </h2>
+        </mat-card-title>
+      </mat-card-header>
+      <div class="border-primary my-md-5 my-2 p-4">
+        <mat-card-content class="p-0">
+          <div class="row">
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Identificación</mat-label>
+                <input matInput type="text" placeholder="Ingrese su indetificación" formControlName="identificacion" />
+                <mat-error *ngIf="errorHandling('identificacion','required')">
+                    La identificacion es <strong>requerida</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('identificacion','maxLength')">
+                    La identificacion debe tener como máximo <strong>20 carácteres</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+            
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Nombre Completo</mat-label>
+                <input matInput type="text" placeholder="Ingrese su nombre completo" formControlName="nombre" />
+                <mat-error *ngIf="errorHandling('nombre','required')">
+                    El nombre completo es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('nombre','maxLength')">
+                    El nombre debe tener como máximo <strong>250 carácteres</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
   
-  <mat-form-field>
-    <mat-label>Experiencia:</mat-label>
-    <mat-select formControlName="tiempoExperiencia">
-      <mat-option value="1-3">1-3 años</mat-option>
-      <mat-option value="3-5">3-5 años</mat-option>
-      <mat-option value="5-10">5-10 años</mat-option>
-      <mat-option value="10+">10+ años</mat-option>
-    </mat-select>
-  </mat-form-field>
-
-  <br>
-
-  <label for="cv">Curriculum</label>
-  <input type="file" (change)="seleccionarArchivo($event)" accept=".pdf,.doc,.docx,.txt" >
-  <mat-error *ngIf="errorHandling('cv','size')">
-      El archivo no puede exceder <strong>{{sizeError}}MB</strong>
-  </mat-error>
-  <mat-error *ngIf="errorHandling('cv','required')">
-      El Curriculum es <strong>requerido</strong>
-  </mat-error>
+        
+          <div class="row">
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Correo Electrónico</mat-label>
+                <input matInput type="text" placeholder="Ingrese su correo electrónico" formControlName="correo" />
+                <mat-error *ngIf="errorHandling('correo','required')">
+                    El Correo Electrónico es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('correo','email')">
+                    El correo ingresado es <strong>inválido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('correo','maxLength')">
+                    El correo debe tener como máximo <strong>250 carácteres</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
   
-  <br>
-
-  <mat-form-field>
-    <mat-label>Comentarios</mat-label>
-    <textarea matInput formControlName="comentario"></textarea>
-  </mat-form-field>
-
-  <br>
-
-  <button type="submit">Submit</button>
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Número de Teléfono</mat-label>
+                <input matInput type="text" placeholder="Ingrese su número de teléfono" formControlName="telefono" (keyup)="formatearTelefono()" />
+                <mat-error *ngIf="errorHandling('telefono','required')">
+                  El número telefónico es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('telefono','pattern')">
+                  El telefono ingresado es <strong>inválido</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          
+        
+          <div class="row">
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Provincia:</mat-label>
+                <mat-select formControlName="provincia" (selectionChange)="onProvinciaChange()">
+                  <mat-option *ngFor="let provincia of provincias" [value]="provincia">
+                    {{ provincia.NOM_PROV }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="errorHandling('provincia','required')">
+                    La provincia es <strong>requerida</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+  
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Cantón:</mat-label>
+                <mat-select formControlName="canton" (selectionChange)="onCantonChange()">
+                  <mat-option *ngFor="let canton of cantones" [value]="canton">
+                    {{ canton.NOM_CANT }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="errorHandling('canton','required')">
+                    El canton es <strong>requerido</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+  
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Distrito:</mat-label>
+                <mat-select formControlName="distrito">
+                  <mat-option *ngFor="let distrito of distritos" [value]="distrito">
+                    {{ distrito.NOM_DIST }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="errorHandling('distrito','required')">
+                    El distrito es <strong>requerido</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+  
+          <div class="row">
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Fecha de Nacimiento</mat-label>
+                <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fecha">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker startView="multi-year"></mat-datepicker>
+                <mat-error *ngIf="errorHandling('fecha','required')">
+                    Su fecha de nacimiento es <strong>requerida</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          
+        
+          <div class="row">
+            <div class="col-md-5 row my-3">
+              <mat-form-field>
+                <mat-label>Quiero aplicar en:</mat-label>
+                <mat-select formControlName="trabajo">
+                  <mat-option value="cobros">Cobranza</mat-option>
+                  <mat-option value="servicio">Servicio al cliente</mat-option>
+                  <mat-option value="ventas">Ventas</mat-option>
+                </mat-select>
+                <mat-error *ngIf="errorHandling('trabajo','required')">
+                    La selección del puesto es <strong>requerida</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+  
+            <div class="col-md-3 row my-3">
+              <div class="text-start">
+                <mat-label>Tengo Expeciencia:</mat-label>
+                <br>
+                <mat-checkbox class="" formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">{{textoExperiencia}}</mat-checkbox>
+              </div>
+            </div>
+  
+            <div class="col-md-4 row" my-3>
+              <mat-form-field>
+                <mat-label>Experiencia:</mat-label>
+                <mat-select formControlName="tiempoExperiencia">
+                  <mat-option value="1-3">1-3 años</mat-option>
+                  <mat-option value="3-5">3-5 años</mat-option>
+                  <mat-option value="5-10">5-10 años</mat-option>
+                  <mat-option value="10+">10+ años</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          
+        
+          <div class="row">
+            <div class="col row my-3">
+              <div class="text-start">
+                <label for="cv">Curriculum</label>
+                <br>
+                <input type="file" id="cv" (change)="seleccionarArchivo($event)" accept=".pdf,.doc,.docx,.txt" >
+                <mat-error *ngIf="errorHandling('cv','size')">
+                    El archivo no puede exceder <strong>{{sizeError}}MB</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('cv','required')">
+                    El Curriculum es <strong>requerido</strong>
+                </mat-error>
+              </div>
+            </div>
+          </div>
+          
+        
+          <div class="row">
+            <div class="col row my-3">
+              <mat-form-field>
+                <mat-label>Comentarios</mat-label>
+                <textarea matInput formControlName="comentario"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+  
+        </mat-card-content>
+      
+        <mat-card-actions class="button-container my-3">
+          <button mat-flat-button color="accent" type="submit" class="secondary-button">Aplicar al puesto</button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </mat-card>
 </form>

@@ -105,18 +105,25 @@ $app-theme: mat.m2-define-light-theme(
 // @include mat.color-variants-backwards-compatibility($theme);
 /* You can add global styles to this file, and also import other style files */
 
+
+
 html, body { height: 100%; }
 h1, h2, h3 { font-family: $font-family-title; }
 h1 { font-size: 70px; }
 h2 { font-size: 55px; }
 h3 { font-size: 40px; }
+h4 { font-size: 30px; }
+h5 { font-size: 25px; }
 body { margin: 0; font-family: $font-family-body; font-size: 18px; }
+.smaller-body-text{ font-size: 18px; }
+
+
 
 .spacer {
   flex: 1 1 auto;
 }
 
-a {
+a.routerLinkA {
   position: relative;
   color: #0041a4;
   text-decoration: none;
@@ -124,11 +131,11 @@ a {
   transition: all 0.15s;
 }
 
-a:hover {
+a.routerLinkA:hover {
   color: $secondary-color;
 }
 
-a::after {
+a.routerLinkA::after {
   content: '';
   position: absolute;
   width: 0;
@@ -140,11 +147,397 @@ a::after {
   transition: width 0.3s ease;
 }
 
-a:hover::after {
+a.routerLinkA:hover::after {
   width: 100%;
+}
+
+a.active-link{
+  color: $secondary-color;
 }
 
 //Remover el grisito que tienen los botones cuando hacen hover
 :root {
   --mat-text-button-hover-state-layer-opacity: 0;
+}
+
+
+:root {
+  //Texto del label
+  --mdc-filled-text-field-label-text-color: #0041a4;
+  //Texto del label cuando esta hover
+  --mdc-filled-text-field-hover-label-text-color: #f19e0b;
+  //Linea de abajo del input
+  --mdc-filled-text-field-active-indicator-color: #0041a4;
+  //Linea de abajo del input cuando esta hover
+  --mdc-filled-text-field-hover-active-indicator-color: #f19e0b;
+  
+  //Texto del label Error
+  --mdc-filled-text-field-error-label-text-color: #0041a4;
+  //Texto del label cuando esta focus Error
+  --mdc-filled-text-field-error-focus-label-text-color: #0041a4;
+  //Texto del label cuando esta hover Error
+  --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
+
+
+  /*
+  //Fondo
+  --mdc-filled-text-field-container-color: rgba(0, 0, 0, 0);
+  //Texto del label
+  --mdc-filled-text-field-label-text-color: #ffffff;
+  //Texto del label cuando esta focus
+  --mdc-filled-text-field-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover
+  --mdc-filled-text-field-hover-label-text-color: #f19e0b;
+  //Texto del input
+  --mdc-filled-text-field-input-text-color: #ffffff;
+  //Linea de abajo del input
+  --mdc-filled-text-field-active-indicator-color: #ffffff;
+  //Linea de abajo del input cuando esta focus
+  --mdc-filled-text-field-focus-active-indicator-color: #ffffff;
+  //Linea de abajo del input cuando esta hover
+  --mdc-filled-text-field-hover-active-indicator-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+  --mdc-filled-text-field-caret-color: #ffffff;
+
+  
+  //Texto del label Error
+  --mdc-filled-text-field-error-label-text-color: #f19e0b;
+  //Texto del label cuando esta focus Error
+  --mdc-filled-text-field-error-focus-label-text-color: #f19e0b;
+  //Texto del label cuando esta hover Error
+  --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
+  //Linea de abajo del input Error
+  --mdc-filled-text-field-error-active-indicator-color: #f19e0b;
+  //Linea de abajo del input cuando esta focus Error
+  --mdc-filled-text-field-error-focus-active-indicator-color: #f19e0b;
+  //Linea de abajo del input cuando esta hover Error
+  --mdc-filled-text-field-error-hover-active-indicator-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe Error
+  --mdc-filled-text-field-error-caret-color: #f19e0b;
+
+  //Flecha de la derecha en un select Error
+  --mat-select-invalid-arrow-color: #f19e0b;
+  */
+}
+
+
+.primary-outline-button {
+  border: 2px solid $primary-color !important;
+  border-radius: 10px !important;
+  color: $primary-color !important;
+  background-color: #ffffff !important;
+  padding: 10px 20px !important;
+  border-width: 2px !important;
+  transition: all 0.15s !important;
+}
+
+.primary-outline-button:hover {
+  border-color: $secondary-color !important;
+  color: $secondary-color !important;
+  transform: scale(1.02);
+}
+
+
+.secondary-button {
+  border-radius: 50px !important;
+  padding: 25px 30px !important;
+  color: $primary-color !important;
+  transition: all 0.15s !important;
+}
+
+.secondary-button:hover {
+  color: $secondary-color !important;
+  background-color: $primary-color !important;
+}
+
+.active-outline-button{
+  border-color: $secondary-color !important;
+  color: $secondary-color !important;
+}
+
+
+
+.gradient {
+  background: linear-gradient(to right, #ffffff, $primary-color);
+}
+
+.vertical-gradient {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0), $primary-color);
+}
+
+.background-primary {
+  background-color: $primary-color !important;
+  color: #ffffff;
+}
+
+.primary-color {
+  color: $primary-color;
+}
+
+.secondary-color {
+  color: $secondary-color;
+}
+
+.light-color {
+  color: #ffffff;
+}
+
+
+
+
+.fullest-width {
+  width: 120%;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.almost-width {
+  width: 85%;
+}
+
+.less-width {
+  width: 75%;
+}
+
+.half-width {
+  width: 50%;
+}
+
+.center-content {
+    margin: auto;
+}
+
+.center-content-vertically {
+  margin: auto 0;
+}
+
+.center-content-horizontally {
+  margin: 0 auto;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+
+.card {
+  width: 99% !important;
+  height: 765px !important;
+  margin: 0 auto 25px !important;
+  border-radius: 55px !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+  z-index: 2;
+}
+
+.content-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 765px;
+}
+
+.content-container-center {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+
+
+@media screen and (min-width: 768px) and (max-width: 991.98px) {
+  h1 {
+    font-size: 60px;
+  }
+
+  h2 {
+    font-size: 50px;
+  }
+
+  h3 {
+    font-size: 40px;
+  }
+
+  h4 {
+    font-size: 30px;
+  }
+
+  h5 {
+    font-size: 25px;
+  }
+  
+  .half-width {
+    width: 75%;
+  }
+
+  .less-width {
+      width: 90%;
+  }
+
+  .almost-width {
+      width: 95%;
+  }
+}
+
+@media screen and (min-width: 576px) and (max-width: 767.98px) {
+  h1 {
+    font-size: 55px;
+  }
+
+  h2 {
+    font-size: 45px;
+  }
+
+  h3 {
+    font-size: 35px;
+  }
+
+  h4 {
+    font-size: 25px;
+  }
+
+  h5 {
+    font-size: 20px;
+  }
+  
+  .half-width {
+    width: 75%;
+  }
+
+  .less-width {
+      width: 90%;
+  }
+
+  .almost-width {
+      width: 95%;
+  }
+}
+
+@media screen and (min-width: 488px) and (max-width: 575.98px) {
+  h1 {
+    font-size: 50px;
+  }
+
+  h2 {
+    font-size: 40px;
+  }
+
+  h3 {
+    font-size: 30px;
+  }
+
+  h4 {
+    font-size: 20px;
+  }
+
+  h5 {
+    font-size: 20px;
+  }
+
+  .smaller-body-text {
+    font-size: 16px; 
+  }
+
+  .half-width {
+      width: 85%;
+  }
+
+  .less-width {
+      width: 95%;
+  }
+
+  .almost-width {
+      width: 100%;
+  }
+}
+
+@media screen and (min-width: 400px) and (max-width: 488px) {
+  h1 {
+    font-size: 45px;
+  }
+
+  h2 {
+    font-size: 35px;
+  }
+
+  h3 {
+    font-size: 25px;
+  }
+
+  h4 {
+    font-size: 20px;
+  }
+
+  h5 {
+    font-size: 18px;
+  }
+
+  body {
+    font-size: 16px; 
+  }
+
+  .smaller-body-text {
+    font-size: 14px; 
+  }
+  
+  .half-width {
+      width: 85%;
+  }
+
+  .less-width {
+      width: 95%;
+  }
+
+  .almost-width {
+      width: 100%;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  h1 {
+    font-size: 40px;
+  }
+
+  h2 {
+    font-size: 30px;
+  }
+
+  h3 {
+    font-size: 25px;
+  }
+
+  h4 {
+    font-size: 20px;
+  }
+
+  h5 {
+    font-size: 18px;
+  }
+
+
+  body {
+    font-size: 14px; 
+  }
+
+  .smaller-body-text {
+    font-size: 12px; 
+  }
+  
+  .half-width {
+      width: 85%;
+  }
+
+  .less-width {
+      width: 95%;
+  }
+
+  .almost-width {
+      width: 100%;
+  }
 }

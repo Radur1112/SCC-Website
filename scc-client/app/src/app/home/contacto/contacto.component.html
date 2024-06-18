@@ -1,0 +1,166 @@
+<mat-card class="card-title vertical-gradient">
+    <div class="gradient-image-container">
+      <img src="assets/img/contacto/contacto1.jpg" alt="Corner Image" class="background-image vertical-gradient">
+    </div>
+    <div class="content-container">
+      <mat-card-header class="less-width center-content p-0 pb-5">
+        <mat-card-title class="light-color">
+          <h1>
+            <span class="primary-color">Contáctenos</span>
+            Estamos aquí para ayudarle
+          </h1>
+        </mat-card-title>
+      </mat-card-header>
+    </div>
+</mat-card>
+
+<div class="second-card"></div>
+
+<mat-card class="card">
+    <div class="row mx-2">
+        <mat-card-content class="">
+            <div class="row my-5">
+                <div class="col-md-7 content-container-center">
+                    <div class="less-width">
+                        <h1 class="primary-color">Llámanos ya mismo para tu consulta</h1>
+                    </div>
+                </div>
+                <div class="col-md-5 row content-container-center">
+                    <h2>(+506) 4080 6800</h2>
+                    <h2>(+506) 6010 2022</h2>
+                </div>
+            </div>
+            <div class="row my-5">
+                <div class="col-md-7 content-container-center">
+                    <div class="less-width">
+                        <h3 class="primary-color">O escríbenos a cualquiera de nuestros correos</h3>
+                    </div>
+                </div>
+                <div class="col-md-5 content-container-center">
+                    <h3>mcastro&#64;sccinc.net</h3>
+                    <h3>rchacon&#64;sccinc.net</h3>
+                </div>
+            </div>
+            <div class="row my-5">
+                <div class="col-md-7 content-container-center">
+                    <div class="less-width">
+                        <h4 class="primary-color">Horario de Atención</h4>
+                    </div>
+                </div>
+                <div class="col-md-5 content-container-start">
+                    <h4>8 a.m - 5 p.m</h4>
+                    <h4>Lunes a Viernes</h4>
+                </div>
+            </div>
+        </mat-card-content>
+    </div>
+</mat-card>
+
+<form [formGroup]="contactoForm" class="my-5" (ngSubmit)="enviarMensaje()">
+    <mat-card class="card-form background-primary"> 
+      <div class="row almost-width">
+        <mat-card-header>
+          <mat-card-title>
+            <h2 class="center-content mt-5">
+                Envíenos sus 
+              <span class="secondary-color">Consultas</span>
+            </h2>
+          </mat-card-title>
+        </mat-card-header>
+        <div class="border-primary my-md-5 my-2 p-4">
+          <mat-card-content class="p-0">
+            <div class="row">
+              <div class="col-md row my-3">
+                <mat-form-field>
+                  <mat-label>Identificación</mat-label>
+                  <input matInput type="text" placeholder="Ingrese su indetificación" formControlName="identificacion" />
+                  <mat-error *ngIf="errorHandling('identificacion','required')">
+                      La identificacion es <strong>requerida</strong>
+                  </mat-error>
+                  <mat-error *ngIf="errorHandling('identificacion','maxLength')">
+                      La identificacion debe tener como máximo <strong>20 carácteres</strong>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              
+              <div class="col-md row my-3">
+                <mat-form-field>
+                  <mat-label>Nombre Completo</mat-label>
+                  <input matInput type="text" placeholder="Ingrese su nombre completo" formControlName="nombre" />
+                  <mat-error *ngIf="errorHandling('nombre','required')">
+                      El nombre completo es <strong>requerido</strong>
+                  </mat-error>
+                  <mat-error *ngIf="errorHandling('nombre','maxLength')">
+                      El nombre debe tener como máximo <strong>250 carácteres</strong>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+    
+          
+            <div class="row">
+              <div class="col-md row my-3">
+                <mat-form-field>
+                  <mat-label>Correo Electrónico</mat-label>
+                  <input matInput type="text" placeholder="Ingrese su correo electrónico" formControlName="correo" />
+                  <mat-error *ngIf="errorHandling('correo','required')">
+                      El Correo Electrónico es <strong>requerido</strong>
+                  </mat-error>
+                  <mat-error *ngIf="errorHandling('correo','email')">
+                      El correo ingresado es <strong>inválido</strong>
+                  </mat-error>
+                  <mat-error *ngIf="errorHandling('correo','maxLength')">
+                      El correo debe tener como máximo <strong>250 carácteres</strong>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+    
+              <div class="col-md row my-3">
+                <mat-form-field>
+                  <mat-label>Número de Teléfono</mat-label>
+                  <input matInput type="text" placeholder="Ingrese su número de teléfono" formControlName="telefono" (keyup)="formatearTelefono()" />
+                  <mat-error *ngIf="errorHandling('telefono','required')">
+                    El número telefónico es <strong>requerido</strong>
+                  </mat-error>
+                  <mat-error *ngIf="errorHandling('telefono','pattern')">
+                    El telefono ingresado es <strong>inválido</strong>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          
+        
+            <div class="row">
+              <div class="col-md row my-3">
+                <mat-form-field>
+                  <mat-label>Asunto:</mat-label>
+                  <mat-select formControlName="asunto">
+                    <mat-option value="cobros">Cobranza</mat-option>
+                    <mat-option value="servicio">Servicio al cliente</mat-option>
+                    <mat-option value="ventas">Ventas</mat-option>
+                  </mat-select>
+                  <mat-error *ngIf="errorHandling('asunto','required')">
+                      El asunto del mensaje es <strong>requerido</strong>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+            </div>
+          
+            <div class="row">
+              <div class="col row my-3">
+                <mat-form-field>
+                  <mat-label>Mensaje</mat-label>
+                  <textarea matInput formControlName="mensaje"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+    
+          </mat-card-content>
+        
+          <mat-card-actions class="button-container my-3">
+            <button mat-flat-button color="accent" type="submit" class="secondary-button">Enviar Consulta</button>
+          </mat-card-actions>
+        </div>
+      </div>
+    </mat-card>
+  </form>

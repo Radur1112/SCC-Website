@@ -4,11 +4,13 @@ import { PaginaNoEncontradaComponent } from './core/pagina-no-encontrada/pagina-
 import { InicioComponent } from './home/inicio/inicio.component';
 import { SobreNosotrosComponent } from './home/sobre-nosotros/sobre-nosotros.component';
 import { UsuarioLoginComponent } from './usuario/usuario-login/usuario-login.component';
+import { ContactoComponent } from './home/contacto/contacto.component';
 
 export const routes: Routes = [
     { path: 'inicio', component: InicioComponent },
     { path: 'sobre-nosotros', component: SobreNosotrosComponent },
     { path: 'reclutamiento', component: ReclutamientoComponent },
+    { path: 'contacto', component: ContactoComponent },
     
     { path: 'login', component: UsuarioLoginComponent },
 

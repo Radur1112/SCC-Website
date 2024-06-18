@@ -1,0 +1,178 @@
+@use '../../../variables' as *;
+
+.card-cta {
+    width: 100%;
+    height: 600px;
+    margin: 0 auto;
+    box-shadow: none;
+}
+
+.card-services {
+    margin: 55px 10px;
+    box-shadow: none;
+}
+
+.card-service h5 {
+    margin: 0 10px;
+}
+
+.card-service mat-card-content {
+    height: 90px;
+}
+
+.content-container-cta, .content-container-services {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.content-container-cta{
+    height: 600px;
+}
+
+.content-container-services{
+    justify-content: start;
+}
+
+.img-container {
+    display: flex;
+    justify-content: center;
+    height: 765px;
+}
+
+.imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+.div-image {
+    margin: auto;
+    border-radius: 55px;
+}
+
+.imagen-2 {
+    aspect-ratio: 1 / 1;
+    width: 95%;
+    object-fit: cover;
+    text-align: center;
+    overflow: hidden;
+}
+
+.imagen-servicios {
+    aspect-ratio: 1.5 / 1;
+    max-height: 400px;
+    max-width: 600px;
+}
+
+.separate {
+    margin: 50px 0;
+}
+
+.secondary-button::after {
+    content: '';
+    position: absolute;
+    bottom: 12px;
+    left: 32px;
+    width: 0;
+    height: 2px;
+    background-color: $secondary-color;
+    transition: width 0.5s ease;
+}
+  
+.secondary-button:hover::after {
+    width: 80%;
+}
+
+.lista {
+    list-style: none;
+    padding-left: 0;
+}
+
+.lista li {
+    display: flex;
+}
+
+.lista .li-flex {
+    display: flex;
+    flex-direction: column;
+}
+
+.lista mat-icon {
+    margin-right: 8px;
+    font-size: 24px;
+}
+
+.corner-image-top-left {
+    position: absolute; 
+    width: 50%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+    clip-path: polygon(0 0, 100% 0, 15% 100%, 0 100%);
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.row {
+    width: 100%;
+    z-index: 2;
+}
+
+.bigger-icon {
+  font-size: 40px;
+  margin: 20px;
+}
+
+.service-icon {
+    height: 40px;
+    width: 40px;
+    margin: 10px;
+    fill: $primary-color;
+}
+
+@media screen and (max-width: 991.98px) {
+    .lista .li-flex {
+        flex-direction: row;
+    }
+
+    .bigger-icon {
+        font-size: 35px;
+    }
+}
+
+@media screen and (max-width: 767.98px) {
+    .card-service mat-card-content {
+        height: 65px;
+    }
+
+    .img-container {
+        display: none;
+    }
+
+    .bigger-icon {
+        font-size: 30px;
+        margin: 10px;
+    }
+
+    .service-icon {
+        height: 30px;
+        width: 30px;
+    }
+}
+
+@media screen and (max-width: 575.98px) {
+
+    mat-card-header, mat-card-content {
+        padding: 0;
+    }
+
+    .bigger-icon {
+        font-size: 25px;
+        margin: 10px;
+    }
+}

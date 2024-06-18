@@ -1,1 +1,55 @@
-<p>usuario-login works!</p>
+
+        
+<form [formGroup]="loginForm" (ngSubmit)="login()">
+  <mat-card class="card-login login-gradient">
+    <div class="content-container-center">
+      <mat-card-header class="less-width title-login center-content p-0 pb-5">
+        <div class="div-image mb-4">
+            <img mat-card-image src="assets/img/logoSCC.webp" alt="Logo">
+        </div>
+        <mat-card-title class="light-color">
+          <h2>
+            inicio de Sesión
+          </h2>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="half-width mt-3 mb-5 p-0">
+        <div class="row my-3">
+          <mat-form-field>
+            <mat-icon matTextPrefix class="secondary-color me-2">mail</mat-icon>
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput type="text" formControlName="correo" />
+            <mat-error *ngIf="errorHandling('correo','required')">
+                El Correo Electrónico es <strong>requerido</strong>
+            </mat-error>
+            <mat-error *ngIf="errorHandling('correo','email')">
+                El correo ingresado es <strong>inválido</strong>
+            </mat-error>
+            <mat-error *ngIf="errorHandling('correo','maxLength')">
+                El correo debe tener como máximo <strong>250 carácteres</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+          
+        <div class="row my-3">
+          <mat-form-field>
+            <mat-icon matTextPrefix class="secondary-color me-2">lock</mat-icon>
+            <mat-label>Contraseña</mat-label>
+            <input matInput [type]="esconderPassword ? 'password' : 'text'" formControlName="password" />
+
+            <button mat-icon-button matSuffix (click)="esconderPassword = !esconderPassword">
+              <mat-icon class="light-color">{{esconderPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+
+            <mat-error *ngIf="errorHandling('password','required')">
+                La Contraseña es <strong>requerida</strong>
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+      </mat-card-content>
+    </div>
+  </mat-card>
+</form>
+
+<div class="second-card"></div>
