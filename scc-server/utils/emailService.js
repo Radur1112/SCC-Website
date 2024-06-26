@@ -18,7 +18,6 @@ const enviarCorreoElectronico = async (opciones, ubicacionCV) => {
     await transporter.sendMail(opciones);
 
     if (ubicacionCV) {
-      console.log(ubicacionCV)
       // Delete the file after sending email
       fs.unlink(ubicacionCV, (unlinkErr) => {
         if (unlinkErr) {
