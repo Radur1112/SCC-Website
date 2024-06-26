@@ -1,0 +1,52 @@
+@use '../../../variables' as *;
+
+.card-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 99%;
+    border-top-left-radius: 55px;
+    border-top-right-radius: 55px;
+    box-shadow: none;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: end;
+    text-align: end;
+}
+
+.subir-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+#subir-archivo {
+    display: none;
+}
+  
+#subir-archivo-label {
+    cursor: pointer;
+    background-color:  $secondary-color;
+    color: $primary-color;
+    padding: 7px 20px !important;
+    border-radius: 4px !important;
+    transition: all 0.15s !important;
+}
+  
+#subir-archivo-label:hover {
+    transform: scale(1.02);
+}
+  
+.archivo-descripcion {
+    max-width: 250px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+}

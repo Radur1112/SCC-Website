@@ -4,7 +4,9 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideHttpClient, withFetch } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
+import { provideToastr } from 'ngx-toastr';
+import { customHttpInterceptor } from './services/customHttpInterceptor.service';
 
 
 export const appConfig: ApplicationConfig = {
@@ -13,6 +15,6 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes), 
     provideClientHydration(), 
     provideAnimationsAsync(),
-    provideHttpClient(withFetch()),
-    provideAnimationsAsync(), provideAnimationsAsync(), provideAnimationsAsync()]
+    provideHttpClient(withFetch(), withInterceptors([customHttpInterceptor])),
+    provideAnimationsAsync(), provideAnimationsAsync(), provideAnimationsAsync(), provideToastr()]
 };

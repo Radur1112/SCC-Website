@@ -81,6 +81,8 @@
   --mdc-filled-text-field-active-indicator-color: #f19e0b;
   //Linea de abajo del input cuando esta focus
   --mdc-filled-text-field-focus-active-indicator-color: #f19e0b;
+  //Color del fondo del boton cuando esta disabled
+  --mdc-filled-button-disabled-container-color: rgb(241, 158, 11, 0.6);
 }
   
 @media screen and (max-width: 1400px) {

@@ -13,7 +13,7 @@
           </h2>
         </mat-card-title>
       </mat-card-header>
-      <mat-card-content class="half-width mt-3 mb-5 p-0">
+      <mat-card-content class="half-width mt-3 p-0">
         <div class="row my-3">
           <mat-form-field>
             <mat-icon matTextPrefix class="secondary-color me-2">mail</mat-icon>
@@ -48,6 +48,10 @@
         </div>
 
       </mat-card-content>
+        
+      <mat-card-actions class="button-container">
+        <button mat-flat-button color="accent" type="submit" class="secondary-button" [disabled]="loginForm.invalid">Iniciar Sesión</button>
+      </mat-card-actions>
     </div>
   </mat-card>
 </form>

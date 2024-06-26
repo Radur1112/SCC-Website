@@ -1,0 +1,212 @@
+<mat-card class="card-primary">
+  <a routerLink="/usuario" class="go-back">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto">
+    <mat-card-header class="subir-container">
+      <mat-card-title class="light-color">
+        <h2>
+            {{tituloForm}} Usuario
+        </h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-actions *ngIf="esCrear">
+      <form [formGroup]="archivoForm" class="subir-container my-4" (ngSubmit)="subirUsuarios()">
+        <div class="light-color mx-4">
+            <mat-label class="mt-2 me-3">Registrar multiples usuarios:</mat-label>
+            <br>
+            <input type="file" id="subir-archivo" name="subir-archivo" (change)="seleccionarArchivo($event)" accept=".xlsx,.xls"/>
+            <label id="subir-archivo-label" for="subir-archivo" class="m-2">Seleccionar archivo</label>
+            <div class="archivo-descripcion" *ngIf="nombreArchivo">{{ nombreArchivo }}</div>
+            <div class="archivo-descripcion" *ngIf="!nombreArchivo">Sin archivos seleccionados</div>
+            <br>
+            <mat-error *ngIf="errorHandlingArchivo('archivo','size')">
+                El archivo no puede exceder <strong>{{ sizeError }}GBs</strong>
+            </mat-error>
+        </div>
+        <div class="mx-4">
+          <button mat-flat-button type="submit" class="primary-outline-inverted-button" [disabled]="archivoForm.invalid">Confirmar arcivo</button>
+        </div>
+      </form>
+    </mat-card-actions>
+  </div>
+</mat-card>
+
+<div class="second-card-primary"></div>
+
+<form [formGroup]="usuarioForm" class="content-container-center my-3"  (ngSubmit)="esCrear ? registrarUsuario(): actualizarUsuario()">
+  <mat-card class="card-form"> 
+    <div class="row almost-width">
+      <div class="border-primary my-5 p-4">
+        <mat-card-content class="p-0">
+          <div class="row mb-4">
+            <h4 class="text-start primary-color">Información personal</h4>
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Identificación</mat-label>
+                <input matInput type="text" placeholder="Ingrese la identificación" formControlName="identificacion" (keyup)="onIdentificacionChange()"/>
+                <mat-error *ngIf="errorHandling('identificacion','required')">
+                    La identificacion es <strong>requerida</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('identificacion','maxLength')">
+                    La identificacion debe tener como máximo <strong>20 carácteres</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Nombre</mat-label>
+                <input matInput type="text" placeholder="Ingrese el nombre" formControlName="nombre" />
+                <mat-error *ngIf="errorHandling('nombre','required')">
+                    El nombre es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('nombre','maxLength')">
+                    El nombre debe tener como máximo <strong>100 carácteres</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Apellidos</mat-label>
+                <input matInput type="text" placeholder="Ingrese los apellidos" formControlName="apellidos" />
+                <mat-error *ngIf="errorHandling('apellidos','required')">
+                    Los apellidos son <strong>requeridos</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('apellidos','maxLength')">
+                    Los apellidos deben tener como máximo <strong>150 carácteres</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          
+
+          <div class="row my-4">
+            <h4 class="text-start primary-color">Información de usuario</h4>
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Correo Electrónico</mat-label>
+                <input matInput type="text" placeholder="Ingrese el correo electrónico" formControlName="correo" />
+                <mat-error *ngIf="errorHandling('correo','required')">
+                    El Correo Electrónico es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('correo','email')">
+                    El correo ingresado es <strong>inválido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('correo','maxLength')">
+                    El correo debe tener como máximo <strong>250 carácteres</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md row my-3">
+              <div class="col-9 row">
+                <mat-form-field>
+                  <mat-label>Contraseña</mat-label>
+                  <input matInput type="text" placeholder="Ingrese la contraseña" formControlName="password" />
+                  <mat-error *ngIf="errorHandling('password','required')">
+                      La contraseña es <strong>requerida</strong>
+                  </mat-error>
+                  <mat-error *ngIf="errorHandling('password','maxLength')">
+                      La contraseña debe tener como máximo <strong>60 carácteres</strong>
+                  </mat-error>
+                </mat-form-field>
+              </div>
+              <div class="col-3 row">
+                <mat-checkbox (change)="cambiarPassword($event.checked)">Cambiar contraseña</mat-checkbox>
+              </div>
+            </div>
+          </div>
+
+        
+          <div class="row mt-4">
+            <h4 class="text-start primary-color">Detalles de trabajo</h4>
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Tipo de Usuario</mat-label>
+                <mat-select formControlName="idTipoUsuario" (selectionChange)="onTipoUsuarioChange()">
+                  <mat-option *ngFor="let tipoUsuario of tipoUsuarios" [value]="tipoUsuario.Id">
+                    {{ tipoUsuario.Descripcion }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="errorHandling('idTipoUsuario','required')">
+                    El tipo de usuario es <strong>requerido</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+  
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Tipo de Contrato</mat-label>
+                <mat-select formControlName="idTipoContrato" (selectionChange)="onTipoContratoChange()">
+                  <mat-option *ngFor="let tipoContrato of tipoContratos" [value]="tipoContrato.Id">
+                    {{ tipoContrato.Descripcion }}
+                  </mat-option>
+                </mat-select>
+                <mat-error *ngIf="errorHandling('idTipoContrato','required')">
+                    El tiipo de contrato es <strong>requerido</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+  
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Cantidad inicial de vacaciones</mat-label>
+                <input matInput type="number" formControlName="cantVacacion" />
+                <mat-error *ngIf="errorHandling('cantVacacion','required')">
+                    La cantidad de vacaciones es <strong>requerida</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('cantVacacion','min')">
+                    La cantidad minima es de <strong>0 días</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('cantVacacion','max')">
+                    La cantidad máxima es de <strong>99 días</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+  
+          
+          <div class="row mb-4">
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Fecha de Ingreso</mat-label>
+                <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fechaIngreso">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-error *ngIf="errorHandling('fechaIngreso','required')">
+                    La fecha de ingreso es <strong>requerida</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Salario</mat-label>
+                <i matTextPrefix class="fa-solid fa-colon-sign primary-color me-2"></i>
+                <input matInput type="text" placeholder="Ingrese el salario" formControlName="salario" (change)="formatearSalario()"/>
+                <mat-error *ngIf="errorHandling('salario','required')">
+                    El salario es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('salario','min')">
+                    El salario debe ser mínimo <strong>10000</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('salario','max')">
+                    El salario debe ser máximo <strong>999999999</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('salario','pattern')">
+                    El salario tiene un formato <strong>inválido</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card-content>
+      
+        <mat-card-actions class="button-container my-3">
+          <button mat-flat-button color="accent" type="submit" class="secondary-button" [disabled]="usuarioForm.invalid">{{tituloForm}} Usuario</button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </mat-card>
+</form>

@@ -118,6 +118,7 @@
               <div class="col-md row my-3">
                 <mat-form-field>
                   <mat-label>Número de Teléfono</mat-label>
+                  <span matTextPrefix class="primary-color">+506 &nbsp;</span>
                   <input matInput type="text" placeholder="Ingrese su número de teléfono" formControlName="telefono" (keyup)="formatearTelefono()" />
                   <mat-error *ngIf="errorHandling('telefono','required')">
                     El número telefónico es <strong>requerido</strong>
@@ -135,9 +136,10 @@
                 <mat-form-field>
                   <mat-label>Asunto:</mat-label>
                   <mat-select formControlName="asunto">
-                    <mat-option value="cobros">Cobranza</mat-option>
-                    <mat-option value="servicio">Servicio al cliente</mat-option>
-                    <mat-option value="ventas">Ventas</mat-option>
+                    <mat-option value="consulta">Consulta General</mat-option>
+                    <mat-option value="servicios">Información sobre Servicios</mat-option>
+                    <mat-option value="reclamo">Queja o Reclamo</mat-option>
+                    <mat-option value="otro">Otro</mat-option>
                   </mat-select>
                   <mat-error *ngIf="errorHandling('asunto','required')">
                       El asunto del mensaje es <strong>requerido</strong>
@@ -152,13 +154,19 @@
                   <mat-label>Mensaje</mat-label>
                   <textarea matInput formControlName="mensaje"></textarea>
                 </mat-form-field>
+                <mat-error *ngIf="errorHandling('mensaje','required')">
+                    El mensaje es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('mensaje','maxLength')">
+                    El mensaje debe tener como máximo <strong>3000 carácteres</strong>
+                </mat-error>
               </div>
             </div>
     
           </mat-card-content>
         
           <mat-card-actions class="button-container my-3">
-            <button mat-flat-button color="accent" type="submit" class="secondary-button">Enviar Consulta</button>
+            <button mat-flat-button color="accent" type="submit" class="secondary-button" [disabled]="contactoForm.invalid">Enviar Consulta</button>
           </mat-card-actions>
         </div>
       </div>

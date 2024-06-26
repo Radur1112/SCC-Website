@@ -2,9 +2,8 @@ const nodemailer = require('nodemailer');
 const fs = require('fs');
 require('dotenv').config();
 
-const enviarCorreoReclutamiento = async (formData, ubicacionCV) => {
+const enviarCorreoElectronico = async (opciones, ubicacionCV) => {
   try {
-    const datos = formData;
 
     // Configuarar el email transporter
     const transporter = nodemailer.createTransport({
@@ -15,28 +14,18 @@ const enviarCorreoReclutamiento = async (formData, ubicacionCV) => {
       }
     });
     
-    // Optiones del correo
-    const opcionesCorreo = {
-      from: process.env.EMAIL_USER,
-      to: process.env.HR_EMAIL,
-      subject: datos.asunto,
-      html: formatearContenidoDeCorreo(datos),
-      attachments: [
-        {
-          filename: ubicacionCV.split('\\').pop(),
-          path: ubicacionCV
-        }
-      ]
-    };
     // Enviar correo
-    await transporter.sendMail(opcionesCorreo);
+    await transporter.sendMail(opciones);
 
-    // Delete the file after sending email
-    fs.unlink(ubicacionCV, (unlinkErr) => {
-      if (unlinkErr) {
-        console.error('Error deleting file:', unlinkErr);
-      }
-    });
+    if (ubicacionCV) {
+      console.log(ubicacionCV)
+      // Delete the file after sending email
+      fs.unlink(ubicacionCV, (unlinkErr) => {
+        if (unlinkErr) {
+          console.error('Error deleting file:', unlinkErr);
+        }
+      });
+    }
     
     //console.log("correo enviado a "+process.env.HR_EMAIL+" con asunto "+ datos.asunto)
       
@@ -45,7 +34,28 @@ const enviarCorreoReclutamiento = async (formData, ubicacionCV) => {
   }
 };
 
-function formatearContenidoDeCorreo(datos) {
+
+const enviarCorreoReclutamiento = async (formData, ubicacionCV) => {
+  const datos = formData;
+
+  // Optiones del correo
+  const opcionesCorreo = {
+    from: process.env.EMAIL_USER,
+    to: process.env.HR_EMAIL,
+    subject: datos.asunto,
+    html: formatearContenidoDeCorreoReclutamiento(datos),
+    attachments: [
+      {
+        filename: ubicacionCV.split('\\').pop(),
+        path: ubicacionCV
+      }
+    ]
+  };
+
+  enviarCorreoElectronico(opcionesCorreo, ubicacionCV);
+};
+
+function formatearContenidoDeCorreoReclutamiento(datos) {
   let formateo = `
   <p><strong>Identificación:</strong> ${datos.identificacion}</p>
   <p><strong>Nombre:</strong> ${datos.nombre}</p>
@@ -65,4 +75,31 @@ function formatearContenidoDeCorreo(datos) {
   return formateo;
 }
 
-module.exports = { enviarCorreoReclutamiento };
+
+const enviarCorreoContacto = async (formData) => {
+  const datos = formData;
+
+  // Optiones del correo
+  const opcionesCorreo = {
+    from: process.env.EMAIL_USER,
+    to: process.env.HR_EMAIL,
+    subject: datos.asunto,
+    html: formatearContenidoDeCorreoContacto(datos)
+  };
+
+  enviarCorreoElectronico(opcionesCorreo, null);
+};
+
+function formatearContenidoDeCorreoContacto(datos) {
+  let formateo = `
+  <p><strong>Identificación:</strong> ${datos.identificacion}</p>
+  <p><strong>Nombre:</strong> ${datos.nombre}</p>
+  <p><strong>Correo Electrónico:</strong> ${datos.correo}</p>
+  <p><strong>Teléfono:</strong> ${datos.telefono}</p>
+  <p><strong>Mensaje:</strong> ${datos.mensaje}</p>
+  `;
+
+  return formateo;
+}
+
+module.exports = { enviarCorreoReclutamiento, enviarCorreoContacto, enviarCorreoElectronico };

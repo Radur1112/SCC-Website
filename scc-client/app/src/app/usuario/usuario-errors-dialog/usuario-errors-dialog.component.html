@@ -1,0 +1,14 @@
+<h1 mat-dialog-title>Detalle de errores</h1>
+<div mat-dialog-content>
+  <p *ngIf="errors">La fila {{ rowIndex }} tiene los siguientes errores de formato:</p>
+  <ul>
+    <li *ngFor="let error of errorKeys">
+        <h5 mat-dialog-title>{{ error }}</h5>
+        <div mat-dialog-content>{{ errors[error] }}</div>
+    </li>
+  </ul>
+  <div *ngIf="!errors">Esta fila no posee ningún error</div>
+</div>
+<div mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cerrar</button>
+</div>

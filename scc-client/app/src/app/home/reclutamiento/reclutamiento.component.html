@@ -109,6 +109,7 @@
             <div class="col-md row my-3">
               <mat-form-field>
                 <mat-label>Número de Teléfono</mat-label>
+                <span matTextPrefix class="primary-color">+506 &nbsp;</span>
                 <input matInput type="text" placeholder="Ingrese su número de teléfono" formControlName="telefono" (keyup)="formatearTelefono()" />
                 <mat-error *ngIf="errorHandling('telefono','required')">
                   El número telefónico es <strong>requerido</strong>
@@ -199,7 +200,7 @@
               <div class="text-start">
                 <mat-label>Tengo Expeciencia:</mat-label>
                 <br>
-                <mat-checkbox class="" formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">{{textoExperiencia}}</mat-checkbox>
+                <mat-checkbox formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">{{textoExperiencia}}</mat-checkbox>
               </div>
             </div>
   
@@ -240,13 +241,16 @@
                 <mat-label>Comentarios</mat-label>
                 <textarea matInput formControlName="comentario"></textarea>
               </mat-form-field>
+              <mat-error *ngIf="errorHandling('comentario','maxLength')">
+                  El comentario debe tener como máximo <strong>999 carácteres</strong>
+              </mat-error>
             </div>
           </div>
   
         </mat-card-content>
       
         <mat-card-actions class="button-container my-3">
-          <button mat-flat-button color="accent" type="submit" class="secondary-button">Aplicar al puesto</button>
+          <button mat-flat-button color="accent" type="submit" class="secondary-button" [disabled]="reclutamientoForm.invalid">Aplicar al puesto</button>
         </mat-card-actions>
       </div>
     </div>

@@ -1,0 +1,27 @@
+.table-container {
+    min-height: 200px;
+    max-height: 600px;
+}
+
+th, .mat-column-CantVacacion {
+    text-align: center;
+}
+
+th, td {
+    min-width: 150px;
+    max-width: 150px;
+}
+
+.error-formato {
+    background-color: rgba(255, 0, 0, 0.250);
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.error-formato:hover {
+    font-size: medium;
+}
+
+.error-texto {
+    font-weight: bold;
+}

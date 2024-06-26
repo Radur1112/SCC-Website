@@ -39,13 +39,21 @@
     border-radius: 0;
 }
 
+.button-container {
+    margin: 50px 0 150px;
+}
+
+.secondary-button:hover {
+  background-color: #ffffff !important;
+}
+
 :host {
   //Fondo
   --mdc-filled-text-field-container-color: rgba(0, 0, 0, 0);
   //Texto del label
   --mdc-filled-text-field-label-text-color: #ffffff;
   //Texto del label cuando esta focus
-  --mdc-filled-text-field-focus-label-text-color: #ffffff;
+  --mdc-filled-text-field-focus-label-text-color: #f19e0b;
   //Texto del label cuando esta hover
   --mdc-filled-text-field-hover-label-text-color: #f19e0b;
   //Texto del input
@@ -53,7 +61,7 @@
   //Linea de abajo del input
   --mdc-filled-text-field-active-indicator-color: #ffffff;
   //Linea de abajo del input cuando esta focus
-  --mdc-filled-text-field-focus-active-indicator-color: #ffffff;
+  --mdc-filled-text-field-focus-active-indicator-color: #f19e0b;
   //Linea de abajo del input cuando esta hover
   --mdc-filled-text-field-hover-active-indicator-color: #f19e0b;
   //No estoy seguro, se que cambia la linea que sale cuando uno escribe
@@ -62,9 +70,12 @@
   //Texto del label Error
   --mdc-filled-text-field-error-label-text-color: #ffffff;
   //Texto del label cuando esta focus Error
-  --mdc-filled-text-field-error-focus-label-text-color: #ffffff;
+  --mdc-filled-text-field-error-focus-label-text-color: #f19e0b;
   //Texto del label cuando esta hover Error
   --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
+
+  //Color del fondo del boton cuando esta disabled
+  --mdc-filled-button-disabled-container-color: rgb(241, 158, 11, 0.6);
 }
 
 

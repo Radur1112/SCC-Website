@@ -9,6 +9,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { GenericService } from '../../services/generic.service';
 
 @Component({
   selector: 'app-contacto',
@@ -21,7 +24,10 @@ export class ContactoComponent {
   contactoForm: FormGroup
   
   constructor(
-    private fb: FormBuilder
+    private http: HttpClient,
+    private fb: FormBuilder,
+    private gService: GenericService,
+    private notificacion: NotificacionService
   ) {
     this.reactiveForm();
   }
@@ -33,7 +39,7 @@ export class ContactoComponent {
       correo: ['', [Validators.required, Validators.email, Validators.maxLength(250)]],
       telefono: ['', [Validators.required, , Validators.pattern(/^(\d{4})-(\d{4})$/)]],
       asunto: ['',[Validators.required, Validators.maxLength(20)]],
-      mensaje: [null]
+      mensaje: ['',[Validators.required, Validators.maxLength(3000)]]
     });
   }
 
@@ -60,6 +66,34 @@ export class ContactoComponent {
   }
 
   enviarMensaje() {
+    if(this.contactoForm.invalid){
+      return;
+    }
+    this.contactoForm.value.asunto = this.crearAsunto();
 
+    this.gService.post('contacto', this.contactoForm.value).subscribe(response => {
+      this.notificacion.mensaje('Información', response.toString(), TipoMessage.success);
+      this.contactoForm.reset();
+    });
+  }
+
+  crearAsunto() {
+    let asunto;
+    switch(this.contactoForm.value.asunto) {
+      case 'consulta':
+        asunto = "Consulta General"
+        break;
+      case 'servicios':
+        asunto = "Información sobre Servicios"
+        break;
+      case 'reclamo':
+        asunto = "Queja o Reclamo"
+        break;
+      case 'otro':
+        asunto = "Otro"
+        break;
+      default:
+    }
+    return asunto;
   }
 }

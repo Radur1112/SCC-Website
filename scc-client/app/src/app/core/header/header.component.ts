@@ -4,6 +4,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
 import {MatMenuModule} from '@angular/material/menu';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -13,5 +14,46 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
+
+  usuarioActual: any;
   
+  isAdmin: boolean;
+  
+  constructor(
+    private authService: AuthService,
+    private router: Router,
+  ) {
+    
+  }
+
+  ngOnInit(): void {
+    this.authService.usuarioActual.subscribe((x) => {
+      if (x && Object.keys(x).length !== 0) {
+        this.usuarioActual = x.usuario;
+        this.isAdmin = this.usuarioActual.IdTipoUsuario == 1;
+      } else {
+        this.usuarioActual = null;
+        this.isAdmin = false;
+      }
+    });
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
+
+  collapseNavbar(): void {
+    const navbarToggler = document.querySelector('.navbar-toggler') as HTMLElement;
+    const navbarCollapse = document.querySelector('.navbar-collapse') as HTMLElement;
+
+    // Check if the navbar collapse is currently open
+    if (navbarCollapse.classList.contains('show')) {
+      // Close the navbar collapse
+      navbarCollapse.classList.remove('show');
+      // Toggle the 'collapsed' state of the toggler button
+      navbarToggler.setAttribute('aria-expanded', 'false');
+      navbarToggler.classList.add('collapsed');
+    }
+  }
 }

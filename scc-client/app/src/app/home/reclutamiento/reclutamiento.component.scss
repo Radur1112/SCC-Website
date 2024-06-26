@@ -16,6 +16,11 @@
     box-shadow: none;
 }
 
+.second-card {
+    margin-top: -60px;
+    width: 100%;
+}
+
 .card-form {
     display: flex;
     justify-content: center;
@@ -42,11 +47,6 @@
     z-index: 2;
 }
 
-.second-card {
-    margin-top: -60px;
-    width: 100%;
-}
-
 .video-fluid {
     width: 100%;
     max-height: 765px;
@@ -71,7 +71,6 @@
     align-items: end;
     text-align: end;
 }
-
   
 @media screen and (max-width: 1400px) {
     

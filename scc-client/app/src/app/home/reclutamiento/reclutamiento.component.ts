@@ -12,19 +12,13 @@ import { HttpClient } from '@angular/common/http';
 import { ProvinciasService } from '../../services/provincias.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
+import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { GenericService } from '../../services/generic.service';
 
 @Component({
   selector: 'app-reclutamiento',
   standalone: true,
-  imports: [CommonModule,
-    ReactiveFormsModule,
-    MatButtonModule,
-    MatInputModule,
-    MatSelectModule,
-    MatCheckboxModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatCardModule],
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatInputModule, MatSelectModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatCardModule],
   templateUrl: './reclutamiento.component.html',
   styleUrl: './reclutamiento.component.scss',
   providers: [DatePipe]
@@ -47,7 +41,9 @@ export class ReclutamientoComponent {
     private fb: FormBuilder, 
     private http: HttpClient,
     private datePipe: DatePipe,
+    private gService: GenericService,
     private pServicio: ProvinciasService,
+    private notificacion: NotificacionService,
     @Inject(MAT_DATE_LOCALE) private _locale: string,
     private _adapter: DateAdapter<any>,
   ) {
@@ -55,8 +51,8 @@ export class ReclutamientoComponent {
     this._adapter.setLocale(this._locale);
 
     const currentDate = new Date();
-    this.maxDate = new Date(currentDate.getFullYear() - 18, currentDate.getMonth(), currentDate.getDate());
     this.minDate = new Date(currentDate.getFullYear() - 100, currentDate.getMonth(), currentDate.getDate());
+    this.maxDate = new Date(currentDate.getFullYear() - 18, currentDate.getMonth(), currentDate.getDate());
 
     this.reactiveForm();
   }
@@ -75,7 +71,7 @@ export class ReclutamientoComponent {
       tiempoExperiencia: [{ value: null, disabled: true }],
       trabajo: ['', Validators.required],
       cv: ['', Validators.required],
-      comentario: [null]
+      comentario: ['', Validators.maxLength(999)]
     });
   }
   
@@ -199,8 +195,8 @@ export class ReclutamientoComponent {
     formData.append('cv', this.reclutamientoForm.get('cv').value);
     formData.append('comentario', this.reclutamientoForm.get('comentario').value);
 
-    this.http.post('http://localhost:3000/reclutamiento', formData).subscribe(response => {
-      console.log(response);
+    this.gService.post('reclutamiento', formData).subscribe(response => {
+      this.notificacion.mensaje('Información', response.toString(), TipoMessage.success);
     });
   }
 
