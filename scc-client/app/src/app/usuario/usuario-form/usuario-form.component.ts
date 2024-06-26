@@ -321,8 +321,6 @@ export class UsuarioFormComponent {
     this.gService.post(`usuario/registrar/verificar`, formData)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res)
-
         if (res.errors && res.errors.nombreColumnaExcel) {
           const nombreColumnas = Object.values(res.errors.nombreColumnaExcel);
           const errores = nombreColumnas.join(' <br> ');
@@ -389,7 +387,6 @@ export class UsuarioFormComponent {
   };
 
   subirMultiples(usuarios: any) {
-    console.log('xd')
     this.authService.registrarMultiplesUsuarios(usuarios)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {

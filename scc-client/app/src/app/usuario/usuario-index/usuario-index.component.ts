@@ -89,7 +89,6 @@ export class UsuarioIndexComponent {
     this.gService.get('usuario/all')
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res)
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
