@@ -864,15 +864,19 @@ module.exports.registrarMultiples = async (req, res, next) => {
     const usuariosData = req.body;
 
     const correos = usuariosData.map(u => u.correo);
+    const identificaciones = usuariosData.map(u => u.identificacion);
 
-    const [duplicados] = await db.query(`SELECT correo FROM ${nombreTabla} WHERE estado != 0 AND correo IN (?)`, [correos]);
+    const [duplicados] = await db.query(`SELECT correo, identificacion FROM ${nombreTabla} WHERE estado != 0 AND (correo IN (?) OR identificacion IN (?))`, [correos, identificaciones]);
 
     if (duplicados.length > 0) {
-      const error = duplicados.map(usuario => `${usuario.correo}`).join('<br>');
+      console.log(duplicados)
+      const errorCorreos = duplicados.map(usuario => `${usuario.correo}`).join('<br>');
+      const errorIdentificaciones = duplicados.map(usuario => `${usuario.identificacion}`).join('<br>');
 
       return res.status(400).json({
         success: false,
-        message: `Los siguientes correos ya están ocupados por otros usuarios: <br>${error}`,
+        message: `Los siguientes correos ya están ocupados por otros usuarios: <br>${errorCorreos}<br> 
+        Las siguientes identificaciones ya están ocupadas por otros usuarios: <br>${errorIdentificaciones}`,
         id: 'duplicado',
       });
     }
