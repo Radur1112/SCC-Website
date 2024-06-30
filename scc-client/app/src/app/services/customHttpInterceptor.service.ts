@@ -11,7 +11,7 @@ export const customHttpInterceptor: HttpInterceptorFn = (req, next) => {
 
     //Obtener token
     let token = null;
-    if (localStorage && localStorage.getItem('usuarioActual')) {
+    if (typeof window !== 'undefined' && localStorage.getItem('usuarioActual')) {
       token = JSON.parse(localStorage.getItem('usuarioActual')).token;
     }
     //Agregar headers a la solicitud

@@ -32,14 +32,14 @@ const recibirReclutamientoForm = async (req, res) => {
           });
         }
       } else {
-        const fechaPasada = dayjs(get[0][0].Fecha);
+        const fechaPasada = dayjs(get[0][0].fecha);
         const fechaActual = dayjs();
 
         const monthsDiff = fechaActual.diff(fechaPasada, 'month');
         const daysDiff = fechaActual.diff(fechaPasada, 'day');
 
         if (monthsDiff > 2 || (monthsDiff === 2 && daysDiff >= 0)) {
-          const update = await db.query(`UPDATE ${nombreTabla} SET Fecha = ? WHERE Id = ?`, [new Date(), get[0][0].Id]);
+          const update = await db.query(`UPDATE ${nombreTabla} SET fecha = ? WHERE id = ?`, [new Date(), get[0][0].id]);
           if (update) {
             await enviarCorreoReclutamiento(datos, cv.path);
 

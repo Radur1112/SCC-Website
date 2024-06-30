@@ -5,11 +5,12 @@ import {MatIconModule} from '@angular/material/icon';
 import {MatMenuModule} from '@angular/material/menu';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatMenuModule],
+  imports: [CommonModule, RouterLink, RouterLinkActive, MatButtonModule, MatIconModule, MatMenuModule, MatTooltipModule],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
@@ -30,7 +31,7 @@ export class HeaderComponent {
     this.authService.usuarioActual.subscribe((x) => {
       if (x && Object.keys(x).length !== 0) {
         this.usuarioActual = x.usuario;
-        this.isAdmin = this.usuarioActual.IdTipoUsuario == 1;
+        this.isAdmin = this.usuarioActual.idTipoUsuario == 1;
       } else {
         this.usuarioActual = null;
         this.isAdmin = false;

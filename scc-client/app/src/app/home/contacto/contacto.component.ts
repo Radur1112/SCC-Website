@@ -78,7 +78,7 @@ export class ContactoComponent {
   }
 
   crearAsunto() {
-    let asunto;
+    let asunto: string;
     switch(this.contactoForm.value.asunto) {
       case 'consulta':
         asunto = "Consulta General"

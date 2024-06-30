@@ -20,7 +20,6 @@ const upload = multer({ storage: storage });
 const usuarioController = require("../controllers/usuarioController");
 
 router.get('/', verifyAdministrador, usuarioController.get);
-router.get('/all', verifyAdministrador, usuarioController.getAll);
 router.get('/exportarUsuarios', verifyAdministrador, usuarioController.exportUsuarios);
 router.get('/:id', verifyUsuario, usuarioController.getById);
 router.get('/identificacion/:id', verifyToken, usuarioController.getByIdentificacion);
@@ -32,5 +31,6 @@ router.post("/registrar/verificar", upload.single('archivo'), usuarioController.
 router.post("/registrar/multiples", verifyAdministrador, usuarioController.registrarMultiples);
 
 router.put("/:id", verifyAdministrador, usuarioController.actualizar);
+router.put("/borrar/:id", verifyAdministrador, usuarioController.borrar);
 
 module.exports = router;

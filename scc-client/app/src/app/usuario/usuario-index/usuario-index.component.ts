@@ -15,6 +15,9 @@ import { HttpClient } from '@angular/common/http';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { ConfirmationService } from '../../services/confirmation.service';
+import { NotificacionService, TipoMessage } from '../../services/notification.service';
 
 export interface usuarioInterface {
   id: any;
@@ -26,14 +29,14 @@ export interface usuarioInterface {
   apellidos: string;
   salario: string;
   fechaIngreso: string;
-  cantVacacion: string;
+  vacacion: string;
   estado: string;
 }
 
 @Component({
   selector: 'app-usuario-index',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatSortModule, MatPaginatorModule, MatIcon, MatCardModule],
+  imports: [CommonModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatSortModule, MatPaginatorModule, MatIcon, MatCardModule, MatTooltipModule],
   templateUrl: './usuario-index.component.html',
   styleUrl: './usuario-index.component.scss'
 })
@@ -44,7 +47,7 @@ export class UsuarioIndexComponent {
 
   usuarioForm: FormGroup;
   
-  displayedColumns: string[] = ['Identificacion', 'TipoUsuarioDescripcion', 'Nombre', 'Correo', 'TipoContratoDescripcion', 'Estado'];
+  displayedColumns: string[] = ['identificacion', 'tipoUsuarioDescripcion', 'nombre', 'correo', 'tipoContratoDescripcion', 'estado'];
   dataUsuario = new Array();
   dataSource: MatTableDataSource<usuarioInterface>;
 
@@ -55,6 +58,8 @@ export class UsuarioIndexComponent {
 
   constructor(private gService:GenericService,
     private authService: AuthService,
+    private confirmationService: ConfirmationService,
+    private notificacion: NotificacionService,
     private paginators: MatPaginatorIntl,
     private router:Router,
     private route:ActivatedRoute,
@@ -86,7 +91,7 @@ export class UsuarioIndexComponent {
   }
 
   getUsuarios() {
-    this.gService.get('usuario/all')
+    this.gService.get('usuario')
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);
@@ -102,18 +107,22 @@ export class UsuarioIndexComponent {
     });
   }
 
-  cambiarEstado(usuario: any) {
-    usuario.Estado = usuario.Estado == 1 ? 0 : 1;
-
-    this.gService.put('usuario', usuario)
-    .pipe(takeUntil(this.destroy$)).subscribe({
-      next:(res) => {
-        this.getUsuarios();
-      },
-      error:(err) => {
-        console.log(err);
-      }
-    });
+  borrarUsuario(usuario: any) {
+    this.confirmationService.confirm()
+      .subscribe(result => {
+        if (result) {
+          this.gService.put('usuario/borrar', usuario)
+          .pipe(takeUntil(this.destroy$)).subscribe({
+            next:(res) => {
+              this.notificacion.mensaje('Usuario', 'Usuario eliminado correctamente', TipoMessage.success);
+              this.getUsuarios();
+            },
+            error:(err) => {
+              console.log(err);
+            }
+          });
+        }
+      });
   }
 
   descargarUsuarios() {

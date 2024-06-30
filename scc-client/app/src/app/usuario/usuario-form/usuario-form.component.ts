@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, ElementRef, Inject, ViewChild } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -18,11 +18,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { UsuarioRegistrarDialogComponent } from '../usuario-registrar-dialog/usuario-registrar-dialog.component';
 import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
   selector: 'app-usuario-form',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatSelectModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatCardModule, MatIconModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatSelectModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatCardModule, MatIconModule, MatTooltipModule],
   templateUrl: './usuario-form.component.html',
   styleUrl: './usuario-form.component.scss',
   providers: [DatePipe]
@@ -40,6 +41,7 @@ export class UsuarioFormComponent {
 
   tipoUsuarios: any;
   tipoContratos: any;
+  puestos: any;
 
   maxDate: Date;
   minDate: Date;
@@ -68,6 +70,7 @@ export class UsuarioFormComponent {
 
     this.getTipoUsuarios();
     this.getTipoContratos();
+    this.getPuestos();
 
 
     this.reactiveForm();
@@ -92,18 +95,18 @@ export class UsuarioFormComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.usuarioForm.setValue({
-          id: res.data.Id,
-          identificacion: res.data.Identificacion,
-          correo: res.data.Correo,
+          id: res.data.id,
+          identificacion: res.data.identificacion,
+          correo: res.data.correo,
           password: '********',
-          nombre: res.data.Nombre,
-          apellidos: res.data.Apellidos,
-          salario: res.data.Salario,
-          fechaIngreso: res.data.FechaIngreso,
-          cantVacacion: res.data.CantVacacion,
-          idTipoUsuario: res.data.IdTipoUsuario,
-          idTipoContrato: res.data.IdTipoContrato,
-          estado: res.data.Estado
+          nombre: res.data.nombre,
+          salario: res.data.salario,
+          fechaIngreso: res.data.fechaIngreso,
+          vacacion: res.data.vacacion,
+          idTipoUsuario: res.data.idTipoUsuario,
+          idTipoContrato: res.data.idTipoContrato,
+          idPuesto: res.data.idPuesto,
+          telefono: res.data.telefono
         })
         const password = this.usuarioForm.get('password');
         password.disable();
@@ -120,13 +123,13 @@ export class UsuarioFormComponent {
       correo: ['', [Validators.required, Validators.email, Validators.maxLength(250)]],
       password: ['', [Validators.required, Validators.maxLength(60)]],
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      apellidos: ['', [Validators.required, Validators.maxLength(150)]],
       salario: [{ value: null, disabled: true }, [Validators.required, Validators.min(100), Validators.max(999999999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       fechaIngreso:  [{ value: null, disabled: true }, Validators.required],
-      cantVacacion:  [{ value: null, disabled: true }, [Validators.required, Validators.min(0), Validators.max(99)]],
+      vacacion:  [{ value: null, disabled: true }, [Validators.required, Validators.min(0), Validators.max(99)]],
       idTipoUsuario: ['', Validators.required],
       idTipoContrato: [{ value: null, disabled: true }, Validators.required],
-      estado: [null]
+      idPuesto: [{ value: null, disabled: true }, Validators.required],
+      telefono: ['', [Validators.required, Validators.maxLength(20), Validators.pattern(/^[+]?[\d\s\-().]{0,20}$/)]],
     });
 
     this.archivoForm = this.fb.group({
@@ -166,6 +169,18 @@ export class UsuarioFormComponent {
     });
   }
 
+  getPuestos() {
+    this.gService.get('puesto')
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.puestos = res.data;
+      },
+      error:(err) => {
+        console.log(err);
+      }
+    });
+  }
+
   onIdentificacionChange() {
     const identificacion = this.usuarioForm.get('identificacion').value;
     const password = this.usuarioForm.get('password');
@@ -177,9 +192,10 @@ export class UsuarioFormComponent {
     const tipoUsuario = this.usuarioForm.get('idTipoUsuario').value;
 
     const tipoContrato = this.usuarioForm.get('idTipoContrato');
-    const cantVacacion = this.usuarioForm.get('cantVacacion');
+    const vacacion = this.usuarioForm.get('vacacion');
     const fechaIngreso = this.usuarioForm.get('fechaIngreso');
     const salario = this.usuarioForm.get('salario');
+    const puesto = this.usuarioForm.get('idPuesto');
 
     if (tipoUsuario != 1) {
       tipoContrato.enable();
@@ -188,25 +204,27 @@ export class UsuarioFormComponent {
         fechaIngreso.setValue(new Date());
       }
       salario.enable();
+      puesto.enable();
     } else {
       tipoContrato.disable();
-      cantVacacion.disable();
+      vacacion.disable();
       fechaIngreso.disable();
       salario.disable();
+      puesto.disable();
     }
   }
 
   onTipoContratoChange() {
     const tipoContrato = this.usuarioForm.get('idTipoContrato').value;
-    const cantVacacion = this.usuarioForm.get('cantVacacion');
+    const vacacion = this.usuarioForm.get('vacacion');
 
     if (tipoContrato == 1) {
-      cantVacacion.enable();
-      if (!cantVacacion.value) {
-        cantVacacion.setValue(0);
+      vacacion.enable();
+      if (!vacacion.value) {
+        vacacion.setValue(0);
       }
     } else {
-      cantVacacion.disable();
+      vacacion.disable();
     }
   }
 
@@ -314,10 +332,12 @@ export class UsuarioFormComponent {
     }
   }
 
+  @ViewChild('fileInput') fileInput: ElementRef;
+  
   subirUsuarios() {
     const formData = new FormData();
     formData.append('archivo', this.archivoForm.value.archivo);
-
+    
     this.gService.post(`usuario/registrar/verificar`, formData)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
@@ -331,14 +351,17 @@ export class UsuarioFormComponent {
         }
       },
       error: (err) => { 
-        this.archivoForm.reset();
+        if (this.fileInput && this.fileInput.nativeElement) {
+          this.fileInput.nativeElement.value = '';
+        }
+        this.archivoForm.reset()
         this.nombreArchivo = '';
       }
     });
   }
 
   openUsuarioRegistrarDialog(res: any): void {
-    let width = '1400px';
+    let width = '1800px';
     let data = { 
       data: res,
     };
@@ -351,17 +374,22 @@ export class UsuarioFormComponent {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         for (let item of result) {
-          const tipoUsuarioDescripcion = item.TipoUsuario;
-          const tipoContratoDescripcion = item.TipoContrato;
+          const tipoUsuarioDescripcion = item.tipoUsuario;
+          const tipoContratoDescripcion = item.tipoContrato;
+          const puestoDescripcion = item.puesto;
 
           const tipoUsuarioId = this.obtenerTipoUsuarioId(tipoUsuarioDescripcion);
           const tipoContratoId = this.obtenerTipoContratoId(tipoContratoDescripcion);
+          const puestoId = this.obtenerPuestoId(puestoDescripcion);
           
           if (tipoUsuarioId) {
-              item.IdTipoUsuario = tipoUsuarioId;
+              item.idTipoUsuario = tipoUsuarioId;
           }
           if (tipoContratoId) {
-              item.IdTipoContrato = tipoContratoId;
+              item.idTipoContrato = tipoContratoId;
+          }
+          if (puestoId) {
+              item.idPuesto = puestoId;
           }
         }
 
@@ -371,17 +399,25 @@ export class UsuarioFormComponent {
   }
 
   obtenerTipoUsuarioId(descripcion: any) {
-    const tipoUsuario = this.tipoUsuarios.find(item => item.Descripcion === descripcion);
+    const tipoUsuario = this.tipoUsuarios.find(item => item.descripcion === descripcion);
     if (tipoUsuario) {
-        return tipoUsuario.Id;
+        return tipoUsuario.id;
     }
     return null;
   };
 
   obtenerTipoContratoId(descripcion: any) {
-    const tipoContrato = this.tipoContratos.find(item => item.Descripcion === descripcion);
+    const tipoContrato = this.tipoContratos.find(item => item.descripcion === descripcion);
     if (tipoContrato) {
-        return tipoContrato.Id;
+        return tipoContrato.id;
+    }
+    return null;
+  };
+
+  obtenerPuestoId(descripcion: any) {
+    const puesto = this.puestos.find(item => item.descripcion === descripcion);
+    if (puesto) {
+        return puesto.id;
     }
     return null;
   };

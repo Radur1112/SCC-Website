@@ -3,49 +3,59 @@
     <div class="table-container">
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
             
-            <ng-container matColumnDef="Identificacion">
+            <ng-container matColumnDef="identificacion">
                 <th mat-header-cell *matHeaderCellDef>Identificacion</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'Identificacion')}"> {{row.Identificacion && row.Identificacion !== null ? row.Identificacion : '...'}} </td>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'identificacion')}"> {{row.identificacion && row.identificacion !== null ? row.identificacion : '...'}} </td>
+            </ng-container>
+        
+            <ng-container matColumnDef="nombre">
+                <th mat-header-cell *matHeaderCellDef>Nombre Completo</th>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'nombre')}">{{row.nombre && row.nombre !== null ? row.nombre : '...'}}</td>
             </ng-container>
             
-            <ng-container matColumnDef="TipoUsuario">
+            <ng-container matColumnDef="tipoUsuario">
                 <th mat-header-cell *matHeaderCellDef>Tipo de Usuario</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'TipoUsuario')}"> {{row.TipoUsuario && row.TipoUsuario !== null ? row.TipoUsuario : '...'}} </td>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'tipoUsuario')}"> {{row.tipoUsuario && row.tipoUsuario !== null ? row.tipoUsuario : '...'}} </td>
             </ng-container>
         
-            <ng-container matColumnDef="Nombre">
-                <th mat-header-cell *matHeaderCellDef>Nombre Completo</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'Nombre')}">{{row.Nombre && row.Nombre !== null && row.Apellidos && row.Apellidos !== null ? row.Nombre + ' ' + row.Apellidos : '...'}}</td>
-            </ng-container>
-        
-            <ng-container matColumnDef="Correo">
+            <ng-container matColumnDef="correo">
                 <th mat-header-cell *matHeaderCellDef>Correo Electrónico</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'Correo')}"> {{row.Correo && row.Correo !== null ? row.Correo : '...'}} </td>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'correo')}"> {{row.correo && row.correo !== null ? row.correo : '...'}} </td>
             </ng-container>
         
-            <ng-container matColumnDef="Password">
+            <ng-container matColumnDef="password">
                 <th mat-header-cell *matHeaderCellDef>Contraseña</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'Password')}"> {{row.Password && row.Password !== null ? row.Password : '...'}} </td>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'password')}"> {{row.password && row.password !== null ? row.password : '...'}} </td>
             </ng-container>
         
-            <ng-container matColumnDef="TipoContrato">
-                <th mat-header-cell *matHeaderCellDef>Tipo de Contrato</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'TipoContrato')}"> {{row.TipoContrato && row.TipoContrato !== null ? row.TipoContrato : 'No posee contrato'}} </td>
+            <ng-container matColumnDef="telefono">
+                <th mat-header-cell *matHeaderCellDef>Telefono</th>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'telefono')}"> {{row.telefono && row.telefono !== null ? row.telefono : '...'}} </td>
+            </ng-container>
+            
+            <ng-container matColumnDef="puesto">
+                <th mat-header-cell *matHeaderCellDef>Puesto</th>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'puesto')}"> {{row.puesto && row.puesto !== null ? row.puesto : '...'}} </td>
             </ng-container>
         
-            <ng-container matColumnDef="Salario">
+            <ng-container matColumnDef="salario">
                 <th mat-header-cell *matHeaderCellDef>Salario</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'Salario')}"> {{row.Salario && row.Salario !== null ? '₡ ' + row.Salario : '...'}} </td>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'salario')}"> {{row.salario && row.salario !== null ? '₡ ' + row.salario : '...'}} </td>
             </ng-container>
         
-            <ng-container matColumnDef="FechaIngreso">
-                <th mat-header-cell *matHeaderCellDef>Fecha de ingreso</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'FechaIngreso')}"> {{row.FechaIngreso && row.FechaIngreso !== null ? row.FechaIngreso : '...'}} </td>
+            <ng-container matColumnDef="tipoContrato">
+                <th mat-header-cell *matHeaderCellDef>Tipo de Contrato</th>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'tipoContrato')}"> {{row.tipoContrato && row.tipoContrato !== null ? row.tipoContrato : 'No posee contrato'}} </td>
             </ng-container>
         
-            <ng-container matColumnDef="CantVacacion">
+            <ng-container matColumnDef="vacacion">
                 <th mat-header-cell *matHeaderCellDef>Cantidad de vacaciones</th>
-                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'CantVacacion')}"> {{row.CantVacacion !== undefined && row.CantVacacion !== null ? row.CantVacacion : '...'}} </td>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'vacacion')}"> {{row.vacacion !== undefined && row.vacacion !== null ? row.vacacion : '...'}} </td>
+            </ng-container>
+        
+            <ng-container matColumnDef="fechaIngreso">
+                <th mat-header-cell *matHeaderCellDef>Fecha de ingreso</th>
+                <td mat-cell *matCellDef="let row; let rowIndex = index" [ngClass]="{'error-texto': tieneError(rowIndex + 1, 'fechaIngreso')}"> {{row.fechaIngreso && row.fechaIngreso !== null ? row.fechaIngreso : '...'}} </td>
             </ng-container>
         
         <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>

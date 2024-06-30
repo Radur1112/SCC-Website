@@ -15,6 +15,7 @@ const tipoUsuarioRouter = require('./routes/tipoUsuarioRoutes');
 const tipoContratoRouter = require('./routes/tipoContratoRoutes');
 const recultamientoRouter = require('./routes/recultamientoRoutes');
 const contactoRouter = require('./routes/contactoRoutes');
+const puestoRouter = require('./routes/puestoRoutes');
 
 dotEnv.config();
 
@@ -56,6 +57,7 @@ app.use("/tipoUsuario/", tipoUsuarioRouter);
 app.use("/tipoContrato/", tipoContratoRouter);
 app.use("/reclutamiento/", recultamientoRouter);
 app.use("/contacto/", contactoRouter);
+app.use("/puesto/", puestoRouter);
 
 
 app.listen(port, () => {

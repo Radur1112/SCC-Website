@@ -17,7 +17,7 @@ export interface usuarioInterface {
   apellidos: string;
   salario: string;
   fechaIngreso: string;
-  cantVacacion: string;
+  vacacion: string;
 }
 
 @Component({
@@ -31,7 +31,7 @@ export class UsuarioRegistrarDialogComponent {
   errors: any;
   usuarios: any;
   
-  displayedColumns: string[] = ['Identificacion', 'TipoUsuario', 'Nombre', 'Correo', 'Password', 'TipoContrato', 'Salario', 'FechaIngreso', 'CantVacacion'];
+  displayedColumns: string[] = ['nombre', 'identificacion', 'puesto', 'correo', 'password', 'salario', 'tipoContrato', 'vacacion', 'tipoUsuario', 'telefono', 'fechaIngreso'];
   dataUsuario = new Array();
   dataSource: MatTableDataSource<usuarioInterface>;
   

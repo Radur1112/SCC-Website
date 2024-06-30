@@ -41,7 +41,7 @@ module.exports.getById = async(req, res, next) => {
       res.status(200).send({
         success: true,
         message: 'Datos obtenidos correctamente',
-        data: data[0]
+        data: data[0][0]
       });
     } else {
       res.status(404).send({

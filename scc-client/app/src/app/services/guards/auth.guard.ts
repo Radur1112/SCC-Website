@@ -25,7 +25,7 @@ export const AuthGuard: CanActivateFn = (route, state) => {
   authService.usuarioActual.subscribe((x) => (usuarioActual = x));
 
   if (isAuthenticated) {
-    const usuarioPermisos = usuarioActual.usuario.IdTipoUsuario;
+    const usuarioPermisos = usuarioActual.usuario.idTipoUsuario;
     //roles.length && roles.indexOf(verify.role)===-1
     if(route.data['permisos'].length && !route.data['permisos'].includes(usuarioPermisos) && !route.data['permisos'].includes('Todos')){ 
         router.navigate(['/inicio'], {

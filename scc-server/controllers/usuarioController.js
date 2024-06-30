@@ -7,46 +7,17 @@ const exceljs = require('exceljs');
 const fs = require('fs');
 
 var nombreTabla = 'usuario';
-var selectNoPassword = 'u.Id, u.IdTipoUsuario, u.IdTipoContrato, u.Identificacion, u.Correo, u.Nombre, u.Apellidos, u.Salario, u.FechaIngreso, u.CantVacacion, u.Estado';
+var selectNoPassword = 'u.id, u.idTipoUsuario, u.idTipoContrato, u.identificacion, u.correo, u.nombre, u.salario, u.fechaIngreso, u.vacacion, u.idPuesto, u.telefono';
 
 module.exports.get = async(req, res, next) => {
   try {
     const data = await db.query(`
-      SELECT ${selectNoPassword}, tu.descripcion as TipoUsuarioDescripcion, tc.descripcion as TipoContratoDescripcion
+      SELECT ${selectNoPassword}, tu.descripcion as tipoUsuarioDescripcion, tc.descripcion as tipoContratoDescripcion, p.descripcion as puestoDescripcion
       FROM ${nombreTabla} u
       INNER JOIN tipoUsuario tu ON u.idTipoUsuario = tu.id 
-      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id 
+      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id
+      LEFT JOIN puesto p ON u.idPuesto = p.id
       WHERE u.estado != 0`);
-    if(data) {
-      res.status(200).send({
-        success: true,
-        message: 'Datos obtenidos correctamente',
-        data: data[0]
-      });
-    } else {
-      res.status(404).send({
-        success: false,
-        message: 'No se encontraron datos',
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: 'Error al obtener datos',
-      error: error
-    })
-  }
-}
-
-module.exports.getAll = async(req, res, next) => {
-  try {
-    const data = await db.query(`
-      SELECT ${selectNoPassword}, tu.descripcion as TipoUsuarioDescripcion, tc.descripcion as TipoContratoDescripcion 
-      FROM ${nombreTabla} u 
-      INNER JOIN tipoUsuario tu ON u.idTipoUsuario = tu.id 
-      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id 
-      ORDER BY u.estado DESC`);
     if(data) {
       res.status(200).send({
         success: true,
@@ -79,11 +50,12 @@ module.exports.getById = async(req, res, next) => {
       });
     }
     const data = await db.query(`
-      SELECT ${selectNoPassword}, tu.descripcion as TipoUsuarioDescripcion, tc.descripcion as TipoContratoDescripcion
+      SELECT ${selectNoPassword}, tu.descripcion as tipoUsuarioDescripcion, tc.descripcion as tipoContratoDescripcion, p.descripcion as puestoDescripcion
       FROM ${nombreTabla} u
       INNER JOIN tipoUsuario tu ON u.idTipoUsuario = tu.id 
-      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id 
-      WHERE u.id = ?`, [id]);
+      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id
+      LEFT JOIN puesto p ON u.idPuesto = p.id
+      WHERE u.estado != 0 AND u.id = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -115,7 +87,7 @@ module.exports.getByIdentificacion = async(req, res, next) => {
         message: 'Id inválido',
       });
     }
-    const data = await db.query(`SELECT ${selectNoPassword} FROM ${nombreTabla} u WHERE identificacion = ?`, [id]);
+    const data = await db.query(`SELECT ${selectNoPassword} FROM ${nombreTabla} u WHERE u.estado != 0 AND u.identificacion = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -147,7 +119,7 @@ module.exports.getByCorreo = async(req, res, next) => {
         message: 'Correo inválido',
       });
     }
-    const data = await db.query(`SELECT ${selectNoPassword} FROM ${nombreTabla} u WHERE correo = ?`, [correo]);
+    const data = await db.query(`SELECT ${selectNoPassword} FROM ${nombreTabla} u WHERE u.estado != 0 AND u.correo = ?`, [correo]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -186,7 +158,7 @@ module.exports.login = async (req, res, next) => {
         const usuario = data[0][0];
   
         // If usuario is inactive
-        if (usuario.Estado === 0) {
+        if (usuario.estado === 0) {
           return res.status(401).json({
               success: false,
               message: "Usuario denegado",
@@ -194,7 +166,7 @@ module.exports.login = async (req, res, next) => {
         }
         
         // Compare passwords
-        const compararPassword = await bcrypt.compare(usuarioReq.password, usuario.Password);
+        const compararPassword = await bcrypt.compare(usuarioReq.password, usuario.password);
         if (!compararPassword) {
           return res.status(401).json({
               success: false,
@@ -204,9 +176,9 @@ module.exports.login = async (req, res, next) => {
 
         // Create payload
         const payload = {
-          id: usuario.Id,
-          correo: usuario.Correo,
-          idTipoUsuario: usuario.IdTipoUsuario
+          id: usuario.id,
+          correo: usuario.correo,
+          idTipoUsuario: usuario.idTipoUsuario
         };
   
         // Create JWT token
@@ -214,7 +186,7 @@ module.exports.login = async (req, res, next) => {
           expiresIn: process.env.JWT_EXPIRE
         });
         
-        delete usuario['Password'];
+        delete usuario['password'];
         
         res.status(200).json({
           status: 200,
@@ -253,47 +225,23 @@ module.exports.login = async (req, res, next) => {
     }
 };
 
-module.exports.logout = async (req, res, next) => {
-  if (req.session) {
-    req.session.destroy((err) => {
-      if (err) {
-        res.status(500).send({
-          success: false,
-          message: 'Error en logout usuario',
-          error: error
-        })
-      } else {
-        res.status(200).json({
-          status:200,
-          success: true,
-          message: "Usuario deslogueado"
-        });
-      }
-    })
-  } else {
-    res.status(404).send({
-      success: false,
-      message: 'Usuario no logueado',
-    });
-  }
-}
-
 module.exports.registrar = async (req, res, next) => {
   try {
     const usuarioData = req.body;
-    
+
     let usuario = {
-      idTipoUsuario: usuarioData.IdTipoUsuario ?? usuarioData.idTipoUsuario,
-      idTipoContrato: usuarioData.IdTipoContrato ?? usuarioData.idTipoContrato ?? null,
-      identificacion: usuarioData.Identificacion ?? usuarioData.identificacion,
-      correo: usuarioData.Correo ?? usuarioData.correo,
-      password: usuarioData.Password ?? usuarioData.password,
-      nombre: usuarioData.Nombre ?? usuarioData.nombre,
-      apellidos: usuarioData.Apellidos ?? usuarioData.apellidos,
-      salario: usuarioData.Salario ?? usuarioData.salario ?? null,
-      fechaIngreso: usuarioData.FechaIngreso ?? usuarioData.fechaIngreso ?? null,
-      cantVacacion: usuarioData.CantVacacion ?? usuarioData.cantVacacion ?? null
-    };
+      idTipoUsuario: usuarioData.idTipoUsuario,
+      idTipoContrato: usuarioData.idTipoContrato ?? null,
+      identificacion: usuarioData.identificacion,
+      correo: usuarioData.correo,
+      password: usuarioData.password ?? null,
+      nombre: usuarioData.nombre,
+      salario: usuarioData.salario ?? null,
+      fechaIngreso: usuarioData.fechaIngreso ?? null,
+      vacacion: usuarioData.vacacion ?? null,
+      idPuesto: usuarioData.idPuesto ?? null,
+      telefono: usuarioData.telefono ?? null
+    }
 
     validarUsuario(usuario);
   
@@ -326,6 +274,7 @@ module.exports.registrar = async (req, res, next) => {
         id: 'duplicado',
       });
     } else {
+      console.log(error);
       res.status(500).send({
         success: false,
         message: 'Error en registrar usuario',
@@ -348,17 +297,17 @@ module.exports.actualizar = async (req, res, next) => {
     const usuarioData = req.body;
     
     let usuario = {
-      idTipoUsuario: usuarioData.IdTipoUsuario ?? usuarioData.idTipoUsuario,
-      idTipoContrato: usuarioData.IdTipoContrato ?? usuarioData.idTipoContrato ?? null,
-      identificacion: usuarioData.Identificacion ?? usuarioData.identificacion,
-      correo: usuarioData.Correo ?? usuarioData.correo,
-      password: usuarioData.Password ?? usuarioData.password ?? null,
-      nombre: usuarioData.Nombre ?? usuarioData.nombre,
-      apellidos: usuarioData.Apellidos ?? usuarioData.apellidos,
-      salario: usuarioData.Salario ?? usuarioData.salario ?? null,
-      fechaIngreso: usuarioData.FechaIngreso ?? usuarioData.fechaIngreso ?? null,
-      cantVacacion: usuarioData.CantVacacion ?? usuarioData.cantVacacion ?? null,
-      estado: usuarioData.Estado ?? usuarioData.estado
+      idTipoUsuario: usuarioData.idTipoUsuario,
+      idTipoContrato: usuarioData.idTipoContrato ?? null,
+      identificacion: usuarioData.identificacion,
+      correo: usuarioData.correo,
+      password: usuarioData.password ?? null,
+      nombre: usuarioData.nombre,
+      salario: usuarioData.salario ?? null,
+      fechaIngreso: usuarioData.fechaIngreso ?? null,
+      vacacion: usuarioData.vacacion ?? null,
+      idPuesto: usuarioData.idPuesto ?? null,
+      telefono: usuarioData.telefono ?? null
     }
 
     validarUsuario(usuario);
@@ -371,15 +320,15 @@ module.exports.actualizar = async (req, res, next) => {
 
       data = await db.query(`
         UPDATE ${nombreTabla} 
-        SET idTipoUsuario = ?, idTipoContrato = ?, identificacion = ?, correo = ?, nombre = ?, apellidos = ?, salario = ?, fechaIngreso = ?, cantVacacion = ?, estado = ?, password = ? 
+        SET idTipoUsuario = ?, idTipoContrato = ?, identificacion = ?, correo = ?, nombre = ?, salario = ?, fechaIngreso = ?, vacacion = ?, idPuesto = ?, telefono = ?, password = ? 
         WHERE id = ?`, 
-        [usuario.idTipoUsuario, usuario.idTipoContrato, usuario.identificacion, usuario.correo, usuario.nombre, usuario.apellidos, usuario.salario, usuario.fechaIngreso, usuario.cantVacacion, usuario.estado, hash, id]);
+        [usuario.idTipoUsuario, usuario.idTipoContrato, usuario.identificacion, usuario.correo, usuario.nombre, usuario.salario, usuario.fechaIngreso, usuario.vacacion, usuario.idPuesto, usuario.telefono, hash, id]);
     } else {
       data = await db.query(`
         UPDATE ${nombreTabla} 
-        SET idTipoUsuario = ?, idTipoContrato = ?, identificacion = ?, correo = ?, nombre = ?, apellidos = ?, salario = ?, fechaIngreso = ?, cantVacacion = ?, estado = ? 
+        SET idTipoUsuario = ?, idTipoContrato = ?, identificacion = ?, correo = ?, nombre = ?, salario = ?, fechaIngreso = ?, vacacion = ?, idPuesto = ?, telefono = ?
         WHERE id = ?`, 
-        [usuario.idTipoUsuario, usuario.idTipoContrato, usuario.identificacion, usuario.correo, usuario.nombre, usuario.apellidos, usuario.salario, usuario.fechaIngreso, usuario.cantVacacion, usuario.estado, id]);
+        [usuario.idTipoUsuario, usuario.idTipoContrato, usuario.identificacion, usuario.correo, usuario.nombre, usuario.salario, usuario.fechaIngreso, usuario.vacacion, usuario.idPuesto, usuario.telefono, id]);
     }
     
     
@@ -404,12 +353,37 @@ module.exports.actualizar = async (req, res, next) => {
   }
 };
 
+module.exports.borrar = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+
+    await db.query(`UPDATE ${nombreTabla} SET estado = 0 WHERE id = ?`, [id]);
+    res.status(201).json({
+        status: true,
+        message: `${nombreTabla} borrado`
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `Error en borrar ${nombreTabla}`,
+      error: error
+    });
+  }
+};
+
 function validarUsuario(usuarioData) {
   const MAX_IDENTIFICACION_LENGTH = 20;
   const MAX_CORREO_LENGTH = 250;
   const MAX_PASSWORD_LENGTH = 60;
-  const MAX_NOMBRE_LENGTH = 100;
-  const MAX_APELLIDOS_LENGTH = 150;
+  const MAX_NOMBRE_LENGTH = 250;
+  const MAX_TELEFONO_LENGTH = 20; 
 
   const MIN_SALARIO = 100;
   const MAX_SALARIO = 999999999;
@@ -427,48 +401,49 @@ function validarUsuario(usuarioData) {
   if (!usuarioData.identificacion) {
     throw new Error('identificacion es requerida');
   }
-  if (!usuarioData.identificacion.length > MAX_IDENTIFICACION_LENGTH) {
+  if (usuarioData.identificacion.length > MAX_IDENTIFICACION_LENGTH) {
     throw new Error(`identificacion no debe exceder el limite de ${MAX_IDENTIFICACION_LENGTH} carácteres`);
   }
   
   if (!usuarioData.correo || !isValidEmail(usuarioData.correo)) {
     throw new Error('correo es requerido y debe ser un correo electrónico válido');
   }
-  if (!usuarioData.correo.length > MAX_CORREO_LENGTH) {
+  if (usuarioData.correo.length > MAX_CORREO_LENGTH) {
     throw new Error(`correo no debe exceder el limite de ${MAX_CORREO_LENGTH} carácteres`);
   }
   
   if (!usuarioData.password) {
     throw new Error('password es requerida');
   }
-  if (!usuarioData.password.length > MAX_PASSWORD_LENGTH) {
+  if (usuarioData.password.length > MAX_PASSWORD_LENGTH) {
     throw new Error(`password no debe exceder el limite de ${MAX_PASSWORD_LENGTH} carácteres`);
   }
   
   if (!usuarioData.nombre) {
     throw new Error('nombre es requerido');
   }
-  if (!usuarioData.nombre.length > MAX_NOMBRE_LENGTH) {
+  if (usuarioData.nombre.length > MAX_NOMBRE_LENGTH) {
     throw new Error(`nombre no debe exceder el limite de ${MAX_NOMBRE_LENGTH} carácteres`);
   }
-  
-  if (!usuarioData.apellidos) {
-    throw new Error('apellidos es requerido');
+
+  if (usuarioData.telefono !== null && !isValidTelefono(usuarioData.telefono) || usuarioData.telefono !== null && usuarioData.telefono.length > MAX_TELEFONO_LENGTH) {
+    throw new Error(`telefono debe ser un número de telefono válido y no debe exceder el limite de ${MAX_TELEFONO_LENGTH} carácteres`);
   }
-  if (!usuarioData.apellidos.length > MAX_APELLIDOS_LENGTH) {
-    throw new Error(`apellidos no debe exceder el limite de ${MAX_APELLIDOS_LENGTH} carácteres`);
+  
+  if (usuarioData.idPuesto !== null && isNaN(usuarioData.idPuesto) || usuarioData.idPuesto < MIN_ID || usuarioData.idPuesto > MAX_ID) {
+    throw new Error('idPuesto debe ser un número válido');
   }
   
   if (usuarioData.salario !== null && (isNaN(usuarioData.salario) || usuarioData.salario < MIN_SALARIO || usuarioData.salario > MAX_SALARIO)) {
     throw new Error('salario debe ser un número válido dentro del límite establecido');
   }
 
-  if (usuarioData.fechaIngreso && !isValidDate(usuarioData.fechaIngreso)) {
+  if (usuarioData.fechaIngreso !== null && !isValidDate(usuarioData.fechaIngreso)) {
     throw new Error('fechaIngreso must be a valid date');
   }
 
-  if (usuarioData.cantVacacion !== null && (isNaN(usuarioData.cantVacacion) || usuarioData.cantVacacion < MIN_ID || usuarioData.cantVacacion > MAX_ID)) {
-    throw new Error('cantVacacion debe ser un número válido dentro del límite establecido');
+  if (usuarioData.vacacion !== null && (isNaN(usuarioData.vacacion) || usuarioData.vacacion < MIN_ID || usuarioData.vacacion > MAX_ID)) {
+    throw new Error('vacacion debe ser un número válido dentro del límite establecido');
   }
 }
 
@@ -481,18 +456,24 @@ function isValidDate(dateString) {
   return !isNaN(Date.parse(dateString));
 }
 
+function isValidTelefono(telefono) {
+  const telefonoRegex = /^[+]?[\d\s\-().]{0,20}$/;
+  return telefonoRegex.test(telefono);
+}
+
 
 const nombresPermitidos = {
-  'TipoUsuario': ['tipousuario', 'tipodeusuario', 'rol'],
-  'TipoContrato': ['tipocontrato', 'tipodecontrato', 'contrato'],
-  'Identificacion': ['identificacion', 'id', 'numerodeidentificacion', 'cedula', 'numerodecedula'],
-  'Correo': ['correo', 'correoelectronico', 'email', 'mail'],
-  'Password': ['password', 'contrasena', 'contraseña'],
-  'Nombre': ['nombre', 'nombres'],
-  'Apellidos': ['apellidos', 'apellido'],
-  'Salario': ['salario', 'sueldo'],
-  'FechaIngreso': ['fechaingreso', 'fechadeingreso', 'fechainicio', 'fechadeinicio', 'fecha'],
-  'CantVacacion': ['cantvacacion', 'cantvacaciones', 'cantidaddevacaciones', 'cantidaddevacacionesinicial', 'cantidaddevacacionesiniciales', 'vacacionesiniciales', 'vacacioninicial']
+  'tipoUsuario': ['tipousuario', 'tipodeusuario', 'rol'],
+  'tipoContrato': ['tipocontrato', 'tipodecontrato', 'contrato'],
+  'identificacion': ['identificacion', 'id', 'numerodeidentificacion', 'cedula', 'numerodecedula'],
+  'correo': ['correo', 'correoelectronico', 'email', 'mail'],
+  'password': ['password', 'contrasena', 'contraseña'],
+  'nombre': ['nombre', 'nombres', 'nombrecompleto', 'nombreyapellidos'],
+  'puesto': ['puesto', 'posicion'],
+  'telefono': ['telefono', 'numerotelefono', 'numerodetelefono'],
+  'salario': ['salario', 'sueldo'],
+  'fechaIngreso': ['fechaingreso', 'fechadeingreso', 'fechainicio', 'fechadeinicio', 'fecha'],
+  'vacacion': ['cantvacacion', 'cantvacaciones', 'cantidaddevacaciones', 'cantidaddevacacionesinicial', 'cantidaddevacacionesiniciales', 'vacacionesiniciales', 'vacacioninicial', 'vacacion', 'vacaciones']
 };
 
 function formatearNombre(nombre) {
@@ -517,12 +498,27 @@ function validarNombre(nombreActual) {
   return null;
 }
 
-function validarDatos(data) {
+async function getMap(tabla) {
+  const data = await db.query(`SELECT * FROM ${tabla}`);
+  
+  const mapping = {};
+  data[0].forEach(row => {
+    mapping[formatearNombre(row.descripcion)] = row.id;
+  });
+  
+  return mapping;
+}
+
+async function validarDatos(data) {
   let datos = [];
   let fila = {};
   let errors = {};
   let isAdmin = false;
   let isAsalariado = false;
+
+  const tipoUsuarios = await getMap('tipoUsuario');
+  const tipoContratos = await getMap('tipoContrato');
+  const puestos = await getMap('puesto');
 
   const minSalario = 100;
   const maxSalario = 999999999;
@@ -539,121 +535,171 @@ function validarDatos(data) {
         errors['nombreColumnaExcel'][nombreColumnaExcel] = `El nombre de columna '${nombreColumnaExcel}' no fue reconocido.`;
       } else {
         switch (nombreValidado) {
-          case 'TipoUsuario':
+          case 'tipoUsuario':
             if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 45) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['TipoUsuario'] = `El tipo de usuario excede el límite de 45 carácteres.`;
+              errors[rowIndex + 1]['tipoUsuario'] = `El tipo de usuario excede el límite de 45 carácteres.`;
             } else {
-              const allowedTiposUsuario = ['administrador', 'admin', 'usuario'];
               let tipoUsuario = row[nombreColumnaExcel] ? formatearNombre(row[nombreColumnaExcel]) : '';
+              const idTipoUsuario = tipoUsuarios[tipoUsuario];
               
-              if (row[nombreColumnaExcel] && !allowedTiposUsuario.includes(tipoUsuario)) {
+              if (!idTipoUsuario) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-                errors[rowIndex + 1]['TipoUsuario'] = `El tipo de usuario es inválido. Debe ser 'Administrador' o 'Usuario'.`;
+                errors[rowIndex + 1]['tipoUsuario'] = `El tipo de usuario es inválido.`;
               } else {
-                if (tipoUsuario === 'administrador' || tipoUsuario === 'admin') {
-                  tipoUsuario = 'Administrador';
-                  isAdmin = true;
-                } else if (tipoUsuario === 'usuario') {
-                  isAdmin = false;
-                  tipoUsuario = 'Usuario';
+                switch (idTipoUsuario) {
+                  case 1:
+                    isAdmin = true;
+                    tipoUsuario = 'Administrador';
+                    break;
+                  case 2:
+                    isAdmin = false;
+                    tipoUsuario = 'Usuario';
+                    break;
+                  case 3:
+                    isAdmin = false;
+                    tipoUsuario = 'Supervisor';
+                    break;
+                  case 4:
+                    isAdmin = false;
+                    tipoUsuario = 'Capacitador';
+                    break;
+                  default:
+                    isAdmin = false;
+                    break;
                 }
                 row[nombreColumnaExcel] = tipoUsuario;
               }
             }
             break;
-          case 'TipoContrato':
+          case 'tipoContrato':
             if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 45) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['TipoContrato'] = `El tipo de contrato excede el límite de 45 carácteres`;
+              errors[rowIndex + 1]['tipoContrato'] = `El tipo de contrato excede el límite de 45 carácteres`;
             } else {
-              const allowedTiposContrato = ['asalariado', 'serviciosprofesionales', 'servicios'];
-              let tipocontrato = row[nombreColumnaExcel] ? formatearNombre(row[nombreColumnaExcel]) : '';
-
-              if (row[nombreColumnaExcel] && !allowedTiposContrato.includes(tipocontrato)) {
+              let tipoContrato = row[nombreColumnaExcel] ? formatearNombre(row[nombreColumnaExcel]) : '';
+              const idTipoContrato = tipoContratos[tipoContrato];
+              
+              if (!idTipoContrato) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-                errors[rowIndex + 1]['TipoContrato'] = `El tipo de contrato es inválido. Debe ser 'Asalariado' o 'Servicios profesionales'`;
+                errors[rowIndex + 1]['tipoContrato'] = `El tipo de contrato es inválido.`;
               } else {
-                if (tipocontrato === 'asalariado') {
-                  tipocontrato = 'Asalariado';
-                  isAsalariado = true;
-                } else if (tipocontrato === 'serviciosprofesionales' || tipocontrato === 'servicios') {
-                  tipocontrato = 'Servicios Profesionales';
-                  isAsalariado = false;
+                switch (idTipoContrato) {
+                  case 1:
+                    isAsalariado = true;
+                    tipoContrato = 'Asalariado';
+                    break;
+                  case 2:
+                    isAsalariado = false;
+                    tipoContrato = 'Servicios Profesionales';
+                    break;
+                  default:
+                    isAsalariado = false;
+                    break;
                 }
-                row[nombreColumnaExcel] = tipocontrato;
+                row[nombreColumnaExcel] = tipoContrato;
               }
             }
             break;
-          case 'Identificacion':
+          case 'identificacion':
             if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 20) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['Identificacion'] = `La identificacion excede el límite de 20 carácteres`;
+              errors[rowIndex + 1]['identificacion'] = `La identificacion excede el límite de 20 carácteres`;
             }
             break;
-          case 'Correo':
+          case 'correo':
             if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 250) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['Correo'] = `El correo electrónico excede el límite de 250 carácteres`;
+              errors[rowIndex + 1]['correo'] = `El correo electrónico excede el límite de 250 carácteres`;
             } else {
               const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   
               if (row[nombreColumnaExcel] && !emailRegex.test(row[nombreColumnaExcel].toString().trim())) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-                errors[rowIndex + 1]['Correo'] = `El correo electrónico es inválido. Debe ser un correo electrónico válido`;
+                errors[rowIndex + 1]['correo'] = `El correo electrónico es inválido. Debe ser un correo electrónico válido`;
               }
             }
             break;
-          case 'Password':
+          case 'password':
             if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 60) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['Password'] = `la Contraseña excede el límite de 60 carácteres`;
+              errors[rowIndex + 1]['password'] = `La contraseña excede el límite de 60 carácteres`;
             }
             break;
-          case 'Nombre':
-            if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 100) {
+          case 'nombre':
+            if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 250) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['Nombre'] = `El nombre excede el límite de 100 carácteres`;
+              errors[rowIndex + 1]['nombre'] = `El nombre excede el límite de 250 carácteres`;
             }
             break;
-          case 'Apellidos':
-            if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 150) {
+          case 'puesto':
+            if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 45) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['Apellidos'] = `Los apellidos exceden el límite de 150 carácteres`;
+              errors[rowIndex + 1]['puesto'] = `El tipo de contrato excede el límite de 45 carácteres`;
+            } else {
+              let puesto = row[nombreColumnaExcel] ? formatearNombre(row[nombreColumnaExcel]) : '';
+              const idPuesto = puestos[puesto];
+              
+              if (!idPuesto) {
+                if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
+                errors[rowIndex + 1]['puesto'] = `El puesto es inválido.`;
+              } else {
+                switch (idPuesto) {
+                  case 1:
+                    puesto = 'TI';
+                    break;
+                  default:
+                    puesto = 'No definido';
+                    break;
+                }
+                row[nombreColumnaExcel] = puesto;
+              }
             }
             break;
-          case 'Salario':
+          case 'telefono':
+            if (row[nombreColumnaExcel] && row[nombreColumnaExcel].toString().trim().length > 20) {
+              if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
+              errors[rowIndex + 1]['telefono'] = `El telefono excede el límite de 20 carácteres`;
+            } else {
+              const telefonoRegex = /^[+]?[\d\s\-().]{0,20}$/;
+  
+              if (row[nombreColumnaExcel] && !telefonoRegex.test(row[nombreColumnaExcel].toString().trim())) {
+                if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
+                errors[rowIndex + 1]['telefono'] = `El telefono es inválido.`;
+              }
+            }
+          case 'salario':
             if (isNaN(row[nombreColumnaExcel])) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['Salario'] = `El salario es inválido. Debe ser un número válido`;
+              errors[rowIndex + 1]['salario'] = `El salario es inválido. Debe ser un número válido`;
             } else {
               const salario = parseFloat(row[nombreColumnaExcel]);
               if (salario < minSalario || salario > maxSalario) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-                errors[rowIndex + 1]['Salario'] = `El salario está fuera de los límites establecidos. Debe estar entre ${minSalario} y ${maxSalario}.`;
+                errors[rowIndex + 1]['salario'] = `El salario está fuera de los límites establecidos. Debe estar entre ${minSalario} y ${maxSalario}.`;
               }
             }
             break;
-          case 'FechaIngreso':
+          case 'fechaIngreso':
             const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
             const fechaFormateada = formatearFecha(row[nombreColumnaExcel]);
 
             if (row[nombreColumnaExcel] && !dateRegex.test(fechaFormateada.trim())) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['FechaIngreso'] = `La fecha es inválida. Revise el formato de la misma`;
+              errors[rowIndex + 1]['fechaIngreso'] = `La fecha es inválida. Revise el formato de la misma`;
             } else {
               row[nombreColumnaExcel] = fechaFormateada;
             }
             break;
-          case 'CantVacacion':
+          case 'vacacion':
             if (isNaN(row[nombreColumnaExcel])) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['CantVacacion'] = `La cantidad de vacaciones es inválida. Debe ser un número válido`;
+              errors[rowIndex + 1]['vacacion'] = `La cantidad de vacaciones es inválida. Debe ser un número válido`;
             } else {
               const vacaciones = parseFloat(row[nombreColumnaExcel]);
               if (vacaciones < minVacaciones || vacaciones > maxVacaciones) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-                errors[rowIndex + 1]['CantVacacion'] = `La cantidad de vacaciones está fuera de los límites establecidos. Debe estar entre ${minVacaciones} y ${maxVacaciones}.`;
+                errors[rowIndex + 1]['vacacion'] = `La cantidad de vacaciones está fuera de los límites establecidos. Debe estar entre ${minVacaciones} y ${maxVacaciones}.`;
               }
             }
             break;
@@ -662,64 +708,73 @@ function validarDatos(data) {
       fila[nombreValidado] = row[nombreColumnaExcel];
     }
     
-    if (!fila['TipoUsuario']) {
-      if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-      errors[rowIndex + 1]['TipoUsuario'] = `El tipo de usuario es requerido. Ingrese los datos solicitados`;
+    if (!fila['tipoUsuario']) {
+      fila['tipoUsuario'] = 'Usuario';
+      isAdmin = false;
     }
 
-    if (!fila['Identificacion']) {
+    if (!fila['identificacion']) {
       if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-      errors[rowIndex + 1]['Identificacion'] = `La identificacion es requerida. Ingrese los datos solicitados`;
+      errors[rowIndex + 1]['identificacion'] = `La identificacion es requerida. Ingrese los datos solicitados`;
     }
 
-    if (!fila['Correo']) {
+    if (!fila['correo']) {
       if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-      errors[rowIndex + 1]['Correo'] = `El correo electrónico es requerido. Ingrese los datos solicitados`;
+      errors[rowIndex + 1]['correo'] = `El correo electrónico es requerido. Ingrese los datos solicitados`;
     }
 
-    if (!fila['Password']) {
-      if (fila['Identificacion']) {
-        fila['Password'] = fila['Identificacion'];
+    if (!fila['password']) {
+      if (fila['identificacion']) {
+        fila['password'] = fila['identificacion'];
+
+        if (fila['password'] && fila['password'].toString().trim().length > 60) {
+          if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
+          errors[rowIndex + 1]['password'] = `La contraseña excede el límite de 60 carácteres`;
+        }
       }
     }
     
-    if (!fila['Nombre']) {
+    if (!fila['nombre']) {
       if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-      errors[rowIndex + 1]['Nombre'] = `El nombre es requerido. Ingrese los datos solicitados`;
+      errors[rowIndex + 1]['nombre'] = `El nombre es requerido. Ingrese los datos solicitados`;
     }
 
-    if (!fila['Apellidos']) {
-      if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-      errors[rowIndex + 1]['Apellidos'] = `Los apellidos son requeridos. Ingrese los datos solicitados`;
-    }
-    
     if (!isAdmin) {
-      if (!fila['TipoContrato']) {
+      if (!fila['puesto']) {
         if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-        errors[rowIndex + 1]['TipoContrato'] = `El tipo de contrato es requerido para usuarios. Ingrese los datos solicitados`;
+        errors[rowIndex + 1]['puesto'] = `El puesto es requerido para usuarios. Ingrese los datos solicitados`;
+      }
+      if (!fila['telefono']) {
+        if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
+        errors[rowIndex + 1]['telefono'] = `El telefono es requerido para usuarios. Ingrese los datos solicitados`;
+      }
+      if (!fila['tipoContrato']) {
+        fila['tipoContrato'] = 'Asalariado';
       }
 
-      if (!fila['Salario']) {
+      if (!fila['salario']) {
         if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-        errors[rowIndex + 1]['Salario'] = `El salario es requerido para usuarios. Ingrese los datos solicitados`;
+        errors[rowIndex + 1]['salario'] = `El salario es requerido para usuarios. Ingrese los datos solicitados`;
       }
 
-      if (!fila['FechaIngreso']) {
-        fila['FechaIngreso'] = fechaHoy();
+      if (!fila['fechaIngreso']) {
+        fila['fechaIngreso'] = fechaHoy();
       }
 
       if (isAsalariado) {
-        if (!fila['CantVacacion']) {
-          fila['CantVacacion'] = 0;
+        if (!fila['vacacion']) {
+          fila['vacacion'] = 0;
         }
       } else {
-        delete fila['CantVacacion'];
+        delete fila['vacacion'];
       }
     } else {
-      delete fila['TipoContrato'];
-      delete fila['Salario'];
-      delete fila['FechaIngreso'];
-      delete fila['CantVacacion'];
+      delete fila['puesto'];
+      delete fila['telefono'];
+      delete fila['tipoContrato'];
+      delete fila['salario'];
+      delete fila['fechaIngreso'];
+      delete fila['vacacion'];
     }
 
     datos.push(fila)
@@ -765,7 +820,7 @@ module.exports.verificarUsuariosSubidos = async (req, res, next) => {
     const sheet = workbook.Sheets[sheetName];
     const data = xlsx.utils.sheet_to_json(sheet);
 
-    const validacion = validarDatos(data);
+    const validacion = await validarDatos(data);
     const erroresDatos = validacion.errors;
     const usuarios = validacion.datos;
 
@@ -808,27 +863,41 @@ module.exports.registrarMultiples = async (req, res, next) => {
   try {
     const usuariosData = req.body;
 
+    const correos = usuariosData.map(u => u.correo);
+
+    const [duplicados] = await db.query(`SELECT correo FROM ${nombreTabla} WHERE estado != 0 AND correo IN (?)`, [correos]);
+
+    if (duplicados.length > 0) {
+      const error = duplicados.map(usuario => `${usuario.correo}`).join('<br>');
+
+      return res.status(400).json({
+        success: false,
+        message: `Los siguientes correos ya están ocupados por otros usuarios: <br>${error}`,
+        id: 'duplicado',
+      });
+    }
+
     const usuariosPromises = usuariosData.map(async (usuarioData) => {
 
       let usuario = {
-        idTipoUsuario: usuarioData.IdTipoUsuario ?? usuarioData.idTipoUsuario,
-        idTipoContrato: usuarioData.IdTipoContrato ?? usuarioData.idTipoContrato ?? null,
-        identificacion: usuarioData.Identificacion ?? usuarioData.identificacion,
-        correo: usuarioData.Correo ?? usuarioData.correo,
-        password: usuarioData.Password ?? usuarioData.password,
-        nombre: usuarioData.Nombre ?? usuarioData.nombre,
-        apellidos: usuarioData.Apellidos ?? usuarioData.apellidos,
-        salario: usuarioData.Salario ?? usuarioData.salario ?? null,
-        fechaIngreso: usuarioData.FechaIngreso ?? usuarioData.fechaIngreso ?? null,
-        cantVacacion: usuarioData.CantVacacion ?? usuarioData.cantVacacion ?? null
+        idTipoUsuario: usuarioData.idTipoUsuario,
+        idTipoContrato: usuarioData.idTipoContrato ?? null,
+        identificacion: usuarioData.identificacion,
+        correo: usuarioData.correo,
+        password: usuarioData.password,
+        nombre: usuarioData.nombre,
+        salario: usuarioData.salario ?? null,
+        fechaIngreso: usuarioData.fechaIngreso ?? null,
+        vacacion: usuarioData.vacacion ?? null,
+        idPuesto: usuarioData.idPuesto ?? null,
+        telefono: usuarioData.telefono ?? null
       };
-      // Validate each user data
+
       validarUsuario(usuario);
 
-  
-      //Salt es una cadena aleatoria.
-      //"salt round" factor de costo controla cuánto tiempo se necesita para calcular un solo hash de BCrypt
-      // salt es un valor aleatorio y debe ser diferente para cada cálculo, por lo que el resultado casi nunca debe ser el mismo, incluso para contraseñas iguales
+      // Salt is a random string.
+      // The "salt round" cost factor controls how long it takes to calculate a single BCrypt hash.
+      // Salt is a random value and should be different for each calculation, so the result should almost never be the same, even for the same passwords.
       let salt = bcrypt.genSaltSync(10);
       let hash = bcrypt.hashSync(usuario.password.toString(), salt);
 
@@ -854,10 +923,11 @@ module.exports.registrarMultiples = async (req, res, next) => {
 
           res.status(400).json({
             success: false,
-            message: `Identificación o correo '${duplicatedValue}' ya está en uso por otro usuario`,
+            message: `Correo '${duplicatedValue}' ya está en uso por otro usuario`,
             id: 'duplicado',
           });
         } else {
+          console.log(error);
           res.status(400).json({
             success: false,
             message: error.message,
@@ -865,6 +935,7 @@ module.exports.registrarMultiples = async (req, res, next) => {
         }
       });
   } catch (error) {
+    console.log(error);
     res.status(400).json({
       success: false,
       message: error.message,
@@ -875,29 +946,29 @@ module.exports.registrarMultiples = async (req, res, next) => {
 module.exports.exportUsuarios = async(req, res, next) => {
   try {
     const data = await db.query(`
-      SELECT ${selectNoPassword}, tu.descripcion as TipoUsuarioDescripcion, tc.descripcion as TipoContratoDescripcion
+      SELECT ${selectNoPassword}, tu.descripcion as tipoUsuarioDescripcion, tc.descripcion as tipoContratoDescripcion, p.descripcion as puestoDescripcion
       FROM ${nombreTabla} u
       INNER JOIN tipoUsuario tu ON u.idTipoUsuario = tu.id 
-      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id 
-      WHERE u.estado != 0`);
+      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id
+      LEFT JOIN puesto p ON u.idPuesto = p.id`);
     if(data) {
       let workbook = new exceljs.Workbook();
       let worksheet = workbook.addWorksheet('Usuarios');
 
-      const headers = ['Identificacion', 'Tipo de Usuario', 'Nombre', 'Apellidos', 'Correo Electrónico', 'Tipo de Contrato', 'Salario', 'Fecha de Ingreso', 'Cantidad de Vacaciones', 'Estado'];
+      const headers = ['Nombre', 'Cedula', 'Tipo de Usuario', 'Puesto', 'Correo', 'Salario', 'Tipo de Contrato', 'Vacaciones', 'Telefono', 'Fecha de Ingreso'];
       const headerRows = worksheet.addRow(headers);
 
 
       headerRows.eachCell((cell, colNumber) => {
         cell.font = { bold: true };
-        cell.alignment = { vertical: 'middle', horizontal: 'center' };
       });
 
 
       const columnWidths = headers.map(header => header.length);
 
       data[0].forEach(usuario => {
-        const row = worksheet.addRow([usuario.Identificacion, usuario.TipoUsuarioDescripcion, usuario.Nombre, usuario.Apellidos, usuario.Correo, usuario.TipoContratoDescripcion, usuario.Salario, usuario.FechaIngreso, usuario.CantVacacion, usuario.Estado == 1 ? 'Habilitado' : 'Deshabilitado']);
+        const headers = ['Nombre', 'Cedula', 'Tipo de Usuario', 'Puesto', 'Correo', 'Salario', 'Tipo de Contrato', 'Vacaciones', 'Telefono', 'Fecha de Ingreso'];
+        const row = worksheet.addRow([usuario.nombre, usuario.identificacion, usuario.tipoUsuarioDescripcion, usuario.puestoDescripcion, usuario.correo, usuario.salario, usuario.tipoContratoDescripcion, usuario.vacacion, usuario.telefono, usuario.fechaIngreso]);
         
         row.eachCell((cell, colNumber) => {
           if (cell.value && cell.value.toString().length > columnWidths[colNumber - 1]) {

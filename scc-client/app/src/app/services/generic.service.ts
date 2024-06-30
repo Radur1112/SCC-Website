@@ -58,6 +58,11 @@ export class GenericService {
     if (error.error) {
       id = error.error.id;
       message = error.error.message;
+      console.log(error.error)
+      if (error.error.size) {
+        id = 'sesion';
+        message = 'Sesión expirada';
+      }
     }
 
     //Códigos de estado HTTP con su respectivo mensaje
@@ -84,7 +89,7 @@ export class GenericService {
         
         break;
       default:
-        if (error.error.message === 'Failed to fetch') {
+        if (error.error && error.error.message === 'Failed to fetch') {
           this.notificacion.mensaje('Error', 'Error al obtener el archivo. Seleccionelo nuevamente.', TipoMessage.error);
         }
         break;

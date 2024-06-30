@@ -27,7 +27,7 @@
             <button mat-button color="primary" routerLink="/login" routerLinkActive="active-outline-button" class="primary-outline-button" (click)="collapseNavbar()">Inicio de Sesión</button>
           </div>
           <ng-template #loggedIn>
-            <button mat-icon-button class="iconoUsuario" [matMenuTriggerFor]="opcionesUsuario">
+            <button mat-icon-button class="iconoUsuario" [matMenuTriggerFor]="opcionesUsuario"  matTooltip="Menú de Usuario">
               <mat-icon class="primary-color">account_circle</mat-icon>
             </button>
             <mat-menu #opcionesUsuario="matMenu">
