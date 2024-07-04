@@ -197,6 +197,7 @@ export class ReclutamientoComponent {
 
     this.gService.post('reclutamiento', formData).subscribe(response => {
       this.notificacion.mensaje('Información', response.toString(), TipoMessage.success);
+      this.reclutamientoForm.reset();
     });
   }
 
@@ -209,8 +210,11 @@ export class ReclutamientoComponent {
       case 'servicio':
         asunto += "Servicio al cliente"
         break;
-      case 'ventas':
-        asunto += "Ventas"
+        case 'ventas':
+          asunto += "Ventas"
+          break;
+      case 'domiciliario':
+        asunto += "Cobrador domiciliario (D2D)"
         break;
       default:
     }

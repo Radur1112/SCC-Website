@@ -134,7 +134,8 @@ module.exports.getByIdModulo = async(req, res, next) => {
       INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0
       INNER JOIN puesto p ON p.id = u.idPuesto 
       INNER JOIN modulo m ON um.idModulo = m.id AND m.estado != 0 
-      WHERE um.idModulo = ?`, [id]);
+      WHERE um.idModulo = ?
+      GROUP BY um.idModulo`, [id]);
     if(data) {
       res.status(200).send({
         success: true,

@@ -190,6 +190,7 @@
                   <mat-option value="cobros">Cobranza</mat-option>
                   <mat-option value="servicio">Servicio al cliente</mat-option>
                   <mat-option value="ventas">Ventas</mat-option>
+                  <mat-option value="domiciliario">Cobrador domiciliario (D2D)</mat-option>
                 </mat-select>
                 <mat-error *ngIf="errorHandling('trabajo','required')">
                     La selección del puesto es <strong>requerida</strong>
@@ -198,14 +199,14 @@
             </div>
   
             <div class="col-md-3 row my-3">
-              <div class="text-start">
+              <div class="text-center">
                 <mat-label>Tengo Expeciencia:</mat-label>
                 <br>
-                <mat-checkbox formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">{{textoExperiencia}}</mat-checkbox>
+                <mat-checkbox  formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">{{textoExperiencia}}</mat-checkbox>
               </div>
             </div>
   
-            <div class="col-md-4 row" my-3>
+            <div class="col-md-4 row my-3">
               <mat-form-field>
                 <mat-label>Experiencia:</mat-label>
                 <mat-select formControlName="tiempoExperiencia">

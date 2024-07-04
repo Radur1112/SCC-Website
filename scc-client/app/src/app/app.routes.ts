@@ -9,6 +9,7 @@ import { UsuarioFormComponent } from './usuario/usuario-form/usuario-form.compon
 import { UsuarioIndexComponent } from './usuario/usuario-index/usuario-index.component';
 import { AuthGuard } from './services/guards/auth.guard';
 import { CapacitacionAdminIndexComponent } from './capacitacion/capacitacion-admin-index/capacitacion-admin-index.component';
+import { CapacitacionIndexComponent } from './capacitacion/capacitacion-index/capacitacion-index.component';
 
 export const routes: Routes = [
   { path: 'inicio', component: InicioComponent },
@@ -34,7 +35,17 @@ export const routes: Routes = [
     } 
   },
 
-  { path: 'modulo/admin', component: CapacitacionAdminIndexComponent },
+  { path: 'modulo/admin', component: CapacitacionAdminIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: [1]
+    } 
+  },
+
+  { path: 'modulo', component: CapacitacionIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos']
+    } 
+  },
 
   { path:'', redirectTo:'/inicio' ,pathMatch:'full'},
   { path:'**',component:PaginaNoEncontradaComponent},

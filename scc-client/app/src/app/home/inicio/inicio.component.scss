@@ -46,6 +46,7 @@
     position: absolute; 
     max-width: 100%;
     max-height: 100%;
+    min-height: 100%;
     width: auto; 
     height: auto; 
     top: 0;
@@ -54,15 +55,14 @@
 }
 
 .div-image {
-    margin: auto;
     border-radius: 55px;
+    height: 100%;
 }
 
 .imagen-2 {
     aspect-ratio: 1 / 1;
     width: 95%;
     object-fit: cover;
-    text-align: center;
     overflow: hidden;
 }
 
@@ -89,6 +89,16 @@
   
 .secondary-button:hover::after {
     width: 80%;
+}
+
+.trabajo-container {
+    height: 100%;
+}
+
+.trabajo-lista {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .lista {
@@ -138,6 +148,13 @@
     width: 40px;
     margin: 10px 10px 10px 0;
     fill: $primary-color;
+}
+
+@media screen and (max-width: 1200px) {
+
+    .imagen-2 {
+        aspect-ratio: 1 / 1.5;
+    }
 }
 
 @media screen and (max-width: 991.98px) {

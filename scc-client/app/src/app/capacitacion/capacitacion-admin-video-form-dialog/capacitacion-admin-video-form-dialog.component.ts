@@ -89,8 +89,6 @@ export class CapacitacionAdminVideoFormDialogComponent {
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(resM) => {
             const mv = resM.data;
-            console.log(resVideo)
-            console.log(mv)
             this.videoForm.setValue({
               id: resVideo.id,
               titulo: resVideo.titulo,

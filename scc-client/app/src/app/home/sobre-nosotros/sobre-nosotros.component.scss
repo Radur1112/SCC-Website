@@ -113,10 +113,17 @@
     font-size: 30px;
 }
 
+.iconos-text {
+    margin: 90px 0;
+}
   
 @media screen and (max-width: 1400px) {
     .text-change {
         font-size: 25px;
+    }
+
+    .iconos-text {
+        margin: 60px 0;
     }
 }
 
@@ -124,6 +131,10 @@
 @media screen and (max-width: 1200px) {
     .text-change {
         font-size: 20px;
+    }
+
+    .iconos-text {
+        margin: 40px 0;
     }
 }
 
@@ -154,6 +165,10 @@
 
     .corner-image-bottom-right {
         width: 60%;
+    }
+
+    .iconos-text {
+        margin: 20px 0;
     }
 }
   

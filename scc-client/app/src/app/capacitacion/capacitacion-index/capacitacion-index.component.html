@@ -1,0 +1,52 @@
+
+
+
+<div class="container-fluid my-4">
+    <ng-container *ngIf="modulos">
+      <mat-accordion multi>
+        <mat-expansion-panel class="my-3" *ngFor="let modulo of modulos">
+            <mat-expansion-panel-header>
+              <mat-panel-title>Videos</mat-panel-title>
+              <mat-panel-description>
+                Modulo: {{ modulo.moduloTitulo }}
+                <mat-icon>play_circle</mat-icon>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            
+            <mat-expansion-panel class="my-3" *ngFor="let nivel of modulo.videos">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Videos</mat-panel-title>
+                  <mat-panel-description>
+                    Nivel: {{ nivel.nivel }}
+                    <mat-icon>play_circle</mat-icon>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+      
+                <div class="row">
+                  <div class="col-md-6 col-xl-4 my-3" *ngFor="let video of nivel.moduloVideos">
+                    <mat-card class="card-video">
+                      <mat-card-header>
+                        <mat-card-title class="video-titulo">
+                          {{video.videoTitulo}}
+                        </mat-card-title>
+                      </mat-card-header>
+                      <div class="video-img">
+                        <img [src]="video.videoThumbnail" alt="{{ video.titulo }}">
+                      </div>
+                      <mat-card-content class="video-desc">
+                        <p>{{video.videoDescripcion}}</p>
+                      </mat-card-content>
+                      <mat-card-actions>
+                        
+                      </mat-card-actions>
+                    </mat-card>
+                  </div>
+                </div>
+      
+              </mat-expansion-panel>
+  
+        </mat-expansion-panel>
+        
+      </mat-accordion>
+    </ng-container>
+  </div>

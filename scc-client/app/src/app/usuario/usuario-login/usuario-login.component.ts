@@ -67,8 +67,8 @@ export class UsuarioLoginComponent implements OnInit {
   
   reactiveForm() {
     this.loginForm = this.fb.group({
-      correo: ['ahernandez20910@gmail.com', [Validators.required, Validators.email, Validators.maxLength(250)]],
-      password: ['208320960', Validators.required],
+      correo: ['', [Validators.required, Validators.email, Validators.maxLength(250)]],
+      password: ['', Validators.required],
     });
   }
   
