@@ -22,6 +22,7 @@ const usuarioController = require("../controllers/usuarioController");
 router.get('/', verifyAdministrador, usuarioController.get);
 router.get('/exportarUsuarios', verifyAdministrador, usuarioController.exportUsuarios);
 router.get('/:id', verifyUsuario, usuarioController.getById);
+router.get('/noModulo/:id', verifyToken, usuarioController.getByNoIdModulo);
 router.get('/identificacion/:id', verifyToken, usuarioController.getByIdentificacion);
 router.get('/correo/:correo', verifyToken, usuarioController.getByCorreo);
 

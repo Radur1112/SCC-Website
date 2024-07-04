@@ -31,13 +31,13 @@
               <mat-icon class="primary-color">account_circle</mat-icon>
             </button>
             <mat-menu #opcionesUsuario="matMenu">
-              <button mat-menu-item *ngIf="isAdmin" routerLink="/usuario">
+              <button mat-menu-item *ngIf="isAdmin" routerLink="/usuario" (click)="collapseNavbar()">
                 <mat-icon>person</mat-icon>
                 <span>Usuarios</span>
               </button>
-              <button mat-menu-item disabled>
-                <mat-icon>voicemail</mat-icon>
-                <span>Check voice mail</span>
+              <button mat-menu-item *ngIf="isAdmin" routerLink="/modulo/admin"  (click)="collapseNavbar()">
+                <mat-icon>view_module</mat-icon>
+                <span>Modulos</span>
               </button>
               <button mat-menu-item (click)="logout()" (click)="collapseNavbar()">
                 <mat-icon>logout</mat-icon>

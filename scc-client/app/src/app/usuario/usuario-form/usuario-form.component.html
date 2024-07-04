@@ -12,7 +12,8 @@
     </mat-card-header>
     <mat-card-actions *ngIf="esCrear">
       <form [formGroup]="archivoForm" class="subir-container my-4" (ngSubmit)="subirUsuarios()">
-        <div class="light-color mx-4">
+        <div class="row">
+          <div class="col-md light-color px-4 py-2">
             <mat-label class="mt-2 me-3">Registrar multiples usuarios:</mat-label>
             <br>
             <input type="file" #fileInput id="subir-archivo" name="subir-archivo" (change)="seleccionarArchivo($event)" accept=".xlsx,.xls"/>
@@ -23,9 +24,10 @@
             <mat-error *ngIf="errorHandlingArchivo('archivo','size')">
                 El archivo no puede exceder <strong>{{ sizeError }}GBs</strong>
             </mat-error>
-        </div>
-        <div class="mx-4">
-          <button mat-flat-button type="submit" class="primary-outline-inverted-button" [disabled]="archivoForm.invalid">Confirmar arcivo</button>
+          </div>
+          <div class="col-md px-4 py-2 content-container-center">
+            <button mat-flat-button type="submit" class="primary-outline-inverted-button" [disabled]="archivoForm.invalid">Confirmar arcivo</button>
+          </div>
         </div>
       </form>
     </mat-card-actions>
@@ -128,7 +130,7 @@
             <div class="col-md row my-3">
               <mat-form-field>
                 <mat-label>Tipo de Usuario</mat-label>
-                <mat-select formControlName="idTipoUsuario" (selectionChange)="onTipoUsuarioChange()">
+                <mat-select formControlName="idTipoUsuario">
                   <mat-option *ngFor="let tipoUsuario of tipoUsuarios" [value]="tipoUsuario.id">
                     {{ tipoUsuario.descripcion }}
                   </mat-option>

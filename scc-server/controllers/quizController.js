@@ -5,7 +5,8 @@ var nombreTabla = 'quiz';
 module.exports.get = async(req, res, next) => {
   try {
     const data = await db.query(`
-      SELECT q.*, m.titulo as moduloTitulo, m.descripcion as moduloDescripcion
+      SELECT q.*, 
+      m.titulo as moduloTitulo, m.descripcion as moduloDescripcion
       FROM ${nombreTabla} q
       INNER JOIN modulo m ON q.idModulo = m.id AND m.estado != 0
       WHERE q.estado != 0`);
@@ -40,8 +41,10 @@ module.exports.getById = async(req, res, next) => {
         message: 'Id inválido',
       });
     }
+    
     const data = await db.query(`
-      SELECT q.*, m.titulo as moduloTitulo, m.descripcion as moduloDescripcion
+      SELECT q.*, 
+      m.titulo as moduloTitulo, m.descripcion as moduloDescripcion
       FROM ${nombreTabla} q
       INNER JOIN modulo m ON q.idModulo = m.id AND m.estado != 0
       WHERE q.estado != 0 AND q.id = ?`, [id]);
@@ -76,8 +79,10 @@ module.exports.getByIdModulo = async(req, res, next) => {
         message: 'Id inválido',
       });
     }
+    
     const data = await db.query(`
-      SELECT q.*, m.titulo as moduloTitulo, m.descripcion as moduloDescripcion
+      SELECT q.*, 
+      m.titulo as moduloTitulo, m.descripcion as moduloDescripcion
       FROM ${nombreTabla} q
       INNER JOIN modulo m ON q.idModulo = m.id AND m.estado != 0
       WHERE q.estado != 0 AND q.idModulo = ?`, [id]);
@@ -144,7 +149,6 @@ module.exports.actualizar = async (req, res, next) => {
         message: 'Id inválido',
       });
     }
-
     const datos = req.body;
 
     let actualizarDatos = {
@@ -175,7 +179,6 @@ module.exports.actualizar = async (req, res, next) => {
   }
 };
 
-
 module.exports.borrar = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -186,7 +189,7 @@ module.exports.borrar = async (req, res, next) => {
       });
     }
 
-    await db.query(`DELETE FROM ${nombreTabla} WHERE id = ?`, [id]);
+    await db.query(`UPDATE ${nombreTabla} SET estado = 0 WHERE id = ?`, [id]);
     res.status(201).json({
         status: true,
         message: `${nombreTabla} borrado`

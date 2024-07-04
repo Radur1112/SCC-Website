@@ -7,6 +7,16 @@
     text-align: center;
 }
 
+.card-contact {
+    width: 99%;
+    height: 850px;
+    margin: 0 auto 25px;
+    border-radius: 55px;
+    overflow: hidden;
+    box-shadow: none;
+    z-index: 2;
+}
+
 .card-title {
     width: 99%;
     height: 600px;
@@ -84,14 +94,87 @@
   //Color del fondo del boton cuando esta disabled
   --mdc-filled-button-disabled-container-color: rgb(241, 158, 11, 0.6);
 }
+
+.icon-container {
+    width: 120px;
+    margin: 0 10px;
+}
+
+.large-icon {
+    height: 100px;
+    width: 100px;
+    fill: $primary-color;
+}
+
+.medium-icon {
+    height: 85px;
+    width: 85px;
+    fill: $primary-color;
+}
+
+.small-icon {
+    height: 65px;
+    width: 65px;
+    fill: $primary-color;
+}
+
+.social-container {
+    max-height: 75px;
+}
+
+
+.social {
+    height: 70px;
+    width: 70px;
+    font-size: 45px;
+    margin: 0 60px;
+    color: $primary-color;
+    background-color: rgb(0, 0, 0, 0);
+    border: 2px solid $primary-color;
+    transition: all 0.3s;
+}
+
+.social:hover {
+    color: $secondary-color;
+    border-color: $secondary-color;
+}
+
+.whats {
+    font-size: 50px;
+}
   
 @media screen and (max-width: 1400px) {
-    
+    .card-contact {
+        height: 900px;
+    }
+
+    .social {
+        margin: 50px;
+    }
 }
 
   
 @media screen and (max-width: 1200px) {
-    
+    .card-contact {
+        height: 1000px;
+    }
+
+    .content-container-start {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .content-container-start-row {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+    .social {
+        margin: 40px;
+    }
 }
 
   
@@ -100,23 +183,88 @@
 }
   
 @media screen and (max-width: 767.98px) {
-    .content-container-start {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
+    .icon-container {
+        width: 80px;
+        margin: 0 10px;
+    }
+    
+    .large-icon {
+        height: 85px;
+        width: 85px;
+        fill: $primary-color;
+    }
+    
+    .medium-icon {
+        height: 70px;
+        width: 70px;
+        fill: $primary-color;
+    }
+    
+    .small-icon {
+        height: 50px;
+        width: 50px;
+        fill: $primary-color;
+    }
+    
+    .social {
+        height: 60px;
+        width: 60px;
+        font-size: 35px;
+        margin: 40px;
+    }
+
+    .social:hover {
+        color: $secondary-color;
+        border-color: $secondary-color;
+    }
+
+    .whats {
+        font-size: 39px;
     }
 }
   
 @media screen and (max-width: 575.98px) {
+    .card-contact {
+        height: 950px;
+    }
     
+    .social {
+        margin: 20px;
+    }
 }
   
 @media screen and (max-width: 488px) {
-    
 }
 
 @media screen and (max-width: 400px) {
+    .card-contact {
+        height: 850px;
+    }
 
+    .icon-container {
+        width: 40px;
+        margin: 0 10px;
+    }
+    
+    .large-icon {
+        height: 60px;
+        width: 60px;
+        fill: $primary-color;
+    }
+    
+    .medium-icon {
+        height: 55px;
+        width: 55px;
+        fill: $primary-color;
+    }
+    
+    .small-icon {
+        height: 45px;
+        width: 45px;
+        fill: $primary-color;
+    }
+
+    mat-card-content {
+        padding: 0;
+    }
 }

@@ -46,6 +46,11 @@ export class GenericService {
     .pipe(catchError(this.handleError.bind(this)));
   }
   
+  put2(endopoint: string, objUpdate: any | any): Observable<any | any[]> {
+    return this.http.put<any | any[]>(`${this.urlAPI}${endopoint}`, objUpdate)
+    .pipe(catchError(this.handleError.bind(this)));
+  }
+  
   delete(endopoint: string, filtro: any | any): Observable<any | any[]> {
     return this.http.delete<any | any[]>(`${this.urlAPI}${endopoint}/${filtro}`)
     .pipe(catchError(this.handleError.bind(this)));
@@ -58,7 +63,6 @@ export class GenericService {
     if (error.error) {
       id = error.error.id;
       message = error.error.message;
-      console.log(error.error)
       if (error.error.size) {
         id = 'sesion';
         message = 'Sesión expirada';
@@ -83,7 +87,7 @@ export class GenericService {
         }
         break;
       case 403:
-
+        
         break;
       case 422:
         

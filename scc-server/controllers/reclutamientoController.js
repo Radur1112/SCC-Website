@@ -3,7 +3,7 @@ const dayjs = require('dayjs');
 const fs = require('fs');
 const { enviarCorreoReclutamiento } = require('../utils/emailService');
 
-var nombreTabla = 'historialReclutamiento';
+var nombreTabla = 'historialreclutamiento';
 
 const recibirReclutamientoForm = async (req, res) => {
   const datos = req.body;

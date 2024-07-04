@@ -12,11 +12,14 @@ var selectNoPassword = 'u.id, u.idTipoUsuario, u.idTipoContrato, u.identificacio
 module.exports.get = async(req, res, next) => {
   try {
     const data = await db.query(`
-      SELECT ${selectNoPassword}, tu.descripcion as tipoUsuarioDescripcion, tc.descripcion as tipoContratoDescripcion, p.descripcion as puestoDescripcion
-      FROM ${nombreTabla} u
-      INNER JOIN tipoUsuario tu ON u.idTipoUsuario = tu.id 
-      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id
-      LEFT JOIN puesto p ON u.idPuesto = p.id
+      SELECT ${selectNoPassword}, 
+      tu.descripcion as tipoUsuarioDescripcion, 
+      tc.descripcion as tipoContratoDescripcion, 
+      p.descripcion as puestoDescripcion 
+      FROM ${nombreTabla} u 
+      INNER JOIN tipousuario tu ON u.idTipoUsuario = tu.id 
+      LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id 
+      LEFT JOIN puesto p ON u.idPuesto = p.id 
       WHERE u.estado != 0`);
     if(data) {
       res.status(200).send({
@@ -50,10 +53,13 @@ module.exports.getById = async(req, res, next) => {
       });
     }
     const data = await db.query(`
-      SELECT ${selectNoPassword}, tu.descripcion as tipoUsuarioDescripcion, tc.descripcion as tipoContratoDescripcion, p.descripcion as puestoDescripcion
+      SELECT ${selectNoPassword}, 
+      tu.descripcion as tipoUsuarioDescripcion, 
+      tc.descripcion as tipoContratoDescripcion, 
+      p.descripcion as puestoDescripcion
       FROM ${nombreTabla} u
-      INNER JOIN tipoUsuario tu ON u.idTipoUsuario = tu.id 
-      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id
+      INNER JOIN tipousuario tu ON u.idTipoUsuario = tu.id 
+      LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id
       LEFT JOIN puesto p ON u.idPuesto = p.id
       WHERE u.estado != 0 AND u.id = ?`, [id]);
     if(data) {
@@ -125,6 +131,43 @@ module.exports.getByCorreo = async(req, res, next) => {
         success: true,
         message: 'Datos obtenidos correctamente',
         data: data[0][0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
+module.exports.getByNoIdModulo = async(req, res, next) => {
+  try {
+    let idModulo = parseInt(req.params.id);
+    if (!idModulo) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+    const data = await db.query(`
+      SELECT u.id as usuarioId, u.identificacion as usuarioIdentificacion, u.nombre as usuarioNombre, u.correo as usuarioCorreo, p.descripcion as usuarioPuesto 
+      FROM ${nombreTabla} u 
+      INNER JOIN puesto p ON p.id = u.idPuesto
+      LEFT JOIN usuariomodulo um ON um.idUsuario = u.id
+      WHERE u.estado != 0 AND um.idModulo IS NULL || um.idModulo != ?`, [idModulo]);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
       });
     } else {
       res.status(404).send({
@@ -231,16 +274,16 @@ module.exports.registrar = async (req, res, next) => {
 
     let usuario = {
       idTipoUsuario: usuarioData.idTipoUsuario,
-      idTipoContrato: usuarioData.idTipoContrato ?? null,
+      idTipoContrato: usuarioData.idTipoContrato,
       identificacion: usuarioData.identificacion,
       correo: usuarioData.correo,
-      password: usuarioData.password ?? null,
+      password: usuarioData.password,
       nombre: usuarioData.nombre,
-      salario: usuarioData.salario ?? null,
-      fechaIngreso: usuarioData.fechaIngreso ?? null,
+      salario: usuarioData.salario,
+      fechaIngreso: usuarioData.fechaIngreso,
       vacacion: usuarioData.vacacion ?? null,
-      idPuesto: usuarioData.idPuesto ?? null,
-      telefono: usuarioData.telefono ?? null
+      idPuesto: usuarioData.idPuesto,
+      telefono: usuarioData.telefono
     }
 
     validarUsuario(usuario);
@@ -270,7 +313,7 @@ module.exports.registrar = async (req, res, next) => {
     if (error.code === 'ER_DUP_ENTRY') {
       res.status(400).json({
         success: false,
-        message: 'Identificación y/o correo ya está en uso',
+        message: 'Identificación y/o correo ya está en uso por otro usuario',
         id: 'duplicado',
       });
     } else {
@@ -298,16 +341,16 @@ module.exports.actualizar = async (req, res, next) => {
     
     let usuario = {
       idTipoUsuario: usuarioData.idTipoUsuario,
-      idTipoContrato: usuarioData.idTipoContrato ?? null,
+      idTipoContrato: usuarioData.idTipoContrato,
       identificacion: usuarioData.identificacion,
       correo: usuarioData.correo,
-      password: usuarioData.password ?? null,
+      password: usuarioData.password ?? usuarioData.password == null ? null : undefined,
       nombre: usuarioData.nombre,
-      salario: usuarioData.salario ?? null,
-      fechaIngreso: usuarioData.fechaIngreso ?? null,
+      salario: usuarioData.salario,
+      fechaIngreso: usuarioData.fechaIngreso,
       vacacion: usuarioData.vacacion ?? null,
-      idPuesto: usuarioData.idPuesto ?? null,
-      telefono: usuarioData.telefono ?? null
+      idPuesto: usuarioData.idPuesto,
+      telefono: usuarioData.telefono
     }
 
     validarUsuario(usuario);
@@ -394,7 +437,7 @@ function validarUsuario(usuarioData) {
     throw new Error('idTipoUsuario debe ser un número válido');
   }
   
-  if (usuarioData.idTipoContrato !== null && (isNaN(usuarioData.idTipoContrato) || usuarioData.idTipoContrato < MIN_ID || usuarioData.idTipoContrato > MAX_ID)) {
+  if (!usuarioData.idTipoContrato || (isNaN(usuarioData.idTipoContrato) || usuarioData.idTipoContrato < MIN_ID || usuarioData.idTipoContrato > MAX_ID)) {
     throw new Error('idTipoContrato debe ser un número válido');
   }
   
@@ -412,10 +455,10 @@ function validarUsuario(usuarioData) {
     throw new Error(`correo no debe exceder el limite de ${MAX_CORREO_LENGTH} carácteres`);
   }
   
-  if (!usuarioData.password) {
+  if (usuarioData.password === undefined) {
     throw new Error('password es requerida');
   }
-  if (usuarioData.password.length > MAX_PASSWORD_LENGTH) {
+  if (usuarioData.password && usuarioData.password.length > MAX_PASSWORD_LENGTH) {
     throw new Error(`password no debe exceder el limite de ${MAX_PASSWORD_LENGTH} carácteres`);
   }
   
@@ -426,20 +469,20 @@ function validarUsuario(usuarioData) {
     throw new Error(`nombre no debe exceder el limite de ${MAX_NOMBRE_LENGTH} carácteres`);
   }
 
-  if (usuarioData.telefono !== null && !isValidTelefono(usuarioData.telefono) || usuarioData.telefono !== null && usuarioData.telefono.length > MAX_TELEFONO_LENGTH) {
+  if (!usuarioData.telefono || !isValidTelefono(usuarioData.telefono) || usuarioData.telefono.length > MAX_TELEFONO_LENGTH) {
     throw new Error(`telefono debe ser un número de telefono válido y no debe exceder el limite de ${MAX_TELEFONO_LENGTH} carácteres`);
   }
   
-  if (usuarioData.idPuesto !== null && isNaN(usuarioData.idPuesto) || usuarioData.idPuesto < MIN_ID || usuarioData.idPuesto > MAX_ID) {
+  if (!usuarioData.idPuesto || isNaN(usuarioData.idPuesto) || usuarioData.idPuesto < MIN_ID || usuarioData.idPuesto > MAX_ID) {
     throw new Error('idPuesto debe ser un número válido');
   }
   
-  if (usuarioData.salario !== null && (isNaN(usuarioData.salario) || usuarioData.salario < MIN_SALARIO || usuarioData.salario > MAX_SALARIO)) {
+  if (!usuarioData.salario || (isNaN(usuarioData.salario) || usuarioData.salario < MIN_SALARIO || usuarioData.salario > MAX_SALARIO)) {
     throw new Error('salario debe ser un número válido dentro del límite establecido');
   }
 
-  if (usuarioData.fechaIngreso !== null && !isValidDate(usuarioData.fechaIngreso)) {
-    throw new Error('fechaIngreso must be a valid date');
+  if (!usuarioData.fechaIngreso || !isValidDate(usuarioData.fechaIngreso)) {
+    throw new Error('fechaIngreso debe ser una fecha válida');
   }
 
   if (usuarioData.vacacion !== null && (isNaN(usuarioData.vacacion) || usuarioData.vacacion < MIN_ID || usuarioData.vacacion > MAX_ID)) {
@@ -513,11 +556,10 @@ async function validarDatos(data) {
   let datos = [];
   let fila = {};
   let errors = {};
-  let isAdmin = false;
   let isAsalariado = false;
 
-  const tipoUsuarios = await getMap('tipoUsuario');
-  const tipoContratos = await getMap('tipoContrato');
+  const tipoUsuarios = await getMap('tipousuario');
+  const tipoContratos = await getMap('tipocontrato');
   const puestos = await getMap('puesto');
 
   const minSalario = 100;
@@ -549,23 +591,18 @@ async function validarDatos(data) {
               } else {
                 switch (idTipoUsuario) {
                   case 1:
-                    isAdmin = true;
                     tipoUsuario = 'Administrador';
                     break;
                   case 2:
-                    isAdmin = false;
                     tipoUsuario = 'Usuario';
                     break;
                   case 3:
-                    isAdmin = false;
                     tipoUsuario = 'Supervisor';
                     break;
                   case 4:
-                    isAdmin = false;
                     tipoUsuario = 'Capacitador';
                     break;
                   default:
-                    isAdmin = false;
                     break;
                 }
                 row[nombreColumnaExcel] = tipoUsuario;
@@ -668,6 +705,7 @@ async function validarDatos(data) {
                 errors[rowIndex + 1]['telefono'] = `El telefono es inválido.`;
               }
             }
+            break;
           case 'salario':
             if (isNaN(row[nombreColumnaExcel])) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
@@ -710,7 +748,6 @@ async function validarDatos(data) {
     
     if (!fila['tipoUsuario']) {
       fila['tipoUsuario'] = 'Usuario';
-      isAdmin = false;
     }
 
     if (!fila['identificacion']) {
@@ -739,41 +776,34 @@ async function validarDatos(data) {
       errors[rowIndex + 1]['nombre'] = `El nombre es requerido. Ingrese los datos solicitados`;
     }
 
-    if (!isAdmin) {
-      if (!fila['puesto']) {
-        if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-        errors[rowIndex + 1]['puesto'] = `El puesto es requerido para usuarios. Ingrese los datos solicitados`;
-      }
-      if (!fila['telefono']) {
-        if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-        errors[rowIndex + 1]['telefono'] = `El telefono es requerido para usuarios. Ingrese los datos solicitados`;
-      }
-      if (!fila['tipoContrato']) {
-        fila['tipoContrato'] = 'Asalariado';
-      }
+    if (!fila['puesto']) {
+      if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
+      errors[rowIndex + 1]['puesto'] = `El puesto es requerido para usuarios. Ingrese los datos solicitados`;
+    }
 
-      if (!fila['salario']) {
-        if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-        errors[rowIndex + 1]['salario'] = `El salario es requerido para usuarios. Ingrese los datos solicitados`;
-      }
+    if (!fila['telefono']) {
+      if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
+      errors[rowIndex + 1]['telefono'] = `El telefono es requerido para usuarios. Ingrese los datos solicitados`;
+    }
 
-      if (!fila['fechaIngreso']) {
-        fila['fechaIngreso'] = fechaHoy();
-      }
+    if (!fila['tipoContrato']) {
+      fila['tipoContrato'] = 'Asalariado';
+    }
 
-      if (isAsalariado) {
-        if (!fila['vacacion']) {
-          fila['vacacion'] = 0;
-        }
-      } else {
-        delete fila['vacacion'];
+    if (!fila['salario']) {
+      if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
+      errors[rowIndex + 1]['salario'] = `El salario es requerido para usuarios. Ingrese los datos solicitados`;
+    }
+
+    if (!fila['fechaIngreso']) {
+      fila['fechaIngreso'] = fechaHoy();
+    }
+
+    if (isAsalariado) {
+      if (!fila['vacacion']) {
+        fila['vacacion'] = 0;
       }
     } else {
-      delete fila['puesto'];
-      delete fila['telefono'];
-      delete fila['tipoContrato'];
-      delete fila['salario'];
-      delete fila['fechaIngreso'];
       delete fila['vacacion'];
     }
 
@@ -865,18 +895,29 @@ module.exports.registrarMultiples = async (req, res, next) => {
 
     const correos = usuariosData.map(u => u.correo);
     const identificaciones = usuariosData.map(u => u.identificacion);
+    const telefonos = usuariosData.map(u => u.telefono);
 
-    const [duplicados] = await db.query(`SELECT correo, identificacion FROM ${nombreTabla} WHERE estado != 0 AND (correo IN (?) OR identificacion IN (?))`, [correos, identificaciones]);
-
+    const [duplicados] = await db.query(`
+      SELECT 
+        CASE WHEN correo IN (?) THEN correo ELSE NULL END AS correo,
+        CASE WHEN identificacion IN (?) THEN identificacion ELSE NULL END AS identificacion,
+        CASE WHEN telefono IN (?) THEN telefono ELSE NULL END AS telefono 
+      FROM ${nombreTabla}
+      WHERE estado != 0 AND (correo IN (?) OR identificacion IN (?) OR telefono IN (?))`, [correos, identificaciones, telefonos, correos, identificaciones, telefonos]);
+      
     if (duplicados.length > 0) {
-      console.log(duplicados)
-      const errorCorreos = duplicados.map(usuario => `${usuario.correo}`).join('<br>');
-      const errorIdentificaciones = duplicados.map(usuario => `${usuario.identificacion}`).join('<br>');
+      const errorCorreos = duplicados.map(usuario => usuario.correo ? `${usuario.correo}<br>` : '').join('');
+      const errorIdentificaciones = duplicados.map(usuario => usuario.identificacion ? `${usuario.identificacion}<br>` : '').join('');
+      const errorTelefonos = duplicados.map(usuario => usuario.telefono ? `${usuario.telefono}<br>` : '').join('');
+      
+      const message = 
+        (errorCorreos ? `Los siguientes correos ya están ocupados por otros usuarios: <br>${errorCorreos}<br>` : '') + 
+        (errorIdentificaciones ? `Las siguientes identificaciones ya están ocupadas por otros usuarios: <br>${errorIdentificaciones}<br>` : '') + 
+        (errorTelefonos ? `Los siguientes telefonos ya están ocupados por otros usuarios: <br>${errorTelefonos}<br>` : '');
 
       return res.status(400).json({
         success: false,
-        message: `Los siguientes correos ya están ocupados por otros usuarios: <br>${errorCorreos}<br> 
-        Las siguientes identificaciones ya están ocupadas por otros usuarios: <br>${errorIdentificaciones}`,
+        message: message,
         id: 'duplicado',
       });
     }
@@ -885,16 +926,16 @@ module.exports.registrarMultiples = async (req, res, next) => {
 
       let usuario = {
         idTipoUsuario: usuarioData.idTipoUsuario,
-        idTipoContrato: usuarioData.idTipoContrato ?? null,
+        idTipoContrato: usuarioData.idTipoContrato,
         identificacion: usuarioData.identificacion,
         correo: usuarioData.correo,
         password: usuarioData.password,
         nombre: usuarioData.nombre,
-        salario: usuarioData.salario ?? null,
-        fechaIngreso: usuarioData.fechaIngreso ?? null,
+        salario: usuarioData.salario,
+        fechaIngreso: usuarioData.fechaIngreso,
         vacacion: usuarioData.vacacion ?? null,
-        idPuesto: usuarioData.idPuesto ?? null,
-        telefono: usuarioData.telefono ?? null
+        idPuesto: usuarioData.idPuesto,
+        telefono: usuarioData.telefono
       };
 
       validarUsuario(usuario);
@@ -927,7 +968,7 @@ module.exports.registrarMultiples = async (req, res, next) => {
 
           res.status(400).json({
             success: false,
-            message: `Correo '${duplicatedValue}' ya está en uso por otro usuario`,
+            message: `'${duplicatedValue}' ya está en uso por otro usuario`,
             id: 'duplicado',
           });
         } else {
@@ -950,10 +991,13 @@ module.exports.registrarMultiples = async (req, res, next) => {
 module.exports.exportUsuarios = async(req, res, next) => {
   try {
     const data = await db.query(`
-      SELECT ${selectNoPassword}, tu.descripcion as tipoUsuarioDescripcion, tc.descripcion as tipoContratoDescripcion, p.descripcion as puestoDescripcion
+      SELECT ${selectNoPassword}, 
+      tu.descripcion as tipoUsuarioDescripcion, 
+      tc.descripcion as tipoContratoDescripcion, 
+      p.descripcion as puestoDescripcion
       FROM ${nombreTabla} u
-      INNER JOIN tipoUsuario tu ON u.idTipoUsuario = tu.id 
-      LEFT JOIN tipoContrato tc ON u.idTipoContrato = tc.id
+      INNER JOIN tipousuario tu ON u.idTipoUsuario = tu.id 
+      LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id
       LEFT JOIN puesto p ON u.idPuesto = p.id`);
     if(data) {
       let workbook = new exceljs.Workbook();

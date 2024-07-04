@@ -7,6 +7,11 @@ const verifyToken = async (req, res, next) => {
   if (typeof bearerHeader !== "undefined") {
     token = bearerHeader.split(" ")[1].trim().toString();
   } else {
+    if (!req.headers["refer"] && !req.headers["origin"]) {
+        return res.status(204).json({
+            message: "xd",
+          });
+    }
     res.status(403).json({
       status: false,
       message: "Acceso denegado",

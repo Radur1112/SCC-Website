@@ -6,7 +6,6 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require("express-session")
-const MySQLStore = require('express-mysql-session')(session);
 
 const app = express();
 
@@ -16,6 +15,17 @@ const tipoContratoRouter = require('./routes/tipoContratoRoutes');
 const recultamientoRouter = require('./routes/recultamientoRoutes');
 const contactoRouter = require('./routes/contactoRoutes');
 const puestoRouter = require('./routes/puestoRoutes');
+const moduloRouter = require('./routes/moduloRoutes');
+const moduloVideoRouter = require('./routes/moduloVideoRoutes');
+const preguntaRouter = require('./routes/preguntaRoutes');
+const quizRouter = require('./routes/quizRoutes');
+const respuestaRouter = require('./routes/respuestaRoutes');
+const tipoPreguntaRouter = require('./routes/tipoPreguntaRoutes');
+const usuarioModuloRouter = require('./routes/usuarioModuloRoutes');
+const usuarioQuizRouter = require('./routes/usuarioQuizRoutes');
+const usuarioRespuestaRouter = require('./routes/usuarioRespuestaRoutes');
+const usuarioVideoRouter = require('./routes/usuarioVideoRoutes');
+const videoRouter = require('./routes/videoRoutes');
 
 dotEnv.config();
 
@@ -29,7 +39,9 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser())
 
-/*const options = {
+/*
+const MySQLStore = require('express-mysql-session')(session);
+const options = {
   host: process.env.DB_HOST,
   port: 3306,
   user: process.env.DB_USER,
@@ -48,7 +60,8 @@ app.use(session({
   saveUninitialized: true,
   store: sessionStore,
   cookie: {httpOnly: false, maxAge: 1000 * 60 * 60 * 24}
-}))*/
+}))
+*/
 
 const port = process.env.PORT;
 
@@ -58,6 +71,17 @@ app.use("/tipoContrato/", tipoContratoRouter);
 app.use("/reclutamiento/", recultamientoRouter);
 app.use("/contacto/", contactoRouter);
 app.use("/puesto/", puestoRouter);
+app.use("/modulo/", moduloRouter);
+app.use("/moduloVideo/", moduloVideoRouter);
+app.use("/pregunta/", preguntaRouter);
+app.use("/quiz/", quizRouter);
+app.use("/respuesta/", respuestaRouter);
+app.use("/tipoPregunta/", tipoPreguntaRouter);
+app.use("/usuarioModulo/", usuarioModuloRouter);
+app.use("/usuarioQuiz/", usuarioQuizRouter);
+app.use("/usuarioRespuesta/", usuarioRespuestaRouter);
+app.use("/usuarioVideo/", usuarioVideoRouter);
+app.use("/video/", videoRouter);
 
 
 app.listen(port, () => {

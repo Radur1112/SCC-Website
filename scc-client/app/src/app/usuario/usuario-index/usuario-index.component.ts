@@ -54,8 +54,6 @@ export class UsuarioIndexComponent {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
-  showTooltip = false;
-
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,

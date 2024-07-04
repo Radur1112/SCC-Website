@@ -81,7 +81,7 @@ export class UsuarioLoginComponent implements OnInit {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.loginForm.reset();
-        this.router.navigate(['usuario']);
+        this.router.navigate(['modulo/admin']);
       },
       error:(err) => {
         if (err.status == 401) {

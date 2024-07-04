@@ -1,0 +1,257 @@
+<mat-card class="card-primary">
+    <a routerLink="/usuario" class="go-back" matTooltip="Ir atras">
+      <mat-icon class="light-color">arrow_back</mat-icon>
+    </a>
+    <div class="mx-auto">
+      <mat-card-header class="subir-container">
+        <mat-card-title class="light-color">
+          <h2 class="text-center special-text">
+              Mantenimiento de Modulos
+          </h2>
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-actions class="row">
+        <div class="row less-width mx-auto">
+          <mat-form-field [floatLabel]="selectedModulo ? 'always' : 'auto'" appearance="outline">
+            <mat-label [ngClass]="{'': isOpenned}">
+              <div *ngIf="!isOpenned">
+                Seleccione un módulo
+              </div>
+              <div class="input-div">
+                <input #moduloInput type="text" placeholder="Buscar módulo" (focus)="buscarModulo($event)" (keyup)="buscarModulo($event)"  [ngClass]="{'primary-color': (!isOpenned && !filtro && !selectedModulo) || (!isOpenned && selectedModulo)}" class="light-color custom-input">
+              </div>
+            </mat-label>
+            <mat-select #moduloSelect (selectionChange)="getModuloThings()" (opened)="cambiarLabel(true)" (closed)="cambiarLabel(false)" (focus)="fixNoMatch()" [(value)]="selectedModulo" panelClass="moduloSelect">
+              <mat-option *ngFor="let modulo of filtroModulos" [value]="modulo">
+                {{ modulo.titulo }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="row modulo-buttons content-container-center-row less-width mx-auto" *ngIf="selectedModulo">
+          <button mat-fab extended class="boton-modulo boton-crear" matTooltip="Crear módulo" aria-label="Crear módulo" (click)="openModuloFormDialog(true)">
+            <mat-icon class="mat-18 conten">add_circle</mat-icon>
+            <div class="boton-modulo-text">
+              Crear
+            </div>
+          </button>
+          <button mat-fab extended color="accent" class="boton-modulo" matTooltip="Actualizar módulo" aria-label="Actualizar módulo" (click)="openModuloFormDialog(false)">
+            <mat-icon class="mat-18">edit</mat-icon>
+            <div class="boton-modulo-text">
+              Actualizar
+            </div>
+          </button>
+          <button mat-fab extended color="warn" class="boton-modulo" matTooltip="Borrar módulo" aria-label="Borrar módulo" (click)="borrarModulo()">
+            <mat-icon class="mat-18">delete</mat-icon>
+            <div class="boton-modulo-text">
+              Borrar
+            </div>
+          </button>
+        </div>
+      </mat-card-actions>
+    </div>
+</mat-card>
+  
+<div class="second-card-primary"></div>
+
+<mat-card class="card-modulos mx-auto"> 
+  <div class="container-fluid my-4">
+    <mat-tab-group>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>play_circle</mat-icon>
+          Videos
+        </ng-template>
+        
+        <div class="container-fluid my-4">
+          <ng-container *ngIf="moduloVideos">
+
+            <mat-card class="card-button mx-auto" (click)="openVideoFormDialog(true)">
+              <mat-card-header class="content-container-center p-0">
+                <mat-card-title>
+                  <div class="icon-text my-3">
+                    <mat-icon>add</mat-icon>
+                    <h5 class="m-0">Agregar nuevo video</h5>
+                  </div>
+                </mat-card-title>
+              </mat-card-header>
+            </mat-card>
+      
+            <mat-accordion multi>
+              <mat-expansion-panel class="my-3" *ngFor="let nivel of moduloVideos">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>Videos</mat-panel-title>
+                  <mat-panel-description>
+                    Nivel: {{ nivel.nivel }}
+                    <mat-icon>play_circle</mat-icon>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+      
+                <div class="row">
+                  <div class="col-md-6 col-xl-4 my-3" *ngFor="let video of nivel.moduloVideos">
+                    <mat-card class="card-video">
+                      <mat-card-header>
+                        <mat-card-title class="video-titulo">
+                          {{video.videoTitulo}}
+                        </mat-card-title>
+                      </mat-card-header>
+                      <div class="video-img">
+                        <img [src]="video.videoThumbnail" alt="{{ video.titulo }}">
+                      </div>
+                      <mat-card-content class="video-desc">
+                        <p>{{video.videoDescripcion}}</p>
+                      </mat-card-content>
+                      <mat-card-actions>
+                        <button mat-fab extended color="accent" class="boton-accion" matTooltip="Actualizar Usuario" aria-label="Actualizar Usuario" (click)="openVideoFormDialog(false, video.videoId)">
+                          <mat-icon class="mat-18">edit</mat-icon>
+                          <div class="boton-modulo-text">
+                            Actualizar
+                          </div>
+                        </button>
+                        <button mat-fab extended color="warn" class="boton-accion" matTooltip="Borrar Usuario" aria-label="Borrar Usuario" (click)="borrarVideo(video)">
+                          <mat-icon class="mat-18">delete</mat-icon>
+                          <div class="boton-modulo-text">
+                            Borrar
+                          </div>
+                        </button>
+                      </mat-card-actions>
+                    </mat-card>
+                  </div>
+                </div>
+      
+              </mat-expansion-panel>
+            </mat-accordion>
+          </ng-container>
+        </div>
+      </mat-tab>
+    
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>manage_accounts</mat-icon>
+          Asignar Usuarios
+        </ng-template>
+
+        <ng-container *ngIf="moduloVideos">
+          <div class="asignar">
+
+            <div class="usuarios-tables">
+              <h4 class="primary-color content-container-center mt-5 mb-0">Usuarios no asignados</h4>
+              <mat-form-field>
+                <mat-label>Buscar</mat-label>
+                <input matInput (keyup)="applyFilterNo($event)" #buscarNo>
+              </mat-form-field>
+              
+              <table mat-table [dataSource]="dataSourceNo" class="mat-elevation-z8">
+                <ng-container matColumnDef="select">
+                  <th class="p-0" mat-header-cell *matHeaderCellDef>
+                    <mat-checkbox (change)="$event ? toggleAllRowsNo() : null"
+                                  [checked]="selectionNo.hasValue() && isAllSelectedNo()"
+                                  [indeterminate]="selectionNo.hasValue() && !isAllSelectedNo()">
+                    </mat-checkbox>
+                  </th>
+                  <td class="p-0" mat-cell *matCellDef="let row">
+                    <mat-checkbox (click)="$event.stopPropagation()"
+                                  (change)="$event ? selectionNo.toggle(row) : null"
+                                  [checked]="selectionNo.isSelected(row)">
+                    </mat-checkbox>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="usuarioIdentificacion">
+                  <th mat-header-cell *matHeaderCellDef> Identificación </th>
+                  <td mat-cell *matCellDef="let element"> {{element.usuarioIdentificacion}} </td>
+                </ng-container>
+              
+                <ng-container matColumnDef="usuarioNombre">
+                  <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                  <td mat-cell *matCellDef="let element"> {{element.usuarioNombre}} </td>
+                </ng-container>
+              
+                <ng-container matColumnDef="usuarioPuesto">
+                  <th mat-header-cell *matHeaderCellDef> Puesto </th>
+                  <td mat-cell *matCellDef="let element"> {{element.usuarioPuesto}} </td>
+                </ng-container>
+              
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsNo; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsNo;"
+                  (click)="selectionNo.toggle(row)">
+                </tr>
+              
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscarNo.value}}"</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="usuarios-botones">
+              <button mat-icon-button class="iconoUsuario" matTooltip="Asignar usuarios" (click)="asignarUsuarios()">
+                <mat-icon class="primary-color">arrow_circle_right</mat-icon>
+              </button>
+              <button mat-icon-button class="iconoUsuario" matTooltip="Desasignar usuarios" (click)="desasignarUsuarios()">
+                <mat-icon class="primary-color">arrow_circle_left</mat-icon>
+              </button>
+            </div>
+
+            <div class="usuarios-tables">
+              <h4 class="primary-color content-container-center mt-5 mb-0">Usuarios asignados</h4>
+              <mat-form-field>
+                <mat-label>Buscar</mat-label>
+                <input matInput (keyup)="applyFilterSi($event)" #buscarSi>
+              </mat-form-field>
+              
+              <table mat-table [dataSource]="dataSourceSi" class="mat-elevation-z8">
+                <ng-container matColumnDef="select">
+                  <th class="p-0" mat-header-cell *matHeaderCellDef>
+                    <mat-checkbox (change)="$event ? toggleAllRowsSi() : null"
+                                  [checked]="selectionSi.hasValue() && isAllSelectedSi()"
+                                  [indeterminate]="selectionSi.hasValue() && !isAllSelectedSi()">
+                    </mat-checkbox>
+                  </th>
+                  <td class="p-0" mat-cell *matCellDef="let row">
+                    <mat-checkbox (click)="$event.stopPropagation()"
+                                  (change)="$event ? selectionSi.toggle(row) : null"
+                                  [checked]="selectionSi.isSelected(row)">
+                    </mat-checkbox>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="usuarioIdentificacion">
+                  <th mat-header-cell *matHeaderCellDef> Identificación </th>
+                  <td mat-cell *matCellDef="let element"> {{element.usuarioIdentificacion}} </td>
+                </ng-container>
+              
+                <ng-container matColumnDef="usuarioNombre">
+                  <th mat-header-cell *matHeaderCellDef> Nombre </th>
+                  <td mat-cell *matCellDef="let element"> {{element.usuarioNombre}} </td>
+                </ng-container>
+              
+                <ng-container matColumnDef="usuarioPuesto">
+                  <th mat-header-cell *matHeaderCellDef> Puesto </th>
+                  <td mat-cell *matCellDef="let element"> {{element.usuarioPuesto}} </td>
+                </ng-container>
+              
+                <tr mat-header-row *matHeaderRowDef="displayedColumnsSi; sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumnsSi;"
+                (click)="selectionSi.toggle(row)">
+                </tr>
+              
+                <tr class="mat-row" *matNoDataRow>
+                  <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscarSi.value}}"</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </ng-container>
+      </mat-tab>
+    
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>quiz</mat-icon>
+          Quizes
+        </ng-template>
+
+        Content 2
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</mat-card>

@@ -1,6 +1,6 @@
 const db = require('../utils/db.js');
 
-var nombreTabla = 'modulo';
+var nombreTabla = 'video';
 
 module.exports.get = async(req, res, next) => {
   try {
@@ -85,6 +85,7 @@ module.exports.crear = async (req, res, next) => {
       });
     }
   } catch (error) {
+    console.log(error)
     res.status(500).send({
     success: false,
     message: `Error en registrar ${nombreTabla}`,
@@ -100,6 +101,7 @@ module.exports.actualizar = async (req, res, next) => {
       return res.status(404).send({
         success: false,
         message: 'Id inválido',
+        data: data[0],
       });
     }
 

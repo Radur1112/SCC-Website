@@ -32,6 +32,10 @@ export class ContactoComponent {
     this.reactiveForm();
   }
   
+  redirectToPage(url: string): void {
+    window.open(url, '_blank');
+  }
+  
   reactiveForm() {
     this.contactoForm = this.fb.group({
       identificacion: ['',[Validators.required, Validators.maxLength(20)]],

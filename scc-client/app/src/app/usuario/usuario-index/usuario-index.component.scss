@@ -18,13 +18,20 @@
     align-items: center;
     text-align: center;
     width: 99%;
+    min-height: 60px;
     border-top-left-radius: 55px;
     border-top-right-radius: 55px;
     box-shadow: none;
 }
 
 .table-container {
-    margin: 50px 20px;
+    margin: 0 20px 30px;
+    overflow-x: auto;
+}
+
+table {
+    width: 10px;
+    table-layout: auto;
 }
 
 th {

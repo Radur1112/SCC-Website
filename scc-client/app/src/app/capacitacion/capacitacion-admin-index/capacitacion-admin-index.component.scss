@@ -1,0 +1,361 @@
+@use '../../../variables' as *;
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.primary-button {
+  margin: 20px 0;
+}
+
+.light-color::placeholder {
+  color: #ffffff;
+}
+
+.primary-color::placeholder {
+  color: $primary-color;
+}
+
+.card-modulos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 99%;
+  border-top-left-radius: 55px;
+  border-top-right-radius: 55px;
+  box-shadow: none;
+}
+
+.card-video {
+  height: 95%;
+  margin: 10px 0;
+  border: 1px solid $primary-color;
+}
+
+.card-button {
+  width: 100%;
+  color: $primary-color;
+  border: 1px solid $primary-color;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.card-button:hover {
+  color: $secondary-color;
+  border-color: $secondary-color;
+}
+
+.boton-crear {
+  background-color: $primary-color;
+}
+
+.boton-modulo {
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  margin: 0 10px;
+}
+
+.icon-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-text mat-icon {
+  height: 35px;
+  width: 35px;
+  font-size: 35px;
+  margin: 16px 10px 10px -3px;
+}
+
+.video-titulo {
+  height: 90px;
+  overflow: auto;
+  font-weight: bold;
+  color: $primary-color;
+}
+
+.video-img img {
+  aspect-ratio: 16.5 / 9;
+  width: 100%;
+  object-fit: cover;
+  text-align: center;
+  overflow: hidden;
+}
+
+.video-desc {
+  padding: 16px 16px 0;
+  height: 100px;
+  overflow: auto;
+}
+
+mat-form-field {
+    margin-top: 27px;
+}
+
+.custom-input {
+  border: none;
+  background: none;
+  box-shadow: none;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  width: 10px;
+}
+
+.mat-expansion-panel-header-description {
+  justify-content: space-between;
+  align-items: center;
+}
+
+.asignar {
+  display: flex;
+  flex-direction: row;
+}
+
+.usuarios-tables {
+  max-height: 70vh;
+  width: 100%;
+  overflow: auto;
+}
+
+.usuarios-tables mat-form-field{
+  width: 100%;
+}
+
+.mat-mdc-row .mat-mdc-cell {
+  cursor: pointer;
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+  font-weight: bold;
+}
+
+.clicked-row {
+  font-weight: bold;
+}
+
+.usuarios-botones {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin: 0 40px;
+}
+
+.iconoUsuario {
+  width: 100px !important;
+  height: 100px !important;
+  padding: 0px !important;
+  margin: 10px 0;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 80px;
+    transition: all 0.15s;
+  }
+}
+
+.iconoUsuario:hover {
+  mat-icon {
+      color: $secondary-color;
+  }
+}
+
+.boton-accion {
+    margin: 5px;
+    color: #ffffff;
+}
+
+:host {
+  --mat-select-enabled-trigger-text-color: #ffffff;
+
+  //Fondo
+  --mdc-outlined-text-field-container-color: rgba(0, 0, 0, 0);
+  //Texto del label
+  --mdc-outlined-text-field-label-text-color: #ffffff;
+  //Texto del label cuando esta focus
+  --mdc-outlined-text-field-focus-label-text-color: #f19e0b;
+  //Texto del label cuando esta hover
+  --mdc-outlined-text-field-hover-label-text-color: #f19e0b;
+  //Texto del input
+  --mdc-outlined-text-field-input-text-color: #ffffff;
+  //Linea de abajo del input
+  --mdc-outlined-text-field-outline-color: #ffffff;
+  //Linea de abajo del input cuando esta focus
+  --mdc-outlined-text-field-focus-outline-color: #f19e0b;
+  //Linea de abajo del input cuando esta hover
+  --mdc-outlined-text-field-hover-outline-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+  --mdc-outlined-text-field-caret-color: #ffffff;
+
+  --mdc-outlined-text-field-outline-width: 2px;
+  
+  //Texto del label Error
+  --mdc-outlined-text-field-error-label-text-color: #ffffff;
+  //Texto del label cuando esta focus Error
+  --mdc-outlined-text-field-error-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover Error
+  --mdc-outlined-text-field-error-hover-label-text-color: #f19e0b;
+
+  --mat-select-enabled-arrow-color: #ffffff;
+  --mat-select-focused-arrow-color: #f19e0b;
+    /*
+  //Fondo
+  --mdc-filled-text-field-container-color: rgba(0, 0, 0, 0);
+  //Texto del label
+  --mdc-filled-text-field-label-text-color: #ffffff;
+  //Texto del label cuando esta focus
+  --mdc-filled-text-field-focus-label-text-color: #f19e0b;
+  //Texto del label cuando esta hover
+  --mdc-filled-text-field-hover-label-text-color: #f19e0b;
+  //Texto del input
+  --mdc-filled-text-field-input-text-color: #ffffff;
+  //Linea de abajo del input
+  --mdc-filled-text-field-active-indicator-color: #ffffff;
+  //Linea de abajo del input cuando esta focus
+  --mdc-filled-text-field-focus-active-indicator-color: #f19e0b;
+  //Linea de abajo del input cuando esta hover
+  --mdc-filled-text-field-hover-active-indicator-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+  --mdc-filled-text-field-caret-color: #ffffff;
+  
+  //Texto del label Error
+  --mdc-filled-text-field-error-label-text-color: #ffffff;
+  //Texto del label cuando esta focus Error
+  --mdc-filled-text-field-error-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover Error
+  --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
+  */
+}
+
+@media screen and (max-width: 991.98px) {
+  .usuarios-botones {
+    margin: 35px;
+  }
+
+  .iconoUsuario {
+    width: 90px !important;
+    height: 90px !important;
+  
+    mat-icon {
+      width: 70px;
+      height: 70px;
+      font-size: 70px;
+    }
+  }
+}
+
+@media screen and (max-width: 767.98px) {
+  .icon-text mat-icon {
+    height: 30px;
+    width: 30px;
+    font-size: 30px;
+  }
+
+  .usuarios-botones {
+    margin: 30px;
+  }
+
+  .iconoUsuario {
+    width: 80px !important;
+    height: 80px !important;
+  
+    mat-icon {
+      width: 60px;
+      height: 60px;
+      font-size: 60px;
+    }
+  }
+}
+
+@media screen and (max-width: 630px) {
+  .special-text {
+    font-size: 40px;
+  }
+}
+
+@media screen and (max-width: 575.98px) {
+  .icon-text mat-icon {
+    height: 25px;
+    width: 25px;
+    font-size: 25px;
+    margin: 10px 7px 10px -3px;
+  }
+
+  .usuarios-botones {
+    margin: 15px;
+  }
+
+  .iconoUsuario {
+    width: 70px !important;
+    height: 70px !important;
+  
+    mat-icon {
+      width: 55px;
+      height: 55px;
+      font-size: 55px;
+    }
+  }
+
+  .modulo-buttons {
+    margin: -15px 0 0;
+  }
+}
+
+@media screen and (max-width: 488px) {
+  .icon-text mat-icon {
+    height: 20px;
+    width: 20px;
+    font-size: 20px;
+  }
+
+  .usuarios-botones {
+    margin: 10px;
+  }
+
+  .iconoUsuario {
+    width: 60px !important;
+    height: 60px !important;
+  
+    mat-icon {
+      width: 48px;
+      height: 48px;
+      font-size: 48px;
+    }
+  }
+
+  .modulo-buttons {
+    margin: -10px 0 0;
+  }
+
+  .boton-modulo-text {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .usuarios-botones {
+    margin: 5px;
+  }
+
+  .iconoUsuario {
+    width: 50px !important;
+    height: 50px !important;
+  
+    mat-icon {
+      width: 40px;
+      height: 40px;
+      font-size: 40px;
+    }
+  }
+}

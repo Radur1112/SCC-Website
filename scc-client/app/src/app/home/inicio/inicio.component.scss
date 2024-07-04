@@ -32,21 +32,25 @@
     height: 600px;
 }
 
-.content-container-services{
-    justify-content: start;
+.title-container {
+    z-index: 2;
 }
 
 .img-container {
     display: flex;
     justify-content: center;
-    height: 765px;
+    height: 0;
 }
 
 .imagen {
-    width: 100%;
-    height: 100%;
+    position: absolute; 
+    max-width: 100%;
+    max-height: 100%;
+    width: auto; 
+    height: auto; 
+    top: 0;
+    right: 0;
     object-fit: cover;
-    object-position: center;
 }
 
 .div-image {
@@ -99,6 +103,7 @@
 .lista .li-flex {
     display: flex;
     flex-direction: column;
+    padding-right: 0;
 }
 
 .lista mat-icon {
@@ -131,27 +136,32 @@
 .service-icon {
     height: 40px;
     width: 40px;
-    margin: 10px;
+    margin: 10px 10px 10px 0;
     fill: $primary-color;
 }
 
 @media screen and (max-width: 991.98px) {
-    .lista .li-flex {
-        flex-direction: row;
-    }
-
     .bigger-icon {
         font-size: 35px;
+    }
+    
+    .corner-image-top-left {
+        width: 60%;
+        opacity: 0.3;
+    }
+
+    .imagen {
+        opacity: 0.4;
     }
 }
 
 @media screen and (max-width: 767.98px) {
+    .lista .li-flex {
+        flex-direction: row;
+    }
+    
     .card-service mat-card-content {
         height: 65px;
-    }
-
-    .img-container {
-        display: none;
     }
 
     .bigger-icon {
@@ -162,6 +172,10 @@
     .service-icon {
         height: 30px;
         width: 30px;
+    }
+    
+    .corner-image-top-left {
+        width: 70%;
     }
 }
 
@@ -174,5 +188,21 @@
     .bigger-icon {
         font-size: 25px;
         margin: 10px;
+    }
+    
+    .corner-image-top-left {
+        width: 80%;
+    }
+}
+  
+@media screen and (max-width: 488px) {
+    .corner-image-top-left {
+        width: 90%;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .corner-image-top-left {
+        width: 100%;
     }
 }

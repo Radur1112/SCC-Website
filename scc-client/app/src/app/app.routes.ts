@@ -8,6 +8,7 @@ import { ContactoComponent } from './home/contacto/contacto.component';
 import { UsuarioFormComponent } from './usuario/usuario-form/usuario-form.component';
 import { UsuarioIndexComponent } from './usuario/usuario-index/usuario-index.component';
 import { AuthGuard } from './services/guards/auth.guard';
+import { CapacitacionAdminIndexComponent } from './capacitacion/capacitacion-admin-index/capacitacion-admin-index.component';
 
 export const routes: Routes = [
   { path: 'inicio', component: InicioComponent },
@@ -32,6 +33,8 @@ export const routes: Routes = [
       permisos: [1]
     } 
   },
+
+  { path: 'modulo/admin', component: CapacitacionAdminIndexComponent },
 
   { path:'', redirectTo:'/inicio' ,pathMatch:'full'},
   { path:'**',component:PaginaNoEncontradaComponent},

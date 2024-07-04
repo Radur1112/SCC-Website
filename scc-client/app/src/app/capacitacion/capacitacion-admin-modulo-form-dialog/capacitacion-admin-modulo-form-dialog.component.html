@@ -1,0 +1,38 @@
+<h3 class="primary-color mt-5 ms-5">{{ tituloForm }} modulo</h3>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="moduloForm" class="content-container-center my-3"  (ngSubmit)="returnModulo()">
+      <div class="row almost-width">
+        <div class="border-primary">
+            <div class="row my-3">
+            <mat-form-field>
+                <mat-label>Título</mat-label>
+                <input matInput type="text" placeholder="Ingrese el título" formControlName="titulo" />
+                <mat-error *ngIf="errorHandling('titulo','required')">
+                    El título es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('titulo','maxLength')">
+                    El título debe tener como máximo <strong>100 carácteres</strong>
+                </mat-error>
+            </mat-form-field>
+            </div>
+        
+            <div class="row my-3">
+            <mat-form-field>
+                <mat-label>Descripción</mat-label>
+                <input matInput type="text" placeholder="Ingrese la descripción" formControlName="descripcion" />
+                <mat-error *ngIf="errorHandling('descripcion','required')">
+                    La descripción es <strong>requerida</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('descripcion','maxLength')">
+                    La descripción debe tener como máximo <strong>3000 carácteres</strong>
+                </mat-error>
+            </mat-form-field>
+            </div>
+        
+          <div class="button-container my-3" align="end">
+            <button mat-flat-button color="accent" type="submit" class="secondary-button" [disabled]="moduloForm.invalid">{{tituloForm}} modulo</button>
+          </div>
+        </div>
+      </div>
+  </form>
+</mat-dialog-content>

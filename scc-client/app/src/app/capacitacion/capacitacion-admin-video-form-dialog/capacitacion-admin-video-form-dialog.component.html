@@ -1,0 +1,100 @@
+<h3 class="primary-color mt-5 ms-5">{{ tituloForm }} video</h3>
+<mat-dialog-content class="mat-typography">
+  <form [formGroup]="videoForm" class="content-container-center my-3"  (ngSubmit)="returnModulo()">
+      <div class="row almost-width">
+        <div class="border-primary">
+          <div class="row my-3">
+            <mat-form-field>
+              <mat-label>Título</mat-label>
+              <input matInput type="text" placeholder="Ingrese el título" formControlName="titulo" />
+              <mat-error *ngIf="errorHandling('titulo','required')">
+                El título es <strong>requerido</strong>
+              </mat-error>
+              <mat-error *ngIf="errorHandling('titulo','maxLength')">
+                 El título debe tener como máximo <strong>100 carácteres</strong>
+              </mat-error>
+            </mat-form-field>
+          </div>
+        
+          <div class="row my-3">
+            <mat-form-field>
+              <mat-label>Descripción</mat-label>
+              <input matInput type="text" placeholder="Ingrese la descripción" formControlName="descripcion" />
+              <mat-error *ngIf="errorHandling('descripcion','required')">
+                  La descripción es <strong>requerida</strong>
+              </mat-error>
+              <mat-error *ngIf="errorHandling('descripcion','maxLength')">
+                  La descripción debe tener como máximo <strong>3000 carácteres</strong>
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="row">
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Agregue o seleccione un nivel</mat-label>
+                <input matInput type="text" placeholder="Ingrese o seleccione el nivel" formControlName="nivel" [matAutocomplete]="auto">
+                <mat-autocomplete #auto="matAutocomplete">
+                  <mat-option [value]="videoForm.get('nivel').value">
+                    Añadir "{{ videoForm.get('nivel').value }}"
+                  </mat-option>
+                  <mat-option *ngFor="let nivel of filterNiveles | async" [value]="nivel">
+                    {{ nivel }}
+                  </mat-option>
+                </mat-autocomplete>
+                <mat-error *ngIf="errorHandling('nivel','maxLength')">
+                    El nivel debe tener como máximo <strong>100 carácteres</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+  
+            <div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>URL del video</mat-label>
+                <input matInput type="text" placeholder="Ingrese el link" formControlName="link" (input)="onYoutubeLinkChange()"/>
+                <mat-error *ngIf="errorHandling('link','required')">
+                    El URL es <strong>requerido</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('link','maxLength')">
+                    El URL debe tener como máximo <strong>250 carácteres</strong>
+                </mat-error>
+                <mat-error *ngIf="videoForm.get('link')!.hasError('invalidYoutubeLink')">
+                    El URL es inválido, este debe ser de <strong>youtube</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+          
+          <div *ngIf="youtubePreviewUrl">
+              <iframe width="356" height="200" [src]="youtubePreviewUrl" frameborder="0" allowfullscreen></iframe>
+          </div>
+          
+          <div class="row">
+            <!--<div class="col-md row my-3">
+              <mat-form-field>
+                <mat-label>Fecha límite</mat-label>
+                <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fechaLimite">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-datepicker #picker></mat-datepicker>
+                <mat-error *ngIf="errorHandling('fechaLimite','required')">
+                    La fecha de ingreso es <strong>requerida</strong>
+                </mat-error>
+              </mat-form-field>
+            </div>-->
+
+            <div class="col-md-5 row my-3">
+              <div class="text-start">
+                <mat-label>Es requerido:</mat-label>
+                <br>
+                <mat-checkbox formControlName="requerido" (change)="esRequerido($event)">{{textoRequerido}}</mat-checkbox>
+              </div>
+            </div>
+          </div>
+        
+          <div class="button-container my-3" align="end">
+            <button mat-flat-button color="accent" type="submit" class="secondary-button" [disabled]="videoForm.invalid">{{tituloForm}} video</button>
+          </div>
+        </div>
+      </div>
+  </form>
+</mat-dialog-content>

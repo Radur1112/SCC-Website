@@ -110,7 +110,6 @@ export class UsuarioFormComponent {
         })
         const password = this.usuarioForm.get('password');
         password.disable();
-        this.onTipoUsuarioChange();
         this.onTipoContratoChange();
       }
     });
@@ -123,12 +122,12 @@ export class UsuarioFormComponent {
       correo: ['', [Validators.required, Validators.email, Validators.maxLength(250)]],
       password: ['', [Validators.required, Validators.maxLength(60)]],
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      salario: [{ value: null, disabled: true }, [Validators.required, Validators.min(100), Validators.max(999999999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
-      fechaIngreso:  [{ value: null, disabled: true }, Validators.required],
+      salario: ['', [Validators.required, Validators.min(100), Validators.max(999999999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      fechaIngreso:  [new Date(), Validators.required],
       vacacion:  [{ value: null, disabled: true }, [Validators.required, Validators.min(0), Validators.max(99)]],
       idTipoUsuario: ['', Validators.required],
-      idTipoContrato: [{ value: null, disabled: true }, Validators.required],
-      idPuesto: [{ value: null, disabled: true }, Validators.required],
+      idTipoContrato: ['', Validators.required],
+      idPuesto: ['', Validators.required],
       telefono: ['', [Validators.required, Validators.maxLength(20), Validators.pattern(/^[+]?[\d\s\-().]{0,20}$/)]],
     });
 
@@ -186,32 +185,6 @@ export class UsuarioFormComponent {
     const password = this.usuarioForm.get('password');
 
     password.setValue(identificacion);
-  }
-
-  onTipoUsuarioChange() {
-    const tipoUsuario = this.usuarioForm.get('idTipoUsuario').value;
-
-    const tipoContrato = this.usuarioForm.get('idTipoContrato');
-    const vacacion = this.usuarioForm.get('vacacion');
-    const fechaIngreso = this.usuarioForm.get('fechaIngreso');
-    const salario = this.usuarioForm.get('salario');
-    const puesto = this.usuarioForm.get('idPuesto');
-
-    if (tipoUsuario != 1) {
-      tipoContrato.enable();
-      fechaIngreso.enable();
-      if (!fechaIngreso.value) {
-        fechaIngreso.setValue(new Date());
-      }
-      salario.enable();
-      puesto.enable();
-    } else {
-      tipoContrato.disable();
-      vacacion.disable();
-      fechaIngreso.disable();
-      salario.disable();
-      puesto.disable();
-    }
   }
 
   onTipoContratoChange() {
