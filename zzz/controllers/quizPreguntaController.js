@@ -1,6 +1,6 @@
 const db = require('../utils/db.js');
 
-var nombreTabla = 'pregunta';
+var nombreTabla = 'quizpregunta';
 
 module.exports.get = async(req, res, next) => {
   try {

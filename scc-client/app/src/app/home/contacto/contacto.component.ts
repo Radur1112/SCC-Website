@@ -75,7 +75,7 @@ export class ContactoComponent {
     }
     this.contactoForm.value.asunto = this.crearAsunto();
 
-    this.gService.post('contacto', this.contactoForm.value).subscribe(response => {
+    this.gService.post(`contacto`, this.contactoForm.value).subscribe(response => {
       this.notificacion.mensaje('Información', response.toString(), TipoMessage.success);
       this.contactoForm.reset();
     });

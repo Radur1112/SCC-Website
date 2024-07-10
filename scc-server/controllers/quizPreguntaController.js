@@ -1,15 +1,17 @@
 const db = require('../utils/db.js');
 
-var nombreTabla = 'respuesta';
+var nombreTabla = 'quizpregunta';
 
 module.exports.get = async(req, res, next) => {
   try {
     const data = await db.query(`
-      SELECT r.*, 
-      p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen 
-      FROM ${nombreTabla} r
-      INNER JOIN pregunta p ON r.idPregunta = p.id AND p.estado != 0
-      WHERE r.estado != 0`);
+    SELECT p.*, 
+    tp.descripcion as tipoPreguntaDescripcion, 
+    q.titulo as quizTitulo, q.descripcion as quizDescripcion 
+    FROM ${nombreTabla} p
+    INNER JOIN tipopregunta tp ON p.idTipoPregunta = tp.id
+    INNER JOIN quiz q ON p.idQuiz = q.id AND q.estado != 0
+    WHERE p.estado != 0`);
     if(data) {
       res.status(200).send({
         success: true,
@@ -43,11 +45,13 @@ module.exports.getById = async(req, res, next) => {
     }
     
     const data = await db.query(`
-        SELECT r.*, 
-        p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen 
-        FROM ${nombreTabla} r
-        INNER JOIN pregunta p ON r.idPregunta = p.id AND p.estado != 0
-        WHERE r.estado != 0 AND r.id = ?`, [id]);
+        SELECT p.*, 
+        tp.descripcion as tipoPreguntaDescripcion, 
+        q.titulo as quizTitulo, q.descripcion as quizDescripcion 
+        FROM ${nombreTabla} p
+        INNER JOIN tipopregunta tp ON p.idTipoPregunta = tp.id
+        INNER JOIN quiz q ON p.idQuiz = q.id AND q.estado != 0
+        WHERE p.estado != 0 AND p.id = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -70,7 +74,7 @@ module.exports.getById = async(req, res, next) => {
   }
 }
 
-module.exports.getByIdPregunta = async(req, res, next) => {
+module.exports.getByIdQuiz = async(req, res, next) => {
   try {
     let id = parseInt(req.params.id);
     if (!id) {
@@ -81,11 +85,13 @@ module.exports.getByIdPregunta = async(req, res, next) => {
     }
     
     const data = await db.query(`
-        SELECT r.*, 
-        p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen 
-        FROM ${nombreTabla} r
-        INNER JOIN pregunta p ON r.idPregunta = p.id AND p.estado != 0
-        WHERE r.estado != 0 AND r.idPregunta = ?`, [id]);
+        SELECT p.*, 
+        tp.descripcion as tipoPreguntaDescripcion, 
+        q.titulo as quizTitulo, q.descripcion as quizDescripcion 
+        FROM ${nombreTabla} p
+        INNER JOIN tipopregunta tp ON p.idTipoPregunta = tp.id
+        INNER JOIN quiz q ON p.idQuiz = q.id AND q.estado != 0
+        WHERE p.estado != 0 AND p.idQuiz = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -113,9 +119,10 @@ module.exports.crear = async (req, res, next) => {
     const datos = req.body;
 
     let crearDatos = {
-        idPregunta: datos.idPregunta,
+        idQuiz: datos.idQuiz,
+        idTipoPregunta: datos.idTipoPregunta,
         descripcion: datos.descripcion,
-        correcta: datos.correcta
+        imagen: datos.imagen ?? null
     }
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
@@ -152,12 +159,13 @@ module.exports.actualizar = async (req, res, next) => {
     const datos = req.body;
 
     let actualizarDatos = {
-        idPregunta: datos.idPregunta,
+        idQuiz: datos.idQuiz,
+        idTipoPregunta: datos.idTipoPregunta,
         descripcion: datos.descripcion,
-        correcta: datos.correcta
+        imagen: datos.imagen ?? null
     }
 
-    const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);
+    const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE Id = ?`, [actualizarDatos, id]);
     if (data) {
       res.status(201).json({
           status: true,
@@ -180,26 +188,26 @@ module.exports.actualizar = async (req, res, next) => {
 };
 
 module.exports.borrar = async (req, res, next) => {
-    try {
-      const id = req.params.id;
-      if (!id) {
-        return res.status(404).send({
-          success: false,
-          message: 'Id inválido',
-        });
-      }
-  
-      await db.query(`UPDATE ${nombreTabla} SET estado = 0 WHERE id = ?`, [id]);
-      res.status(201).json({
-          status: true,
-          message: `${nombreTabla} borrado`
-      });
-    } catch (error) {
-      console.log(error);
-      res.status(500).send({
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(404).send({
         success: false,
-        message: `Error en borrar ${nombreTabla}`,
-        error: error
+        message: 'Id inválido',
       });
     }
-  };
+
+    await db.query(`UPDATE ${nombreTabla} SET estado = 0 WHERE id = ?`, [id]);
+    res.status(201).json({
+        status: true,
+        message: `${nombreTabla} borrado`
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `Error en borrar ${nombreTabla}`,
+      error: error
+    });
+  }
+};

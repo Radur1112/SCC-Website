@@ -1,55 +1,55 @@
 <mat-card class="card-primary">
-    <a routerLink="/usuario" class="go-back" matTooltip="Ir atras">
-      <mat-icon class="light-color">arrow_back</mat-icon>
-    </a>
-    <div class="mx-auto">
-      <mat-card-header class="subir-container">
-        <mat-card-title class="light-color">
-          <h2 class="text-center special-text">
-              Mantenimiento de Modulos
-          </h2>
-        </mat-card-title>
-      </mat-card-header>
-      <mat-card-actions class="row">
-        <div class="row less-width mx-auto">
-          <mat-form-field [floatLabel]="selectedModulo ? 'always' : 'auto'" appearance="outline">
-            <mat-label [ngClass]="{'': isOpenned}">
-              <div *ngIf="!isOpenned">
-                Seleccione un módulo
-              </div>
-              <div class="input-div">
-                <input #moduloInput type="text" placeholder="Buscar módulo" (focus)="buscarModulo($event)" (keyup)="buscarModulo($event)"  [ngClass]="{'primary-color': (!isOpenned && !filtro && !selectedModulo) || (!isOpenned && selectedModulo)}" class="light-color custom-input">
-              </div>
-            </mat-label>
-            <mat-select #moduloSelect (selectionChange)="getModuloThings()" (opened)="cambiarLabel(true)" (closed)="cambiarLabel(false)" (focus)="fixNoMatch()" [(value)]="selectedModulo" panelClass="moduloSelect">
-              <mat-option *ngFor="let modulo of filtroModulos" [value]="modulo">
-                {{ modulo.titulo }}
-              </mat-option>
-            </mat-select>
-          </mat-form-field>
-        </div>
-        <div class="row modulo-buttons content-container-center-row less-width mx-auto" *ngIf="selectedModulo">
-          <button mat-fab extended class="boton-modulo boton-crear" matTooltip="Crear módulo" aria-label="Crear módulo" (click)="openModuloFormDialog(true)">
-            <mat-icon class="mat-18 conten">add_circle</mat-icon>
-            <div class="boton-modulo-text">
-              Crear
+  <a routerLink="/usuario" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto">
+    <mat-card-header class="subir-container">
+      <mat-card-title class="light-color">
+        <h2 class="text-center special-text">
+            Mantenimiento de Módulos
+        </h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-actions class="row">
+      <div class="row less-width mx-auto">
+        <mat-form-field [floatLabel]="selectedModulo ? 'always' : 'auto'" appearance="outline">
+          <mat-label [ngClass]="{'': isOpenned}">
+            <div *ngIf="!isOpenned">
+              Seleccione un módulo
             </div>
-          </button>
-          <button mat-fab extended color="accent" class="boton-modulo" matTooltip="Actualizar módulo" aria-label="Actualizar módulo" (click)="openModuloFormDialog(false)">
-            <mat-icon class="mat-18">edit</mat-icon>
-            <div class="boton-modulo-text">
-              Actualizar
+            <div class="input-div">
+              <input #moduloInput type="text" placeholder="Buscar módulo" (focus)="buscarModulo($event)" (keyup)="buscarModulo($event)"  [ngClass]="{'primary-color': (!isOpenned && !filtro && !selectedModulo) || (!isOpenned && selectedModulo)}" class="light-color custom-input">
             </div>
-          </button>
-          <button mat-fab extended color="warn" class="boton-modulo" matTooltip="Borrar módulo" aria-label="Borrar módulo" (click)="borrarModulo()">
-            <mat-icon class="mat-18">delete</mat-icon>
-            <div class="boton-modulo-text">
-              Borrar
-            </div>
-          </button>
-        </div>
-      </mat-card-actions>
-    </div>
+          </mat-label>
+          <mat-select #moduloSelect (selectionChange)="getModuloThings()" (opened)="cambiarLabel(true)" (closed)="cambiarLabel(false)" (focus)="fixNoMatch()" [(value)]="selectedModulo" panelClass="moduloSelect">
+            <mat-option *ngFor="let modulo of filtroModulos" [value]="modulo">
+              {{ modulo.titulo }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="row modulo-buttons content-container-center-row less-width mx-auto">
+        <button mat-fab extended class="boton-modulo boton-crear" matTooltip="Crear módulo" aria-label="Crear módulo" (click)="openModuloFormDialog(true)">
+          <mat-icon class="mat-18 conten">add_circle</mat-icon>
+          <div class="boton-modulo-text">
+            Crear
+          </div>
+        </button>
+        <button mat-fab extended color="accent" class="boton-modulo" matTooltip="Actualizar módulo" aria-label="Actualizar módulo" (click)="openModuloFormDialog(false)" *ngIf="selectedModulo">
+          <mat-icon class="mat-18">edit</mat-icon>
+          <div class="boton-modulo-text">
+            Actualizar
+          </div>
+        </button>
+        <button mat-fab extended color="warn" class="boton-modulo" matTooltip="Borrar módulo" aria-label="Borrar módulo" (click)="borrarModulo()" *ngIf="selectedModulo">
+          <mat-icon class="mat-18">delete</mat-icon>
+          <div class="boton-modulo-text">
+            Borrar
+          </div>
+        </button>
+      </div>
+    </mat-card-actions>
+  </div>
 </mat-card>
   
 <div class="second-card-primary"></div>
@@ -81,7 +81,7 @@
               <mat-expansion-panel class="my-3" *ngFor="let nivel of moduloVideos">
                 <mat-expansion-panel-header>
                   <mat-panel-title>Videos</mat-panel-title>
-                  <mat-panel-description>
+                  <mat-panel-description *ngIf="nivel.nivel">
                     Nivel: {{ nivel.nivel }}
                     <mat-icon>play_circle</mat-icon>
                   </mat-panel-description>
@@ -183,13 +183,15 @@
               </table>
             </div>
 
-            <div class="usuarios-botones">
-              <button mat-icon-button class="iconoUsuario" matTooltip="Asignar usuarios" (click)="asignarUsuarios()">
-                <mat-icon class="primary-color">arrow_circle_right</mat-icon>
-              </button>
-              <button mat-icon-button class="iconoUsuario" matTooltip="Desasignar usuarios" (click)="desasignarUsuarios()">
-                <mat-icon class="primary-color">arrow_circle_left</mat-icon>
-              </button>
+            <div class="botones-container content-container-center">
+              <div class="usuarios-botones">
+                <button mat-icon-button class="iconoUsuario" matTooltip="Asignar usuarios" (click)="asignarUsuarios()">
+                  <mat-icon class="primary-color">arrow_circle_right</mat-icon>
+                </button>
+                <button mat-icon-button class="iconoUsuario" matTooltip="Desasignar usuarios" (click)="desasignarUsuarios()">
+                  <mat-icon class="primary-color">arrow_circle_left</mat-icon>
+                </button>
+              </div>
             </div>
 
             <div class="usuarios-tables">

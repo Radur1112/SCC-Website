@@ -19,7 +19,7 @@
           <div class="row my-3">
             <mat-form-field>
               <mat-label>Descripción</mat-label>
-              <input matInput type="text" placeholder="Ingrese la descripción" formControlName="descripcion" />
+              <textarea matInput placeholder="Ingrese la descripción" formControlName="descripcion"></textarea>
               <mat-error *ngIf="errorHandling('descripcion','required')">
                   La descripción es <strong>requerida</strong>
               </mat-error>
@@ -66,7 +66,7 @@
           </div>
           
           <div *ngIf="youtubePreviewUrl">
-              <iframe width="356" height="200" [src]="youtubePreviewUrl" frameborder="0" allowfullscreen></iframe>
+              <iframe class="video-frame" [src]="youtubePreviewUrl" frameborder="0" allowfullscreen></iframe>
           </div>
           
           <div class="row">

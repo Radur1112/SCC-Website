@@ -1,0 +1,317 @@
+@use '../../../variables' as *;
+
+.card-premodulos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 99%;
+  min-height: 60px;
+  border-top-left-radius: 55px;
+  border-top-right-radius: 55px;
+  box-shadow: none;
+}
+
+.card-modulos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 99%;
+  min-height: 60px;
+  border-top-left-radius: 55px;
+  border-top-right-radius: 55px;
+  box-shadow: none;
+}
+
+
+mat-form-field {
+  margin-top: 27px;
+}
+
+.progress-bar {
+  height: 15px; /* Custom height */
+  border-radius: 10px; /* Rounded corners */
+}
+
+::ng-deep .mat-mdc-progress-bar.mat-accent .mdc-linear-progress__buffer-bar {
+  background-color: #d9d9d9;
+}
+
+.progress-bar-container {
+  position: relative;
+}
+
+.checkpoints {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.checkpoint {
+  position: absolute;
+  width: 25px; /* Diameter of the circle */
+  height: 25px; /* Diameter of the circle */
+  background-color: white; /* White background for the circle */
+  border: 7px solid #d9d9d9; /* Orange border color */
+  border-radius: 50%; /* Makes the checkpoint a circle */
+  transform: translate(-20%, -20%); /* Centers the checkpoint */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.border-color-secondary {
+  border-color: $secondary-color !important;
+}
+
+.checkpoint .tooltip {
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: black;
+  color: rgb(0, 0, 0);
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.checkpoint .toolt {
+  position: absolute;
+  top: -35px;
+  left: 100%;
+  transform: translateX(-50%);
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-size: 18px;
+}
+
+.modulo-expansion {
+  width: 90%;
+}
+
+.header.mat-expansion-panel-header {
+  min-height: 80px;
+  display: flex;
+  align-items: center; 
+}
+
+.titulo {
+  padding: 10px;
+  margin-right: 50px;
+  max-height: 70px;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.descripcion {
+  display: flex;
+  justify-content: flex-end;
+  max-width: 80px;
+}
+
+.dark-color {
+  color: #000000;
+}
+
+.desc {
+  padding: 10px;
+  width: 100%;
+  text-align: justify;
+}
+
+.ellipsis {
+  max-height: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.boton-ellipsis {
+  opacity: 0.5;
+}
+
+.card-video {
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  height: 100%;
+  margin: 0;
+  box-shadow: none;
+  transition: all 0.15s;
+}
+
+.card-video:hover {
+  transform: scale(1.02);
+}
+
+.card-titulo {
+  padding: 10px;
+  width: 100%;
+  height: 137px;
+  margin-bottom: 8px;
+}
+
+.video-titulo {
+  height: 110px;
+  font-weight: bold;
+  color: $primary-color;
+  overflow: auto;
+}
+
+.video-progreso {
+  text-align: right;
+}
+
+.video-img {
+  cursor: pointer;
+}
+  
+.video-img img {
+  aspect-ratio: 16.5 / 9;
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  text-align: center;
+  overflow: hidden;
+}
+
+.video-desc {
+  margin: 16px;
+  height: 100px;
+  overflow: auto;
+}
+
+
+:host {
+  --mdc-linear-progress-active-indicator-height: 15px;
+  --mdc-linear-progress-track-height: 15px;
+    //Fondo
+    --mdc-outlined-text-field-container-color: rgba(0, 0, 0, 0);
+    //Texto del label
+    --mdc-outlined-text-field-label-text-color: #ffffff;
+    //Texto del label cuando esta focus
+    --mdc-outlined-text-field-focus-label-text-color: #f19e0b;
+    //Texto del label cuando esta hover
+    --mdc-outlined-text-field-hover-label-text-color: #f19e0b;
+    //Texto del input
+    --mdc-outlined-text-field-input-text-color: #ffffff;
+    //Linea de abajo del input
+    --mdc-outlined-text-field-outline-color: #ffffff;
+    //Linea de abajo del input cuando esta focus
+    --mdc-outlined-text-field-focus-outline-color: #f19e0b;
+    //Linea de abajo del input cuando esta hover
+    --mdc-outlined-text-field-hover-outline-color: #f19e0b;
+    //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+    --mdc-outlined-text-field-caret-color: #ffffff;
+
+    --mdc-outlined-text-field-outline-width: 2px;
+    
+    //Texto del label Error
+    --mdc-outlined-text-field-error-label-text-color: #ffffff;
+    //Texto del label cuando esta focus Error
+    --mdc-outlined-text-field-error-focus-label-text-color: #ffffff;
+    //Texto del label cuando esta hover Error
+    --mdc-outlined-text-field-error-hover-label-text-color: #f19e0b;
+    /*
+  //Fondo
+  --mdc-filled-text-field-container-color: rgba(0, 0, 0, 0);
+  //Texto del label
+  --mdc-filled-text-field-label-text-color: #ffffff;
+  //Texto del label cuando esta focus
+  --mdc-filled-text-field-focus-label-text-color: #f19e0b;
+  //Texto del label cuando esta hover
+  --mdc-filled-text-field-hover-label-text-color: #f19e0b;
+  //Texto del input
+  --mdc-filled-text-field-input-text-color: #ffffff;
+  //Linea de abajo del input
+  --mdc-filled-text-field-active-indicator-color: #ffffff;
+  //Linea de abajo del input cuando esta focus
+  --mdc-filled-text-field-focus-active-indicator-color: #f19e0b;
+  //Linea de abajo del input cuando esta hover
+  --mdc-filled-text-field-hover-active-indicator-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+  --mdc-filled-text-field-caret-color: #ffffff;
+  
+  //Texto del label Error
+  --mdc-filled-text-field-error-label-text-color: #ffffff;
+  //Texto del label cuando esta focus Error
+  --mdc-filled-text-field-error-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover Error
+  --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
+  */
+}
+  
+@media screen and (max-width: 1400px) {
+}
+
+  
+@media screen and (max-width: 1200px) {
+}
+
+  
+@media screen and (max-width: 991.98px) {
+  .descripcion {
+    max-width: 75px;
+  }
+    
+}
+  
+@media screen and (max-width: 767.98px) {
+  .checkpoint .toolt {
+    top: -35px;
+    font-size: 16px;
+  }
+
+  .descripcion {
+    max-width: 70px;
+  }
+
+
+  .titulo {
+    margin-right: 30px;
+  }
+}
+  
+@media screen and (max-width: 575.98px) {
+  .checkpoint .toolt {
+    top: -30px;
+    font-size: 14px;
+  }
+
+  .descripcion {
+    max-width: 65px;
+  }
+
+  .titulo {
+    margin-right: 20px;
+  }
+}
+  
+@media screen and (max-width: 488px) {
+
+  .titulo {
+    margin-right: 15px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .checkpoint .toolt {
+    top: -27px;
+    left: 60%;
+    font-size: 12px;
+  }
+
+  .descripcion {
+    max-width: 60px;
+  }
+
+  .titulo {
+    margin-right: 10px;
+  }
+}

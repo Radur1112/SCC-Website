@@ -74,6 +74,7 @@
 
 .video-titulo {
   height: 90px;
+  margin-bottom: 8px;
   overflow: auto;
   font-weight: bold;
   color: $primary-color;
@@ -139,20 +140,27 @@ mat-form-field {
   font-weight: bold;
 }
 
+.botones-container {
+  position: relative;
+  width: 30%;
+}
+
 .usuarios-botones {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  margin: 0 40px;
+  position: absolute;
+  bottom: 0;
+  height: 70%;
 }
 
 .iconoUsuario {
   width: 100px !important;
   height: 100px !important;
   padding: 0px !important;
-  margin: 10px 0;
+  margin: 0;
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
@@ -239,9 +247,6 @@ mat-form-field {
 }
 
 @media screen and (max-width: 991.98px) {
-  .usuarios-botones {
-    margin: 35px;
-  }
 
   .iconoUsuario {
     width: 90px !important;
@@ -260,10 +265,6 @@ mat-form-field {
     height: 30px;
     width: 30px;
     font-size: 30px;
-  }
-
-  .usuarios-botones {
-    margin: 30px;
   }
 
   .iconoUsuario {
@@ -292,13 +293,14 @@ mat-form-field {
     margin: 10px 7px 10px -3px;
   }
 
-  .usuarios-botones {
-    margin: 15px;
+  .botones-container {
+    width: 50%;
   }
 
   .iconoUsuario {
     width: 70px !important;
     height: 70px !important;
+    margin: 10px 0;
   
     mat-icon {
       width: 55px;
@@ -319,21 +321,6 @@ mat-form-field {
     font-size: 20px;
   }
 
-  .usuarios-botones {
-    margin: 10px;
-  }
-
-  .iconoUsuario {
-    width: 60px !important;
-    height: 60px !important;
-  
-    mat-icon {
-      width: 48px;
-      height: 48px;
-      font-size: 48px;
-    }
-  }
-
   .modulo-buttons {
     margin: -10px 0 0;
   }
@@ -344,18 +331,4 @@ mat-form-field {
 }
 
 @media screen and (max-width: 400px) {
-  .usuarios-botones {
-    margin: 5px;
-  }
-
-  .iconoUsuario {
-    width: 50px !important;
-    height: 50px !important;
-  
-    mat-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 40px;
-    }
-  }
 }

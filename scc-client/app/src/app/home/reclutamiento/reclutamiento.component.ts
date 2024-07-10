@@ -195,7 +195,7 @@ export class ReclutamientoComponent {
     formData.append('cv', this.reclutamientoForm.get('cv').value);
     formData.append('comentario', this.reclutamientoForm.get('comentario').value);
 
-    this.gService.post('reclutamiento', formData).subscribe(response => {
+    this.gService.post(`reclutamiento`, formData).subscribe(response => {
       this.notificacion.mensaje('Información', response.toString(), TipoMessage.success);
       this.reclutamientoForm.reset();
     });

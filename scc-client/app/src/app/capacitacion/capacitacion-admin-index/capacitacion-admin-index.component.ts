@@ -169,7 +169,7 @@ export class CapacitacionAdminIndexComponent {
   }
 
   getModulos() {
-    this.gService.get('modulo')
+    this.gService.get(`modulo`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         if (res) {
@@ -197,7 +197,7 @@ export class CapacitacionAdminIndexComponent {
   openModuloFormDialog(crear: any): void {
     let width = '600px';
     let data = { 
-      idModulo: this.selectedModulo.id,
+      idModulo: this.selectedModulo ? this.selectedModulo.id : null,
       crear: crear,
     };
     
@@ -218,7 +218,7 @@ export class CapacitacionAdminIndexComponent {
   }
   
   crearModulo(modulo: any) {
-    this.gService.post('modulo', modulo)
+    this.gService.post(`modulo`, modulo)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.selectedModulo = null;
@@ -230,7 +230,7 @@ export class CapacitacionAdminIndexComponent {
   }
 
   actualizarModulo(modulo: any) {
-    this.gService.put('modulo', modulo)
+    this.gService.put(`modulo`, modulo)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.selectedModulo = null;
@@ -245,7 +245,7 @@ export class CapacitacionAdminIndexComponent {
     this.confirmationService.confirm()
     .subscribe(result => {
       if (result) {
-        this.gService.put('modulo/borrar', this.selectedModulo)
+        this.gService.put(`modulo/borrar`, this.selectedModulo)
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
             this.selectedModulo = null;
@@ -264,7 +264,7 @@ export class CapacitacionAdminIndexComponent {
 
 
   getModuloVideosByIdModulo() {
-    this.gService.get('moduloVideo/moduloGroup/' + this.selectedModulo.id)
+    this.gService.get(`moduloVideo/moduloGroup/${this.selectedModulo.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.moduloVideos = res.data;
@@ -323,7 +323,7 @@ export class CapacitacionAdminIndexComponent {
   }
   
   crearVideo(video: any) {
-    this.gService.post('video', video)
+    this.gService.post(`video`, video)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         const mv = {
@@ -332,10 +332,9 @@ export class CapacitacionAdminIndexComponent {
           nivel: video.nivel
         }
 
-        this.gService.post('moduloVideo', mv)
+        this.gService.post(`moduloVideo`, mv)
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
-            
             this.getModuloVideosByIdModulo();
             this.notificacion.mensaje('Video', 'Video creado correctamente', TipoMessage.success);
           }
@@ -345,7 +344,7 @@ export class CapacitacionAdminIndexComponent {
   }
 
   actualizarVideo(video: any) {
-    this.gService.put('video', video)
+    this.gService.put(`video`, video)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         const mv = {
@@ -357,9 +356,8 @@ export class CapacitacionAdminIndexComponent {
         this.gService.put2(`moduloVideo/${mv.idModulo}/${mv.idVideo}`, mv)
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
-            
             this.getModuloVideosByIdModulo();
-            this.notificacion.mensaje('Video', 'Video creado correctamente', TipoMessage.success);
+            this.notificacion.mensaje('Video', 'Video actualizado correctamente', TipoMessage.success);
           }
         });
       }
@@ -373,14 +371,8 @@ export class CapacitacionAdminIndexComponent {
         this.gService.put2(`moduloVideo/borrar/${this.selectedModulo.id}/${video.videoId}`, video)
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
-            
-            this.gService.put2(`video/borrar/${video.videoId}`, video)
-            .pipe(takeUntil(this.destroy$)).subscribe({
-              next:(res) => {
-                this.getModuloVideosByIdModulo();
-                this.notificacion.mensaje('Video', 'Video eliminado correctamente', TipoMessage.success);
-              }
-            });
+            this.getModuloVideosByIdModulo();
+            this.notificacion.mensaje('Video', 'Video eliminado correctamente', TipoMessage.success);
           }
         });
       }
@@ -390,18 +382,20 @@ export class CapacitacionAdminIndexComponent {
 
 
   getUsuariosByModulo() {
-    this.gService.get('usuario/noModulo/' + this.selectedModulo.id)
+    this.gService.get(`usuario/noModulo/${this.selectedModulo.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
+        console.log(res.data)
         this.dataSourceNo = new MatTableDataSource(res.data);
         this.selectionNo.clear();
         this.selectionSi.clear();
       }
     });
 
-    this.gService.get('usuarioModulo/modulo/' + this.selectedModulo.id)
+    this.gService.get(`usuarioModulo/modulo/${this.selectedModulo.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
+        console.log(res.data)
         this.dataSourceSi = new MatTableDataSource(res.data);
       }
     });
@@ -455,7 +449,7 @@ export class CapacitacionAdminIndexComponent {
       datos: this.selectionNo.selected
     }
 
-    this.gService.post('usuarioModulo/multiple', datos)
+    this.gService.post(`usuarioModulo/multiple`, datos)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.notificacion.mensaje('Modulo', `Usuarios asignados al módulo '${this.selectedModulo.titulo}' correctamente`, TipoMessage.success);
@@ -471,7 +465,7 @@ export class CapacitacionAdminIndexComponent {
       return;
     }
     
-    this.gService.post('usuarioModulo/borrar/multiple', idUsuarios)
+    this.gService.post(`usuarioModulo/borrar/multiple`, idUsuarios)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.notificacion.mensaje('Modulo', `Usuarios desasignados del módulo '${this.selectedModulo.titulo}' correctamente`, TipoMessage.success);

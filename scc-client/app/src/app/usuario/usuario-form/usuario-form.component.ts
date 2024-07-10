@@ -145,7 +145,7 @@ export class UsuarioFormComponent {
   };
 
   getTipoUsuarios() {
-    this.gService.get('tipoUsuario')
+    this.gService.get(`tipoUsuario`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.tipoUsuarios = res.data;
@@ -157,7 +157,7 @@ export class UsuarioFormComponent {
   }
 
   getTipoContratos() {
-    this.gService.get('tipoContrato')
+    this.gService.get(`tipoContrato`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.tipoContratos = res.data;
@@ -169,7 +169,7 @@ export class UsuarioFormComponent {
   }
 
   getPuestos() {
-    this.gService.get('puesto')
+    this.gService.get(`puesto`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.puestos = res.data;
@@ -262,7 +262,7 @@ export class UsuarioFormComponent {
       this.usuarioForm.value.fechaIngreso = this.formatearFecha(new Date(this.usuarioForm.value.fechaIngreso));
     }
 
-    this.gService.put('usuario', this.usuarioForm.value)
+    this.gService.put(`usuario`, this.usuarioForm.value)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.notificacion.mensaje('Usuario', 'Usuario actualizado correctamente', TipoMessage.success);

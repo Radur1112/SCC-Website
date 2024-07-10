@@ -10,7 +10,7 @@ import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { MatIcon } from '@angular/material/icon';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -23,7 +23,8 @@ import {MatGridListModule} from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
-import { Subject, takeUntil } from 'rxjs';
+import { forkJoin, Subject, takeUntil } from 'rxjs';
+import {MatProgressBarModule} from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-capacitacion-index',
@@ -37,7 +38,7 @@ import { Subject, takeUntil } from 'rxjs';
     MatTableModule, 
     MatSortModule, 
     MatPaginatorModule, 
-    MatIcon, 
+    MatIconModule, 
     MatCardModule, 
     MatTooltipModule, 
     MatAccordion, 
@@ -45,7 +46,8 @@ import { Subject, takeUntil } from 'rxjs';
     MatTabsModule,
     MatSelectModule,
     MatGridListModule, 
-    MatCheckboxModule],
+    MatCheckboxModule,
+    MatProgressBarModule],
   templateUrl: './capacitacion-index.component.html',
   styleUrl: './capacitacion-index.component.scss'
 })
@@ -55,6 +57,10 @@ export class CapacitacionIndexComponent {
   usuarioActual: any;
 
   modulos: any;
+  filtroModulos: any;
+  progresoTotal: any = 0;
+
+  checkpoints = [20, 50, 80];
 
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -82,31 +88,31 @@ export class CapacitacionIndexComponent {
   }
 
   cargarModulos() {
-    this.gService.get('usuarioModulo/usuario/' + this.usuarioActual.id)
-    .pipe(takeUntil(this.destroy$)).subscribe({
-      next:(res) => {
-        if (res.data && res.data.length > 0) {
-          this.modulos = res.data
+    this.gService.get(`usuarioModulo/usuario/all/${this.usuarioActual.id}` )
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next: (res) => {
+          if (res.data && res.data.length > 0) {
+            this.modulos = res.data
 
-          this.modulos.forEach(modulo => {
-            this.gService.get('moduloVideo/moduloGroup/' + modulo.idModulo)
-            .pipe(takeUntil(this.destroy$)).subscribe({
-              next:(res) => {
-                modulo.videos = res.data;
-                
-                modulo.videos.forEach(niveles => {
-                  niveles.moduloVideos.forEach(video => {
-                    video.videoThumbnail = this.getThumbnailUrl(video.videoLink)
+            this.modulos.forEach(modulo => {
+              modulo.ellipsis = false;
+              modulo.progreso = modulo.progreso ?? '0.00';
+              this.progresoTotal += parseFloat(modulo.progreso);
+              modulo.videosByModulo.forEach(item => {
+                if (item.videos) {
+                  item.videos.forEach(video => {
+                    video.videoThumbnail = this.getThumbnailUrl(video.videoLink);
+                    video.videoProgreso = video.videoProgreso ?? parseFloat('0.00');
                   });
-                });
-
-              }
+                }
+              });
             });
-          });
-          console.log(this.modulos)
+            
+            this.progresoTotal /= this.modulos.length;
+            this.filtroModulos = this.modulos;
+          }
         }
-      }
-    });
+      });
   }
 
   getThumbnailUrl(link: string): string {
@@ -127,5 +133,15 @@ export class CapacitacionIndexComponent {
 
       return shortUrlMatch ? shortUrlMatch[1] : '';
     }
+  }
+
+  busqueda(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+
+    this.filtroModulos = this.modulos.filter(m => m.moduloTitulo.trim().toLowerCase().includes(filterValue.trim().toLowerCase()));
+  }
+
+  abrirVideo(idVideo: any, idModulo: any) {
+    this.router.navigate(['capacitacion/video', idVideo, idModulo]);
   }
 }

@@ -89,7 +89,7 @@ export class UsuarioIndexComponent {
   }
 
   getUsuarios() {
-    this.gService.get('usuario')
+    this.gService.get(`usuario`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);
@@ -109,7 +109,7 @@ export class UsuarioIndexComponent {
     this.confirmationService.confirm()
       .subscribe(result => {
         if (result) {
-          this.gService.put('usuario/borrar', usuario)
+          this.gService.put(`usuario/borrar`, usuario)
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
               this.notificacion.mensaje('Usuario', 'Usuario eliminado correctamente', TipoMessage.success);

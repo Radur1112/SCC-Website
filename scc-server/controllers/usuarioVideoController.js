@@ -154,6 +154,50 @@ module.exports.getByIdVideo = async(req, res, next) => {
   }
 }
 
+module.exports.getByIdUsuarioIdVideo = async(req, res, next) => {
+  
+  try {
+    const idUsuario = req.params.idUsuario;
+    const idVideo = req.params.idVideo;
+    if (!idUsuario || !idVideo) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+
+    const data = await db.query(`
+      SELECT uv.*, 
+      u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion, 
+      v.titulo as videoTitulo, v.descripcion as videoDescripcion, v.link as videoLink, v.fechaLimite as videoFechaLimite, v.requerido as videoRequerido 
+      FROM ${nombreTabla} uv
+      INNER JOIN usuario u ON uv.idUsuario = u.id AND u.estado != 0
+      INNER JOIN video v ON uv.idVideo = v.id AND v.estado != 0
+      WHERE uv.idUsuario = ? AND uv.idVideo = ?`, [idUsuario, idVideo]);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0][0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
+
+
 module.exports.crear = async (req, res, next) => {
   try {
     const datos = req.body;
@@ -161,8 +205,8 @@ module.exports.crear = async (req, res, next) => {
     let crearDatos = {
         idUsuario: datos.idUsuario,
         idVideo: datos.idVideo,
-        progreso: datos.progreso,
-        fechaEmpezado: datos.fechaEmpezado, 
+        progreso: datos.progreso ?? '0.00',
+        fechaEmpezado: datos.fechaEmpezado ?? null, 
         fechaCompletado: datos.fechaCompletado ?? null
     }
 
@@ -202,8 +246,8 @@ module.exports.actualizar = async (req, res, next) => {
     let actualizarDatos = {
         idUsuario: datos.idUsuario,
         idVideo: datos.idVideo,
-        progreso: datos.progreso,
-        fechaEmpezado: datos.fechaEmpezado, 
+        progreso: datos.progreso ?? '0.00',
+        fechaEmpezado: datos.fechaEmpezado ?? null, 
         fechaCompletado: datos.fechaCompletado ?? null
     }
 

@@ -1,0 +1,62 @@
+@use '../../../variables' as *;
+
+.card-pre {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 99%;
+  min-height: 60px;
+  border-top-left-radius: 55px;
+  border-top-right-radius: 55px;
+  box-shadow: none;
+}
+
+.video-frame {
+  aspect-ratio: 16 / 9;
+  width: 75%;
+  border-radius: 15px;
+}
+
+.card-video {
+  height: 100%;
+  width: 85%;
+  margin: 30px auto 0;
+  box-shadow: none;
+}
+
+.card-titulo {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.video-titulo {
+  font-weight: bold;
+  color: $primary-color;
+  overflow: auto;
+}
+
+.video-progreso {
+  text-align: right;
+}
+
+.video-desc {
+  padding: 10px 0;
+  width: 100%;
+  text-align: justify;
+}
+
+.ellipsis {
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.boton-ellipsis {
+  opacity: 0.75;
+}
+
+.card-content {
+  background-color: #f3f3f3;
+  border-radius: 25px;
+}

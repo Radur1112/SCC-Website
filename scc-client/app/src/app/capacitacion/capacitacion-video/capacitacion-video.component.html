@@ -1,0 +1,54 @@
+<mat-card class="card-primary">
+  <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto less-width">
+    <mat-card-header class="content-container-center">
+      <mat-card-title class="light-color">
+        <h2>Módulo {{ tituloModulo }}</h2>
+      </mat-card-title>
+    </mat-card-header>
+  </div>
+</mat-card>
+
+<div class="second-card-primary"></div>
+  
+<mat-card class="card-pre mx-auto"> 
+  <div class="row">
+    <mat-card-content>
+      
+    </mat-card-content>
+  </div>
+</mat-card>
+          
+<div *ngIf="usuarioVideo">
+  <div class="almost-width mb-5 mx-auto">
+    hola xd
+  </div>
+
+  <div class="video-container content-container-center">
+      <app-capacitacion-video-player class="video-frame" [videoUrl]="usuarioVideo.videoLink" [usuarioVideo]="usuarioVideo"></app-capacitacion-video-player>
+  </div>
+  <mat-card class="card-video">
+    <mat-card-header class="p-0 row">
+      <mat-card-title class="card-titulo">
+        <h4 class="video-titulo pe-2">
+          {{ usuarioVideo.videoTitulo }}
+        </h4>
+        <div class="video-progreso" [ngClass]="{'warn-color': !usuarioVideo.progreso || usuarioVideo.progreso == 0, 'secondary-color': usuarioVideo.videoProgreso >= 100}">
+          Progreso: {{ usuarioVideo.progreso ?? '0.00' }}%
+        </div>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="card-content p-3">
+      <div class="video-desc" [ngClass]="{'ellipsis': !descEllipsis}">
+        <p>{{usuarioVideo.videoDescripcion}}</p>
+      </div>
+      <button mat-button class="boton-ellipsis" (click)="descEllipsis = !descEllipsis"> {{ !descEllipsis ? 'ver más' : 'ver menos'}}</button>
+
+      <div class="my-5">
+        cxd
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

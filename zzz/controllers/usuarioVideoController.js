@@ -1,19 +1,16 @@
 const db = require('../utils/db.js');
 
-var nombreTabla = 'usuariorespuesta';
+var nombreTabla = 'usuariovideo';
 
 module.exports.get = async(req, res, next) => {
   try {
     const data = await db.query(`
-      SELECT ur.*, 
-      p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen, 
-      r.descripcion as respuestaDescripcion, r.correcta as respuestaCorrecta, 
-      u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
-      FROM ${nombreTabla} ur
-      INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-      INNER JOIN pregunta p ON ur.idPregunta = p.id AND p.estado != 0 
-      INNER JOIN respuesta r ON ur.idRespuesta = r.id AND r.estado != 0 
-      INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
+      SELECT uv.*, 
+      u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion, 
+      v.titulo as videoTitulo, v.descripcion as videoDescripcion, v.link as videoLink, v.fechaLimite as videoFechaLimite, v.requerido as videoRequerido 
+      FROM ${nombreTabla} uv
+      INNER JOIN usuario u ON uv.idUsuario = u.id AND u.estado != 0
+      INNER JOIN video v ON mv.idVideo = v.id AND v.estado != 0
       `);
     if(data) {
       res.status(200).send({
@@ -48,64 +45,18 @@ module.exports.getById = async(req, res, next) => {
     }
     
     const data = await db.query(`
-        SELECT ur.*, 
-        p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen, 
-        r.descripcion as respuestaDescripcion, r.correcta as respuestaCorrecta, 
-        u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
-        FROM ${nombreTabla} ur
-        INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-        INNER JOIN pregunta p ON ur.idPregunta = p.id AND p.estado != 0 
-        INNER JOIN respuesta r ON ur.idRespuesta = r.id AND r.estado != 0 
-        INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
-        WHERE ur.id = ?`, [id]);
+      SELECT uv.*, 
+      u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion, 
+      v.titulo as videoTitulo, v.descripcion as videoDescripcion, v.link as videoLink, v.fechaLimite as videoFechaLimite, v.requerido as videoRequerido 
+      FROM ${nombreTabla} uv
+      INNER JOIN usuario u ON uv.idUsuario = u.id AND u.estado != 0
+      INNER JOIN video v ON uv.idVideo = v.id AND v.estado != 0
+      WHERE uv.id = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
         message: 'Datos obtenidos correctamente',
         data: data[0][0]
-      });
-    } else {
-      res.status(404).send({
-        success: false,
-        message: 'No se encontraron datos',
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: 'Error al obtener datos',
-      error: error
-    })
-  }
-}
-
-module.exports.getByIdUsuarioQuiz = async(req, res, next) => {
-  try {
-    let id = parseInt(req.params.id);
-    if (!id) {
-      return res.status(404).send({
-        success: false,
-        message: 'Id inválido',
-      });
-    }
-    
-    const data = await db.query(`
-        SELECT ur.*, 
-        p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen, 
-        r.descripcion as respuestaDescripcion, r.correcta as respuestaCorrecta, 
-        u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
-        FROM ${nombreTabla} ur
-        INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-        INNER JOIN pregunta p ON ur.idPregunta = p.id AND p.estado != 0 
-        INNER JOIN respuesta r ON ur.idRespuesta = r.id AND r.estado != 0 
-        INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
-        WHERE ur.idUsuarioQuiz = ?`, [id]);
-    if(data) {
-      res.status(200).send({
-        success: true,
-        message: 'Datos obtenidos correctamente',
-        data: data[0]
       });
     } else {
       res.status(404).send({
@@ -134,16 +85,13 @@ module.exports.getByIdUsuario = async(req, res, next) => {
     }
     
     const data = await db.query(`
-        SELECT ur.*, 
-        p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen, 
-        r.descripcion as respuestaDescripcion, r.correcta as respuestaCorrecta, 
-        u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
-        FROM ${nombreTabla} ur
-        INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-        INNER JOIN pregunta p ON ur.idPregunta = p.id AND p.estado != 0 
-        INNER JOIN respuesta r ON ur.idRespuesta = r.id AND r.estado != 0 
-        INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
-        WHERE uq.idUsuario = ?`, [id]);
+      SELECT uv.*, 
+      u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion, 
+      v.titulo as videoTitulo, v.descripcion as videoDescripcion, v.link as videoLink, v.fechaLimite as videoFechaLimite, v.requerido as videoRequerido 
+      FROM ${nombreTabla} uv
+      INNER JOIN usuario u ON uv.idUsuario = u.id AND u.estado != 0
+      INNER JOIN video v ON uv.idVideo = v.id AND v.estado != 0
+      WHERE uv.idUsuario = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -166,7 +114,7 @@ module.exports.getByIdUsuario = async(req, res, next) => {
   }
 }
 
-module.exports.getByIdPregunta = async(req, res, next) => {
+module.exports.getByIdVideo = async(req, res, next) => {
   try {
     let id = parseInt(req.params.id);
     if (!id) {
@@ -177,16 +125,13 @@ module.exports.getByIdPregunta = async(req, res, next) => {
     }
     
     const data = await db.query(`
-        SELECT ur.*, 
-        p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen, 
-        r.descripcion as respuestaDescripcion, r.correcta as respuestaCorrecta, 
-        u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
-        FROM ${nombreTabla} ur
-        INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-        INNER JOIN pregunta p ON ur.idPregunta = p.id AND p.estado != 0 
-        INNER JOIN respuesta r ON ur.idRespuesta = r.id AND r.estado != 0 
-        INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
-        WHERE ur.idPregunta = ?`, [id]);
+      SELECT uv.*, 
+      u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion, 
+      v.titulo as videoTitulo, v.descripcion as videoDescripcion, v.link as videoLink, v.fechaLimite as videoFechaLimite, v.requerido as videoRequerido 
+      FROM ${nombreTabla} uv
+      INNER JOIN usuario u ON uv.idUsuario = u.id AND u.estado != 0
+      INNER JOIN video v ON uv.idVideo = v.id AND v.estado != 0
+      WHERE uv.idVideo = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -209,32 +154,31 @@ module.exports.getByIdPregunta = async(req, res, next) => {
   }
 }
 
-module.exports.getByIdRespuesta = async(req, res, next) => {
+module.exports.getByIdUsuarioIdVideo = async(req, res, next) => {
+  
   try {
-    let id = parseInt(req.params.id);
-    if (!id) {
+    const idUsuario = req.params.idUsuario;
+    const idVideo = req.params.idVideo;
+    if (!idUsuario || !idVideo) {
       return res.status(404).send({
         success: false,
         message: 'Id inválido',
       });
     }
-    
+
     const data = await db.query(`
-        SELECT ur.*, 
-        p.idTipoPregunta as preguntaIdTipoPregunta, p.descripcion as preguntaDescripcion, p.imagen as preguntaImagen, 
-        r.descripcion as respuestaDescripcion, r.correcta as respuestaCorrecta, 
-        u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
-        FROM ${nombreTabla} ur
-        INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-        INNER JOIN pregunta p ON ur.idPregunta = p.id AND p.estado != 0 
-        INNER JOIN respuesta r ON ur.idRespuesta = r.id AND r.estado != 0 
-        INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
-        WHERE ur.idRespuesta = ?`, [id]);
+      SELECT uv.*, 
+      u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion, 
+      v.titulo as videoTitulo, v.descripcion as videoDescripcion, v.link as videoLink, v.fechaLimite as videoFechaLimite, v.requerido as videoRequerido 
+      FROM ${nombreTabla} uv
+      INNER JOIN usuario u ON uv.idUsuario = u.id AND u.estado != 0
+      INNER JOIN video v ON uv.idVideo = v.id AND v.estado != 0
+      WHERE uv.idUsuario = ? AND uv.idVideo = ?`, [idUsuario, idVideo]);
     if(data) {
       res.status(200).send({
         success: true,
         message: 'Datos obtenidos correctamente',
-        data: data[0]
+        data: data[0][0]
       });
     } else {
       res.status(404).send({
@@ -251,15 +195,19 @@ module.exports.getByIdRespuesta = async(req, res, next) => {
     })
   }
 }
+
+
 
 module.exports.crear = async (req, res, next) => {
   try {
     const datos = req.body;
 
     let crearDatos = {
-        idUsuarioQuiz: datos.idUsuarioQuiz,
-        idPregunta: datos.idPregunta,
-        idRespuesta: datos.idRespuesta
+        idUsuario: datos.idUsuario,
+        idVideo: datos.idVideo,
+        progreso: datos.progreso ?? '0.00',
+        fechaEmpezado: datos.fechaEmpezado ?? null, 
+        fechaCompletado: datos.fechaCompletado ?? null
     }
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
@@ -296,9 +244,11 @@ module.exports.actualizar = async (req, res, next) => {
     const datos = req.body;
 
     let actualizarDatos = {
-        idUsuarioQuiz: datos.idUsuarioQuiz,
-        idPregunta: datos.idPregunta,
-        idRespuesta: datos.idRespuesta
+        idUsuario: datos.idUsuario,
+        idVideo: datos.idVideo,
+        progreso: datos.progreso ?? '0.00',
+        fechaEmpezado: datos.fechaEmpezado ?? null, 
+        fechaCompletado: datos.fechaCompletado ?? null
     }
 
     const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);
@@ -346,4 +296,4 @@ module.exports.borrar = async (req, res, next) => {
         error: error
       });
     }
-  };
+};

@@ -80,7 +80,7 @@ export class CapacitacionAdminVideoFormDialogComponent {
   }
 
   cargarDatos() {
-    this.gService.get('video/' + this.idVideo)
+    this.gService.get(`video/${this.idVideo}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         const resVideo = res.data;
@@ -110,14 +110,14 @@ export class CapacitacionAdminVideoFormDialogComponent {
       titulo: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.required, Validators.maxLength(3000)]],
       link: ['', [Validators.required, this.youtubeLinkValidator, Validators.maxLength(250)]],
-      nivel: ['', Validators.maxLength(100)],
+      nivel: [0, Validators.maxLength(100)],
       fechaLimite: [null],
       requerido: [true]
     });
   }
 
   getNiveles() {
-    this.gService.get('moduloVideo/niveles')
+    this.gService.get(`moduloVideo/niveles/${this.idModulo}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.niveles = res.data;

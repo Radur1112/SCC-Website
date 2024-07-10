@@ -49,7 +49,7 @@ export class CapacitacionAdminModuloFormDialogComponent {
   }
 
   cargarDatos() {
-    this.gService.get('modulo/' + this.idModulo)
+    this.gService.get(`modulo/${this.idModulo}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         console.log(res)
