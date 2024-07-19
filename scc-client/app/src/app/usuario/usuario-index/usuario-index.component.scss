@@ -56,24 +56,6 @@ mat-form-field {
     margin-top: 27px;
 }
 
-.descargar {
-  position: absolute;
-  right: 40px;
-  top: 40px;
-}
-
-.descargar mat-icon {
-  width: 35px !important;
-  height: 35px !important;
-  font-size: 35px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-
-.descargar mat-icon:hover {
-  color: $secondary-color;
-}
-
 :host {
     //Fondo
     --mdc-outlined-text-field-container-color: rgba(0, 0, 0, 0);

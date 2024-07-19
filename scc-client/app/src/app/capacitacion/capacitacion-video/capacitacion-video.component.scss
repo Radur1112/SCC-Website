@@ -12,6 +12,39 @@
   box-shadow: none;
 }
 
+.button-icon-right {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  text-align: end;
+}
+
+.button-icon-left {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  text-align: start;
+}
+
+.button-icon-left mat-icon {
+  margin-top: 0.15rem;
+}
+
+.button-icon-right mat-icon {
+  margin-top: 0.15rem;
+}
+
+h5, button {
+  transition: all 0.15s;
+}
+
+h5:hover {
+  color: $secondary-color;
+  button {
+    color: $secondary-color;
+  }
+}
+
 .video-frame {
   aspect-ratio: 16 / 9;
   width: 75%;

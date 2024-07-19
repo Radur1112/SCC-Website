@@ -1,0 +1,12 @@
+@use '../../../variables' as *;
+
+.group-title {
+    font-weight: bold;
+    font-size: 1em;
+    color: $primary-color;
+}
+
+.group-content {
+    font-weight: initial; /* Make the group labels bold */
+    font-size: 0.9em; /* Increase font size */
+}

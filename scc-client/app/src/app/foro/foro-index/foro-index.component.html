@@ -1,0 +1,111 @@
+<mat-card class="card-primary">
+  <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto">
+    <mat-card-header class="content-container-center">
+      <mat-card-title class="light-color">
+        <h2>Foro de consultas</h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-actions>
+      <div>
+        <div class="row">
+          <div class="content-container-center px-4">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-icon matSuffix class="secondary-color me-2">search</mat-icon>
+              <mat-label>Buscar</mat-label>
+              <input matInput #buscar (keyup)="busqueda($event)">
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm px-4 content-container-center">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-icon matSuffix class="secondary-color me-2">category_search</mat-icon>
+              <mat-label>Tipo de foro</mat-label>
+              <mat-select [(value)]="selectedTipo" (selectionChange)="busqueda(null)">
+                <mat-option>--</mat-option>
+                <mat-option *ngFor="let tipoForo of tipoForos" [value]="tipoForo">
+                  {{ tipoForo.descripcion }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-sm px-4 content-container-center">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Elija el rango de fechas</mat-label>
+              <mat-date-range-input [rangePicker]="picker" [min]="minDate" [max]="maxDate" [formGroup]="selectedFecha">
+                <input matStartDate placeholder="Fecha inicial" formControlName="inicio" (dateChange)="busqueda(null)">
+                <input matEndDate placeholder="Fecha final" formControlName="fin" (dateChange)="busqueda(null)">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </mat-card-actions>
+  </div>
+</mat-card>
+
+<div class="second-card-primary"></div>
+  
+<mat-card class="card-pre mx-auto"></mat-card>
+
+<div class="less-width mx-auto my-4 px-3">
+  <div class="row">
+    <button mat-flat-button color="accent" class="secondary-button" (click)="openForoFormDialog(true)">Crear un nuevo foro</button>
+  </div>
+  <ng-container *ngIf="filtroForos">
+    <div class="row each-foro my-5" *ngFor="let foro of filtroForos">
+      <div class="col-sm-9 opciones-god my-3"> 
+        <div class="opciones-container" *ngIf="isAdmin">
+          <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #opciones="matMenu">
+            <button mat-menu-item (click)="borrarForo(foro)">
+              <mat-icon>delete</mat-icon>
+              <span>Borrar</span>
+            </button>
+          </mat-menu>
+        </div>
+        <mat-card class="card-foro">
+          <mat-card-header class="row pt-0">
+            <div class="col-7">
+              <mat-card-title class="foro-titulo">
+                <h3 class="primary-color noWrap-texto pe-2" (click)="abrirForo(foro)">
+                  {{ foro.titulo }}
+                </h3>
+                <p class="smaller-body-text noWrap-texto mb-2"><strong>Creado por: </strong>{{ foro.usuarioNombre }}</p>
+              </mat-card-title>
+            </div>
+            <div class="col-5 row right-header">
+              <p class="smaller-body-text m-0">{{ foro.tipoForoDescripcion }}</p>
+              <p class="smaller-body-text m-0"><mat-icon class="smaller-icon mt-2 me-1">forum</mat-icon>{{ foro.cantRespuestas == 1 ? foro.cantRespuestas + ' Respuesta' : foro.cantRespuestas + ' Respuestas' }}</p>
+            </div>
+            <p class="smaller-body-text menos-opacidad m-0"><strong>Publicado: </strong>{{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a' }}</p>
+          </mat-card-header>
+          <mat-card-content class="foro-descripcion mt-3">
+            {{ foro.descripcion }}
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div class="ultima-respuesta col-sm-3">
+        <ng-container *ngIf="foro.respuestasForo[0].fecha">
+          <h5 class="primary-color my-3 pe-2">
+            Última respuesta
+          </h5>
+          <p class="content-container-center-row"><mat-icon class="smaller-icon me-1">account_circle</mat-icon>{{ foro.respuestasForo[0].usuarioNombre }}</p>
+          <div class="content-container-center"><p><strong>Fecha: </strong>{{ foro.respuestasForo[0].fecha | date: 'EEEE d \'de\' MMMM y, h:mm a' }}</p></div>
+        </ng-container>
+        <ng-container *ngIf="!foro.respuestasForo[0].fecha">
+          <h5 class="primary-color content-container-center my-3 pe-2">
+            No hay respuestas
+          </h5>
+        </ng-container>
+      </div>
+    </div>
+  </ng-container>
+</div>

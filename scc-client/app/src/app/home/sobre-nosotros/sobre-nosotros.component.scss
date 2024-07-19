@@ -59,16 +59,6 @@
     text-align: center;
 }
 
-
-.lista {
-    list-style: none;
-    padding-left: 0;
-}
-
-.lista li {
-    display: flex;
-}
-
 .vision, .mision {
     display: flex;
 }
@@ -91,11 +81,23 @@
     overflow: hidden;
 }
 
+
+.lista {
+    list-style: none;
+    padding-left: 0;
+}
+
+.lista li {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+}
+
 .bigger-icon {
-    height: 40px;
-    width: 40px;
+    min-height: 40px;
+    min-width: 40px;
     font-size: 40px;
-    margin: 12px 10px 10px -3px;
+    margin: auto 10px auto 0;
 }
 
 .service-icon {
@@ -149,8 +151,8 @@
     }
 
     .bigger-icon {
-      height: 35px;
-      width: 35px;
+      min-height: 35px;
+      min-width: 35px;
       font-size: 35px;
     }
     
@@ -182,8 +184,8 @@
     }
 
     .bigger-icon {
-      height: 30px;
-      width: 30px;
+        min-height: 30px;
+        min-width: 30px;
       font-size: 30px;
     }
     
@@ -211,8 +213,8 @@
     }
 
     .bigger-icon {
-      height: 25px;
-      width: 25px;
+        min-height: 25px;
+        min-width: 25px;
       font-size: 25px;
     }
     
@@ -236,8 +238,8 @@
     }
 
     .bigger-icon {
-      height: 20px;
-      width: 20px;
+        min-height: 20px;
+        min-width: 20px;
       font-size: 20px;
     }
     
@@ -265,8 +267,8 @@
     }
 
     .bigger-icon {
-        height: 20px;
-        width: 20px;
+        min-height: 20px;
+        min-width: 20px;
         font-size: 20px;
     }
     

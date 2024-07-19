@@ -1,0 +1,105 @@
+<mat-card class="card-primary">
+  <a routerLink="/foro" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto">
+    <mat-card-header class="content-container-center">
+      <mat-card-title class="light-color">
+        <h2>Foro de consultas</h2>
+      </mat-card-title>
+    </mat-card-header>
+  </div>
+</mat-card>
+
+<div class="second-card-primary"></div>
+  
+<mat-card class="card-pre mx-auto"></mat-card>
+
+<div class="less-width mx-auto">
+  <ng-container *ngIf="foro">
+    <h3 class="primary-color content-container-center">{{ foro.titulo }}</h3>
+    <mat-card class="card-foro mt-4">
+      <mat-card-header class="titulito p-0">
+        <mat-card-title class="foro-titulo px-3 py-2">
+          {{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a'  }}
+        </mat-card-title>
+      </mat-card-header>
+      <mat-card-content class="foro-descripcion p-0">
+        <div class="row">
+          <div class="col-sm-3">
+            <div class="usuario">
+              <h5 class="primary-color content-container-center my-3 px-2">
+                <mat-icon class="user-icon me-1">account_circle</mat-icon>{{ foro.usuarioNombre }}
+              </h5>
+            </div>
+          </div>
+          <div class="col-sm-9"> 
+            <div class="text-justify my-3 ps-sm-0 ps-3 pe-3">
+              {{ foro.descripcion }}
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    
+    <div class="content-container-start-row mt-3">
+      <p class="res menos-opacidad me-3">{{ foro.cantRespuestas == 1 ? foro.cantRespuestas + ' Respuesta' : foro.cantRespuestas + ' Respuestas' }}</p>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-icon matSuffix class="primary-color me-2">search</mat-icon>
+        <mat-label>Buscar una respuesta</mat-label>
+        <input matInput #buscar (keyup)="busqueda($event)">
+      </mat-form-field>
+    </div>
+    <div>
+      <form [formGroup]="respuestaForm" (ngSubmit)="responderForo()">
+          <div class="row">
+            <mat-form-field class="full-width">
+              <textarea matInput placeholder="Agregue una respuesta..." formControlName="descripcion"></textarea>
+              
+              <div align="end" *ngIf="respuestaForm.valid">
+                <button mat-button (click)="cancelarRespuesta()">Cancelar</button>
+                <button mat-button color="primary" type="submit" [disabled]="!respuestaForm.valid">Enviar</button>
+              </div>
+            </mat-form-field>
+          </div>
+      </form>
+    </div>
+
+    <ng-container *ngIf="filtroRespuestas && filtroRespuestas[0] && filtroRespuestas[0].fecha">
+      <mat-card class="card-foro  my-4" *ngFor="let respuesta of filtroRespuestas">
+        <mat-card-header class="titulito-res p-0">
+          <mat-card-title class="foro-titulo px-3 py-2">
+            {{ respuesta.fecha | date: 'EEEE d \'de\' MMMM y, h:mm a' }}
+          </mat-card-title>
+          <div class="opciones-container" *ngIf="isAdmin">
+            <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">
+              <mat-icon class="light-color">more_vert</mat-icon>
+            </button>
+            <mat-menu #opciones="matMenu">
+              <button mat-menu-item (click)="borrarRespuesta(respuesta)">
+                <mat-icon>delete</mat-icon>
+                <span>Borrar</span>
+              </button>
+            </mat-menu>
+          </div>
+        </mat-card-header>
+        <mat-card-content class="foro-descripcion p-0">
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="usuario">
+                <h6 class="primary-color content-container-center my-3 px-2">
+                  <mat-icon class="res-icon me-1">account_circle</mat-icon>{{ respuesta.usuarioNombre }}
+                </h6>
+              </div>
+            </div>
+            <div class="col-sm-9"> 
+              <div class="text-justify my-3 ps-sm-0 ps-3 pe-3">
+                {{ respuesta.descripcion }}
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </ng-container>
+</ng-container>
+</div>

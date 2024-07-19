@@ -1,5 +1,3 @@
-
-        
 <form [formGroup]="loginForm" (ngSubmit)="login()">
   <mat-card class="card-login login-gradient">
     <div class="content-container-center">
@@ -37,7 +35,7 @@
             <mat-label>Contraseña</mat-label>
             <input matInput [type]="esconderPassword ? 'password' : 'text'" formControlName="password" />
 
-            <button mat-icon-button matSuffix (click)="esconderPassword = !esconderPassword">
+            <button mat-icon-button type="button" matSuffix (click)="esconderPassword = !esconderPassword">
               <mat-icon class="light-color">{{esconderPassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
 

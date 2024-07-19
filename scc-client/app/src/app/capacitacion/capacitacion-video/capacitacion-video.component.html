@@ -21,9 +21,24 @@
   </div>
 </mat-card>
           
-<div *ngIf="usuarioVideo">
-  <div class="almost-width mb-5 mx-auto">
-    hola xd
+<div *ngIf="usuarioVideo && moduloVideos">
+  <div class="row almost-width mb-5 mx-auto">
+    <div class="col">
+      <h5 class="button-icon-left">
+        <mat-icon>chevron_left</mat-icon>
+        <button mat-button (click)="anteriorVideo()" [disabled]="posicionActual == 0">
+          Video anterior
+        </button>
+      </h5>
+    </div>
+    <div class="col">
+      <h5 class="button-icon-right text-end">
+        <button mat-button (click)="siguienteVideo()" [disabled]="posicionActual == moduloVideos.length - 1">
+          Siguiente video 
+        </button>
+        <mat-icon>chevron_right</mat-icon>
+      </h5>
+    </div>
   </div>
 
   <div class="video-container content-container-center">

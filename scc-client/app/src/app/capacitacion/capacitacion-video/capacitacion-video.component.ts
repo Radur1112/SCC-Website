@@ -17,9 +17,9 @@ import { CapacitacionVideoPlayerComponent } from "../capacitacion-video-player/c
 @Component({
     selector: 'app-capacitacion-video',
     standalone: true,
+    imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatIconModule, MatTooltipModule, CapacitacionVideoPlayerComponent],
     templateUrl: './capacitacion-video.component.html',
     styleUrl: './capacitacion-video.component.scss',
-    imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatIconModule, MatTooltipModule, CapacitacionVideoPlayerComponent]
 })
 export class CapacitacionVideoComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
@@ -31,6 +31,8 @@ export class CapacitacionVideoComponent {
   moduloId: any;
 
   moduloVideos: any;
+  videoActual: any;
+  posicionActual: any;
 
   usuarioVideo: any;
   youtubeVideo: any;
@@ -51,7 +53,6 @@ export class CapacitacionVideoComponent {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-
       this.videoId = params.get('idVideo');
       this.moduloId = params.get('idModulo');
       
@@ -101,9 +102,32 @@ export class CapacitacionVideoComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         if (res.data) {
-          console.log(res.data)
+          this.moduloVideos = res.data;
+          this.videoActual = this.moduloVideos.find((mv, index) => {
+            if (mv.idVideo == this.videoId) {
+              this.posicionActual = index;
+              return true;
+            }
+            return false;
+          });
         }
       }
     });
+  }
+
+  anteriorVideo() {
+    if (this.posicionActual > 0) {
+      const moduloVideoAnterior = this.moduloVideos[this.posicionActual - 1];
+
+      this.router.navigate(['capacitacion/video', moduloVideoAnterior.idVideo, moduloVideoAnterior.idModulo]);
+    }
+  }
+
+  siguienteVideo() {
+    if (this.posicionActual < this.moduloVideos.length - 1) {
+      const moduloVideoSiguiente = this.moduloVideos[this.posicionActual + 1];
+
+      this.router.navigate(['capacitacion/video', moduloVideoSiguiente.idVideo, moduloVideoSiguiente.idModulo]);
+    }
   }
 }

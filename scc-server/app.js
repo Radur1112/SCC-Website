@@ -26,6 +26,10 @@ const usuarioQuizRouter = require('./routes/usuarioQuizRoutes');
 const usuarioQuizRespuestaRouter = require('./routes/usuarioQuizRespuestaRoutes');
 const usuarioVideoRouter = require('./routes/usuarioVideoRoutes');
 const videoRouter = require('./routes/videoRoutes');
+const planillaRouter = require('./routes/planillaRoutes');
+const foroRouter = require('./routes/foroRoutes');
+const tipoForoRouter = require('./routes/tipoForoRoutes');
+const usuarioForoRespuestaRouter = require('./routes/usuarioForoRespuestaRoutes');
 
 dotEnv.config();
 
@@ -35,8 +39,8 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser())
 
 /*
@@ -82,6 +86,10 @@ app.use("/usuarioQuiz/", usuarioQuizRouter);
 app.use("/usuarioQuizRespuesta/", usuarioQuizRespuestaRouter);
 app.use("/usuarioVideo/", usuarioVideoRouter);
 app.use("/video/", videoRouter);
+app.use("/planilla/", planillaRouter);
+app.use("/foro/", foroRouter);
+app.use("/tipoForo/", tipoForoRouter);
+app.use("/usuarioForoRespuesta/", usuarioForoRespuestaRouter);
 
 
 app.listen(port, () => {

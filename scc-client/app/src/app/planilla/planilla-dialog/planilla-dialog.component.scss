@@ -1,0 +1,56 @@
+.card-planilla {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+.planilla-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.planilla-left,
+.planilla-right {
+  width: 48%;
+}
+
+.planilla-left2 {
+  width: 100%;
+}
+
+.planilla-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.planilla-item strong {
+  flex: 1;
+}
+
+.planilla-total {
+  font-weight: bold;
+  border-top: 1px solid #000;
+  margin-top: 5px;
+}
+
+.planilla-fecha {
+  font-weight: bold;
+  border-bottom: 1px solid #000;
+  margin-top: 5px;
+}
+
+.planilla-deducciones {
+  margin-top: 10px;
+}
+
+.planilla-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #000;
+}

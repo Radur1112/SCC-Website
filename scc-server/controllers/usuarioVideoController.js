@@ -224,6 +224,7 @@ module.exports.crear = async (req, res, next) => {
       });
     }
   } catch (error) {
+    console.log(error);
     res.status(500).send({
     success: false,
     message: `Error en registrar ${nombreTabla}`,

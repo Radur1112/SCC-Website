@@ -115,6 +115,10 @@ export class CapacitacionAdminVideoFormDialogComponent {
       requerido: [true]
     });
   }
+  
+  public errorHandling = (control: string, error: string) => {
+    return this.videoForm.controls[control].hasError(error);
+  };
 
   getNiveles() {
     this.gService.get(`moduloVideo/niveles/${this.idModulo}`)
@@ -176,11 +180,6 @@ export class CapacitacionAdminVideoFormDialogComponent {
     const match = link.match(videoIdRegex);
     return match ? match[1] : null;
   }
-
-  
-  public errorHandling = (control: string, error: string) => {
-    return this.videoForm.controls[control].hasError(error);
-  };
   
   esRequerido(event: any) {
     const requerido = event.checked;

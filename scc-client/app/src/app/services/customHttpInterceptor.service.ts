@@ -23,14 +23,20 @@ export const customHttpInterceptor: HttpInterceptorFn = (req, next) => {
           },
         });
     }
-    //Opcional indicar el tipo de contenido JSON
-    if (!req.headers.has('Content-Type') && !req.url.includes('verificar') && !req.url.includes('reclutamiento') && !req.url.includes('contacto')) {
-      req = req.clone({
-        setHeaders: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      });
+    // Check if the request body is FormData or JSON
+    if (req.body instanceof FormData) {
+      
+    } else {
+    
+      //Opcional indicar el tipo de contenido JSON
+      if (!req.headers.has('Content-Type') && !req.url.includes('verificar') && !req.url.includes('reclutamiento') && !req.url.includes('contacto')) {
+        req = req.clone({
+          setHeaders: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+        });
+      }
     }
 
     //Capturar el error

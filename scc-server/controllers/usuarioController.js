@@ -185,6 +185,46 @@ module.exports.getByNoIdModulo = async(req, res, next) => {
   }
 }
 
+/*module.exports.getPlanilla = async(req, res, next) => {
+  try {
+    const data = await db.query(`
+      SELECT ${selectNoPassword}, 
+      p.descripcion as puestoDescripcion,
+      pl.fechaInicio as planillaFechaInicio, pl.fechaFinal as planillaFechaFinal, pl.salarioBruto as planillaSalarioBruto, pl.salarioNeto as planillaSalarioNeto, 
+      a.descripcion as aumentoDescripcion, a.monto as aumentoMonto, 
+      ta.descripcion as tipoAumentoDescripcion, 
+      d.descripcion as deduccionDescripcion, d.monto as deduccionMonto, 
+      td.descripcion as tipoDeduccionDescripcion 
+      FROM ${nombreTabla} u 
+      INNER JOIN puesto p ON p.id = u.idPuesto 
+      INNER JOIN planilla pl ON pl.idUsuario = u.id 
+      LEFT JOIN aumento a ON a.idPlanilla = pl.id 
+      LEFT JOIN tipoaumento ta ON ta.id = a.idTipoAumento 
+      LEFT JOIN deduccion d ON d.idPlanilla = pl.id 
+      LEFT JOIN tipodeduccion td ON td.id = a.idTipoDeduccion 
+      WHERE u.estado != 0`);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}*/
+
 module.exports.login = async (req, res, next) => {
     try {
       let usuarioReq = req.body;

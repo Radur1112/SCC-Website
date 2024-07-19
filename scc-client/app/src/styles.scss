@@ -113,6 +113,7 @@ h2 { font-size: 55px; }
 h3 { font-size: 40px; }
 h4 { font-size: 30px; }
 h5 { font-size: 25px; }
+h6 { font-size: 22px; }
 body { margin: 0; font-family: $font-family-body; font-size: 18px; }
 .smaller-body-text{ font-size: 18px; }
 
@@ -438,6 +439,24 @@ a.active-link{
   color: $secondary-color;
 }
 
+.descargar {
+  position: absolute;
+  right: 40px;
+  top: 40px;
+}
+
+.descargar mat-icon {
+  width: 35px !important;
+  height: 35px !important;
+  font-size: 35px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.descargar mat-icon:hover {
+  color: $secondary-color;
+}
+
 
 .res-img {
   display: none;
@@ -464,6 +483,10 @@ a.active-link{
 
   h5 {
     font-size: 25px;
+  }
+
+  h6 {
+    font-size: 21px;
   }
   
   .half-width {
@@ -500,6 +523,10 @@ a.active-link{
     font-size: 20px;
   }
 
+  h6 {
+    font-size: 19px;
+  }
+
   .gradient {
     background: linear-gradient(to top, #ffffff, $primary-color);
   }
@@ -531,6 +558,10 @@ a.active-link{
 
   h4 {
     font-size: 20px;
+  }
+
+  h6 {
+    font-size: 18x;
   }
 
   .smaller-body-text {
@@ -579,6 +610,10 @@ a.active-link{
     font-size: 18px;
   }
 
+  h6 {
+    font-size: 17px;
+  }
+
   body {
     font-size: 16px; 
   }
@@ -595,6 +630,10 @@ a.active-link{
 
   h2 {
     font-size: 30px;
+  }
+
+  h6 {
+    font-size: 16px;
   }
 
 

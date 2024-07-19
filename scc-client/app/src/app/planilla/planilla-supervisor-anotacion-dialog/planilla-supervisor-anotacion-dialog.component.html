@@ -1,0 +1,60 @@
+
+<form [formGroup]="anotacionForm" (ngSubmit)="guardarAnotacion()">
+  <mat-dialog-content class="mat-typography">
+    <h4 class="primary-color my-3">{{ planilla.usuarioNombre }}</h4>
+    <div class="row my-3">
+      <div class="col-md">
+        <mat-form-field class="full-width">
+          <mat-label>Tipo de anotación</mat-label>
+          <mat-select formControlName="tipo" (selectionChange)="calcularMonto()">
+            @for (tipo of tipos; track tipo) {
+              <mat-optgroup [label]="tipo.tipo" class="group-title">
+                @for (lista of tipo.lista; track lista) {
+                  <mat-option [value]="lista" class="group-content">{{lista.descripcion}}</mat-option>
+                }
+              </mat-optgroup>
+            }
+          </mat-select>
+          <mat-error *ngIf="errorHandling('tipo','required')">
+              El tipo es <strong>requerido</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-md">
+        <mat-form-field class="full-width">
+          <mat-label>Descripcion</mat-label>
+          <input matInput type="text" formControlName="descripcion" />
+          <mat-error *ngIf="errorHandling('descripcion','required')">
+              La descripción es <strong>requerida</strong>
+          </mat-error>
+          <mat-error *ngIf="errorHandling('descripcion','maxLength')">
+              La descripción debe tener como máximo <strong>100 carácteres</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+      
+    <div class="row my-3">
+      <div class="col-md">
+        <mat-form-field class="full-width">
+          <mat-label>Cantidad de horas</mat-label>
+          <input matInput type="time" formControlName="hora" (input)="calcularMonto()">
+        </mat-form-field>
+      </div>
+      <div class="col-md">
+        <mat-form-field class="full-width">
+          <mat-label>Monto</mat-label>
+          <input matInput type="text" formControlName="monto" />
+          <mat-error *ngIf="errorHandling('monto','required')">
+              El monto es <strong>requerido</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancelar</button>
+    <button mat-button color="primary" type="submit" [disabled]="!anotacionForm.valid">Guardar</button>
+  </mat-dialog-actions>
+</form>

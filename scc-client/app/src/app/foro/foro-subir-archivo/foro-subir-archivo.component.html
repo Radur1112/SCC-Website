@@ -1,0 +1,9 @@
+<div class="file-upload-container">
+    <input type="file" ng2FileSelect [uploader]="uploader" multiple />
+    <ul>
+      <li *ngFor="let item of uploader.queue">
+        {{ item?.file?.name }}
+        <button mat-stroked-button type="button" color="warn" (click)="removeFile(item)">Remover</button>
+      </li>
+    </ul>
+  </div>

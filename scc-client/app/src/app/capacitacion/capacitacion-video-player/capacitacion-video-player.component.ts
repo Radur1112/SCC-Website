@@ -1,7 +1,8 @@
-import { Component, OnInit, Input, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, AfterViewInit, SimpleChanges } from '@angular/core';
 import { GenericService } from '../../services/generic.service';
 import { Subject, takeUntil } from 'rxjs';
 import { format, toZonedTime } from 'date-fns-tz';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-capacitacion-video-player',
@@ -10,7 +11,7 @@ import { format, toZonedTime } from 'date-fns-tz';
   templateUrl: './capacitacion-video-player.component.html',
   styleUrl: './capacitacion-video-player.component.scss'
 })
-export class CapacitacionVideoPlayerComponent implements OnInit, OnDestroy, AfterViewInit {
+export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewInit {
   destroy$: Subject<boolean> = new Subject<boolean>();
   
   @Input() videoUrl: string;
@@ -30,15 +31,19 @@ export class CapacitacionVideoPlayerComponent implements OnInit, OnDestroy, Afte
   completedCheckpoints: number[] = [];
 
   constructor(
-    private gService: GenericService
+    private gService: GenericService,
+    private route: ActivatedRoute
   ) {
   }
 
-  ngOnInit(): void {
-    this.initialProgress = parseFloat(this.usuarioVideo.progreso);
-    this.completedCheckpoints = this.checkpoints.filter(checkpoint => checkpoint <= this.initialProgress);
-    
-    this.videoId = this.extractVideoId(this.videoUrl);
+  ngAfterViewInit(): void {
+    this.setupComponent();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['videoUrl'] && !changes['videoUrl'].firstChange) {
+      this.setupComponent();
+    }
   }
 
   ngOnDestroy(): void {
@@ -46,8 +51,28 @@ export class CapacitacionVideoPlayerComponent implements OnInit, OnDestroy, Afte
 
     this.saveProgreso();
   }
-  ngAfterViewInit(): void {
-    this.loadYouTubeVideo();
+
+  setupComponent(): void {
+    this.initialProgress = parseFloat(this.usuarioVideo.progreso);
+    this.completedCheckpoints = this.checkpoints.filter(checkpoint => checkpoint <= this.initialProgress);
+    
+    this.videoId = this.extractVideoId(this.videoUrl);
+    
+    this.loadPlayer();
+  }
+
+  extractVideoId(link: string): string | null {
+    const videoIdRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
+    const match = link.match(videoIdRegex);
+    return match ? match[1] : null;
+  }
+
+  loadPlayer(): void {
+    if (typeof YT !== 'undefined' && YT && YT.Player) {
+      this.loadYouTubeVideo();
+    } else {
+      window['onYouTubeIframeAPIReady'] = this.createPlayer.bind(this);
+    }
   }
 
   loadYouTubeVideo(): void {
@@ -60,28 +85,17 @@ export class CapacitacionVideoPlayerComponent implements OnInit, OnDestroy, Afte
           this.videoDuration = event.target.getDuration();
           event.target.destroy();
 
-          this.loadPlayer();
+          this.createPlayer();
         }
       }
     });
   }
 
-  extractVideoId(link: string): string | null {
-    const videoIdRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
-    const match = link.match(videoIdRegex);
-    return match ? match[1] : null;
-  }
-
-  loadPlayer(): void {
-    if (typeof YT !== 'undefined' && YT && YT.Player) {
-      this.createPlayer();
-    } else {
-      window['onYouTubeIframeAPIReady'] = this.createPlayer.bind(this);
-    }
-  }
-
   createPlayer(): void {
     let startTimeInSeconds = this.initialProgress * this.videoDuration / 100;
+    if (this.player) {
+      this.player.destroy();
+    }
     this.player = new YT.Player('player', {
       height: '100%',
       width: '100%',

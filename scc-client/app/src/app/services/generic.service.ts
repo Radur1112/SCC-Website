@@ -30,8 +30,18 @@ export class GenericService {
       .pipe(catchError(this.handleError.bind(this)));
   }
  
+  exportarPlanillas(param: string): Observable<any> {
+    return this.http.get(`${this.urlAPI}planilla/exportarPlanillas`, { params: { param } , responseType: 'blob' })
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+ 
   get(endopoint: string): Observable<any> {
     return this.http.get<any>(`${this.urlAPI}${endopoint}`)
+      .pipe(catchError(this.handleError.bind(this)));
+  }
+ 
+  getParam(endopoint: string, param: string): Observable<any> {
+    return this.http.get<any>(`${this.urlAPI}${endopoint}`, { params: { param } })
       .pipe(catchError(this.handleError.bind(this)));
   }
   

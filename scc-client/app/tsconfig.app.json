@@ -5,7 +5,8 @@
     "outDir": "./out-tsc/app",
     "types": [
       "node",
-      "youtube"
+      "youtube",
+      "@angular/localize"
     ]
   },
   "files": [

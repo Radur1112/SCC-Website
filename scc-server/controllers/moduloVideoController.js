@@ -125,7 +125,8 @@ module.exports.getByIdModulo = async(req, res, next) => {
         FROM ${nombreTabla} mv
         INNER JOIN modulo m ON mv.idModulo = m.id AND m.estado != 0
         INNER JOIN video v ON mv.idVideo = v.id AND v.estado != 0
-        WHERE mv.idModulo = ?`, [id]);
+        WHERE mv.idModulo = ?
+        ORDER BY mv.nivel, mv.idVideo`, [id]);
     if(data) {
       res.status(200).send({
         success: true,

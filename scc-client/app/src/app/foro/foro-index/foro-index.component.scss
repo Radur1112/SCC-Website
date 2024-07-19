@@ -1,0 +1,210 @@
+@use '../../../variables' as *;
+
+.card-pre {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 99%;
+  min-height: 60px;
+  border-top-left-radius: 55px;
+  border-top-right-radius: 55px;
+  box-shadow: none;
+}
+
+.secondary-button {
+  border-radius: 10px !important;
+  width: 256px;
+}
+
+.each-foro {
+  border: 1px solid #dadada;
+  height: 270px;
+}
+
+.opciones-god {
+  position: relative;
+}
+
+.opciones-container {
+  position: absolute;
+  top: -10px;
+  right: 0;
+  z-index: 10;
+}
+
+.opciones-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-foro {
+  border-radius: 10px;
+  height: 100%;
+  margin: 0;
+  box-shadow: none;
+  transition: all 0.15s;
+}
+
+.noWrap-texto{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.foro-titulo p, .right-header p, .menos-opacidad {
+  opacity: 0.6;
+}
+
+.foro-titulo h3 {
+  cursor: pointer;
+}
+
+.foro-titulo h3:hover {
+  color: $secondary-color;
+}
+
+.right-header {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: end;
+  text-align: end;
+}
+
+.smaller-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+}
+
+.foro-descripcion {
+  padding: 0 1rem 1rem;
+  max-height: 100px;
+  overflow: auto;
+}
+
+.ultima-respuesta {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  background-color: #f0f0f0;
+  height: 100%;
+}
+
+.ultima-respuesta p {
+  opacity: 0.7;
+}
+
+
+:host {
+  --mat-datepicker-range-input-separator-color: #ffffff; 
+  --mat-datepicker-toggle-icon-color: #f19e0b;
+
+  --mat-select-enabled-trigger-text-color: #ffffff; 
+  --mat-select-enabled-arrow-color: #ffffff; 
+  --mat-select-focused-arrow-color: #f19e0b;
+
+  --mdc-linear-progress-active-indicator-height: 15px;
+  --mdc-linear-progress-track-height: 15px;
+    //Fondo
+    --mdc-outlined-text-field-container-color: rgba(0, 0, 0, 0);
+    //Texto del label
+    --mdc-outlined-text-field-label-text-color: #ffffff;
+    //Texto del label cuando esta focus
+    --mdc-outlined-text-field-focus-label-text-color: #f19e0b;
+    //Texto del label cuando esta hover
+    --mdc-outlined-text-field-hover-label-text-color: #f19e0b;
+    //Texto del input
+    --mdc-outlined-text-field-input-text-color: #ffffff;
+    //Linea de abajo del input
+    --mdc-outlined-text-field-outline-color: #ffffff;
+    //Linea de abajo del input cuando esta focus
+    --mdc-outlined-text-field-focus-outline-color: #f19e0b;
+    //Linea de abajo del input cuando esta hover
+    --mdc-outlined-text-field-hover-outline-color: #f19e0b;
+    //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+    --mdc-outlined-text-field-caret-color: #ffffff;
+
+    --mdc-outlined-text-field-outline-width: 2px;
+    
+    //Texto del label Error
+    --mdc-outlined-text-field-error-label-text-color: #ffffff;
+    //Texto del label cuando esta focus Error
+    --mdc-outlined-text-field-error-focus-label-text-color: #ffffff;
+    //Texto del label cuando esta hover Error
+    --mdc-outlined-text-field-error-hover-label-text-color: #f19e0b;
+    /*
+  //Fondo
+  --mdc-filled-text-field-container-color: rgba(0, 0, 0, 0);
+  //Texto del label
+  --mdc-filled-text-field-label-text-color: #ffffff;
+  //Texto del label cuando esta focus
+  --mdc-filled-text-field-focus-label-text-color: #f19e0b;
+  //Texto del label cuando esta hover
+  --mdc-filled-text-field-hover-label-text-color: #f19e0b;
+  //Texto del input
+  --mdc-filled-text-field-input-text-color: #ffffff;
+  //Linea de abajo del input
+  --mdc-filled-text-field-active-indicator-color: #ffffff;
+  //Linea de abajo del input cuando esta focus
+  --mdc-filled-text-field-focus-active-indicator-color: #f19e0b;
+  //Linea de abajo del input cuando esta hover
+  --mdc-filled-text-field-hover-active-indicator-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+  --mdc-filled-text-field-caret-color: #ffffff;
+  
+  //Texto del label Error
+  --mdc-filled-text-field-error-label-text-color: #ffffff;
+  //Texto del label cuando esta focus Error
+  --mdc-filled-text-field-error-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover Error
+  --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
+  */
+}
+
+
+  
+@media screen and (max-width: 1400px) {
+}
+
+  
+@media screen and (max-width: 1200px) {
+}
+
+  
+@media screen and (max-width: 991.98px) {
+}
+  
+@media screen and (max-width: 767.98px) {
+}
+  
+@media screen and (max-width: 575.98px) {
+  .smaller-icon {
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+  }
+
+  .ultima-respuesta {
+    display: none;
+  }
+}
+  
+@media screen and (max-width: 488px) {
+  .smaller-icon {
+    font-size: 14px;
+    height: 14px;
+    width: 14px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .smaller-icon {
+    font-size: 12px;
+    height: 12px;
+    width: 12px;
+  }
+}

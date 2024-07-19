@@ -11,6 +11,11 @@ import { AuthGuard } from './services/guards/auth.guard';
 import { CapacitacionAdminIndexComponent } from './capacitacion/capacitacion-admin-index/capacitacion-admin-index.component';
 import { CapacitacionIndexComponent } from './capacitacion/capacitacion-index/capacitacion-index.component';
 import { CapacitacionVideoComponent } from './capacitacion/capacitacion-video/capacitacion-video.component';
+import { ForoIndexComponent } from './foro/foro-index/foro-index.component';
+import { PlanillaAdminIndexComponent } from './planilla/planilla-admin-index/planilla-admin-index.component';
+import { PlanillaSupervisorIndexComponent } from './planilla/planilla-supervisor-index/planilla-supervisor-index.component';
+import { ForoDetalleComponent } from './foro/foro-detalle/foro-detalle.component';
+import { PlanillaComprobanteIndexComponent } from './planilla/planilla-comprobante-index/planilla-comprobante-index.component';
 
 export const routes: Routes = [
   { path: 'inicio', component: InicioComponent },
@@ -41,14 +46,39 @@ export const routes: Routes = [
       permisos: [1]
     } 
   },
-
   { path: 'capacitacion/video/:idVideo/:idModulo', component: CapacitacionVideoComponent, canActivate:[AuthGuard],
     data:{
       permisos: ['Todos']
     } 
   },
-
   { path: 'capacitacion', component: CapacitacionIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos']
+    } 
+  },
+
+  { path: 'foro', component: ForoIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos']
+    } 
+  },
+  { path: 'foro/detalle/:id', component: ForoDetalleComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos']
+    } 
+  },
+
+  { path: 'planilla', component: PlanillaAdminIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos']
+    } 
+  },
+  { path: 'planilla/supervisor', component: PlanillaSupervisorIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos']
+    } 
+  },
+  { path: 'comprobante', component: PlanillaComprobanteIndexComponent, canActivate:[AuthGuard],
     data:{
       permisos: ['Todos']
     } 

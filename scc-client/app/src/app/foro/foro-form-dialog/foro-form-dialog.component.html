@@ -1,0 +1,53 @@
+<form [formGroup]="foroForm" (ngSubmit)="guardarForo()">
+  <mat-dialog-content class="mat-typography">
+    <h4 class="primary-color my-3">{{ tituloForm }} foro</h4>
+    <div class="row my-3">
+      <div class="col-md">
+        <mat-form-field class="full-width">
+          <mat-label>Tipo de foro</mat-label>
+          <mat-select formControlName="tipo">
+            <mat-option *ngFor="let tipoForo of tipoForos" [value]="tipoForo">
+              {{ tipoForo.descripcion }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="errorHandling('tipo','required')">
+              El tipo es <strong>requerido</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-md">
+        <mat-form-field class="full-width">
+          <mat-label>Título</mat-label>
+          <input matInput type="text" placeholder="Ingrese el título" formControlName="titulo" />
+          <mat-error *ngIf="errorHandling('titulo','required')">
+            El título es <strong>requerido</strong>
+          </mat-error>
+          <mat-error *ngIf="errorHandling('titulo','maxLength')">
+             El título debe tener como máximo <strong>100 carácteres</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+      
+    <div class="row my-3">
+      <mat-form-field>
+        <mat-label>Descripción</mat-label>
+        <textarea matInput placeholder="Ingrese la descripción" formControlName="descripcion"></textarea>
+        <mat-error *ngIf="errorHandling('descripcion','required')">
+            La descripción es <strong>requerida</strong>
+        </mat-error>
+        <mat-error *ngIf="errorHandling('descripcion','maxLength')">
+            La descripción debe tener como máximo <strong>3000 carácteres</strong>
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+  <app-foro-subir-archivo (archivosSelected)="onArchivosSelected($event)"></app-foro-subir-archivo>
+
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancelar</button>
+    <button mat-button color="primary" type="submit" [disabled]="!foroForm.valid">Guardar</button>
+  </mat-dialog-actions>
+</form>
