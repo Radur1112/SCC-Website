@@ -4,10 +4,11 @@
     <img src="assets/img/reclutamiento/reclutamiento1Res.jpg" alt="Corner Image" class="background-image vertical-gradient res-img">
   </div>
   <div class="content-container">
-    <mat-card-header class="less-width center-content p-0 pb-5">
+    <mat-card-header class="center-content p-0 pb-5">
       <mat-card-title class="light-color">
         <h1>
           <span class="primary-color">Sé parte de nuestra empresa</span>
+          <br>
           Contribuye al Éxito de SCC Inc
         </h1>
       </mat-card-title>
@@ -30,7 +31,8 @@
       <mat-card-header class="mt-xl-5 mt-lg-3 mt-sm-4 mt-3 mb-xl-5 mb-lg-3 mb-sm-4 mb-3">
         <mat-card-title>
           <h2>
-            <span class="secondary-color">Únete a nuestro equipo hoy: </span>
+            <span class="secondary-color">Únete a nuestro equipo hoy</span>
+            <br>
             Comienza tu viaje profesional aquí
           </h2>
           <p class="mt-md-5 mt-3">
@@ -46,7 +48,7 @@
   </div>
 </mat-card>
 
-
+<br> 
 
 <form [formGroup]="reclutamientoForm" class="content-container-center my-5" (ngSubmit)="enviarReclutamiento()">
   <mat-card class="card-form"> 
@@ -77,7 +79,7 @@
             
             <div class="col-md row my-3">
               <mat-form-field>
-                <mat-label>Nombre Completo</mat-label>
+                <mat-label>Nombre completo</mat-label>
                 <input matInput type="text" placeholder="Ingrese su nombre completo" formControlName="nombre" />
                 <mat-error *ngIf="errorHandling('nombre','required')">
                     El nombre completo es <strong>requerido</strong>
@@ -93,7 +95,7 @@
           <div class="row">
             <div class="col-md row my-3">
               <mat-form-field>
-                <mat-label>Correo Electrónico</mat-label>
+                <mat-label>Correo electrónico</mat-label>
                 <input matInput type="text" placeholder="Ingrese su correo electrónico" formControlName="correo" />
                 <mat-error *ngIf="errorHandling('correo','required')">
                     El Correo Electrónico es <strong>requerido</strong>
@@ -109,8 +111,7 @@
   
             <div class="col-md row my-3">
               <mat-form-field>
-                <mat-label>Número de Teléfono</mat-label>
-                <span matTextPrefix class="primary-color">+506 &nbsp;</span>
+                <mat-label>Número de teléfono</mat-label>
                 <input matInput type="text" placeholder="Ingrese su número de teléfono" formControlName="telefono" (keyup)="formatearTelefono()" />
                 <mat-error *ngIf="errorHandling('telefono','required')">
                   El número telefónico es <strong>requerido</strong>
@@ -170,7 +171,7 @@
           <div class="row">
             <div class="col-md row my-3">
               <mat-form-field>
-                <mat-label>Fecha de Nacimiento</mat-label>
+                <mat-label>Fecha de nacimiento</mat-label>
                 <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fecha">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker startView="multi-year"></mat-datepicker>
@@ -198,11 +199,14 @@
               </mat-form-field>
             </div>
   
-            <div class="col-md-3 row my-3">
-              <div class="text-center">
-                <mat-label>Tengo Expeciencia:</mat-label>
+            <div class="col-md-3 row experiencia my-3">
+              <div class="">
+                <mat-label>Tengo experiencia:</mat-label>
                 <br>
-                <mat-checkbox  formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">{{textoExperiencia}}</mat-checkbox>
+                <mat-radio-group formControlName="tieneExperiencia" (change)="tieneExperiencia($event)">
+                  <mat-radio-button class="no" value="" [checked]="true">No</mat-radio-button>
+                  <mat-radio-button value="true">Sí</mat-radio-button>
+                </mat-radio-group>
               </div>
             </div>
   

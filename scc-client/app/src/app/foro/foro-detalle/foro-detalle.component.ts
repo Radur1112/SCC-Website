@@ -33,7 +33,7 @@ export class ForoDetalleComponent {
   foroId: any;
   foro: any;
 
-  filtroRespuestas: any;
+  filtroRespuestas: any = [];
 
   respuestaForm: FormGroup;
 
@@ -58,7 +58,7 @@ export class ForoDetalleComponent {
           this.usuarioActual = x.usuario;
           this.isAdmin = this.usuarioActual.idTipoUsuario == 1;
 
-          this.cargarDatos();
+          this.getForo();
         } else {
           this.usuarioActual = null;
           this.isAdmin = false;
@@ -67,13 +67,23 @@ export class ForoDetalleComponent {
     });
   }
   
-  cargarDatos() {
+  getForo() {
     this.gService.get(`foro/${this.foroId}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.foro = res.data;
-        this.filtroRespuestas = this.foro.respuestasForo;
+        this.getRespuestas();
         this.formularioReactive();
+      }
+    });
+  }
+  
+  getRespuestas() {
+    this.gService.get(`usuariofororespuesta/foro/${this.foroId}`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        console.log(res);
+        this.filtroRespuestas = res.data;
       }
     });
   }
@@ -105,7 +115,7 @@ export class ForoDetalleComponent {
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
               this.notificacion.mensaje('Respuesta', 'Respuesta eliminada correctamente', TipoMessage.success);
-              this.cargarDatos();
+              this.getRespuestas();
             },
             error:(err) => {
               console.log(err);
@@ -127,7 +137,7 @@ export class ForoDetalleComponent {
     this.gService.post(`usuarioForoRespuesta/`, this.respuestaForm.value)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.cargarDatos();
+        this.getRespuestas();
       }
     });
   }

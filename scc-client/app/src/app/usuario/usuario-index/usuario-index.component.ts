@@ -18,6 +18,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
 import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialog } from '@angular/material/dialog';
+import { UsuarioSupervisorDialogComponent } from '../usuario-supervisor-dialog/usuario-supervisor-dialog.component';
 
 export interface usuarioInterface {
   id: any;
@@ -36,7 +40,7 @@ export interface usuarioInterface {
 @Component({
   selector: 'app-usuario-index',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatSortModule, MatPaginatorModule, MatIcon, MatCardModule, MatTooltipModule],
+  imports: [CommonModule, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatSortModule, MatPaginatorModule, MatIcon, MatCardModule, MatTooltipModule, MatAccordion, MatExpansionModule, MatTabsModule,],
   templateUrl: './usuario-index.component.html',
   styleUrl: './usuario-index.component.scss'
 })
@@ -50,6 +54,10 @@ export class UsuarioIndexComponent {
   displayedColumns: string[] = ['identificacion', 'tipoUsuarioDescripcion', 'nombre', 'correo', 'tipoContratoDescripcion', 'estado'];
   dataUsuario = new Array();
   dataSource: MatTableDataSource<usuarioInterface>;
+  
+  displayedColumnsSupervisor: string[] = ['identificacion', 'nombre', 'correo', 'puesto', 'acciones'];
+  dataSupervisor = new Array();
+  dataSourceSupervisor: MatTableDataSource<usuarioInterface>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
@@ -63,10 +71,12 @@ export class UsuarioIndexComponent {
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
     private httpClient:HttpClient,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private dialog: MatDialog
   ){
       paginators.itemsPerPageLabel = 'Items por página'; 
       this.dataSource = new MatTableDataSource(this.dataUsuario)
+      this.dataSourceSupervisor = new MatTableDataSource(this.dataSupervisor)
   }
 
   ngOnInit(): void {
@@ -77,11 +87,13 @@ export class UsuarioIndexComponent {
     });
 
     this.getUsuarios();
+    this.getSupervisores();
   }
 
   busqueda(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.dataSourceSupervisor.filter = filterValue.trim().toLowerCase();
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -95,6 +107,16 @@ export class UsuarioIndexComponent {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+      }
+    });
+  }
+
+  getSupervisores() {
+    this.gService.get(`usuario/supervisores`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        console.log(res.data)
+        this.dataSourceSupervisor = new MatTableDataSource(res.data);
       }
     });
   }
@@ -139,6 +161,24 @@ export class UsuarioIndexComponent {
       link.href = window.URL.createObjectURL(blob);
       link.download = fileName;
       link.click();
+    });
+  }
+
+  manejarUsuarios(supervisor: any) {
+    let width = '1900px';
+    let data = { 
+      supervisor: supervisor
+    };
+    
+    const dialogRef = this.dialog.open(UsuarioSupervisorDialogComponent, {
+      data,
+      width
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.getSupervisores();
+      }
     });
   }
 }

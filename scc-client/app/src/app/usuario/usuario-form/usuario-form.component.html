@@ -91,7 +91,7 @@
             <h4 class="text-start primary-color">Información de usuario</h4>
             <div class="col-md row my-3">
               <mat-form-field>
-                <mat-label>Correo Electrónico</mat-label>
+                <mat-label>Correo electrónico</mat-label>
                 <input matInput type="text" placeholder="Ingrese el correo electrónico" formControlName="correo" />
                 <mat-error *ngIf="errorHandling('correo','required')">
                     El Correo Electrónico es <strong>requerido</strong>
@@ -129,7 +129,7 @@
             <h4 class="text-start primary-color">Detalles de trabajo</h4>
             <div class="col-md row my-3">
               <mat-form-field>
-                <mat-label>Tipo de Usuario</mat-label>
+                <mat-label>Tipo de usuario</mat-label>
                 <mat-select formControlName="idTipoUsuario">
                   <mat-option *ngFor="let tipoUsuario of tipoUsuarios" [value]="tipoUsuario.id">
                     {{ tipoUsuario.descripcion }}
@@ -143,7 +143,7 @@
   
             <div class="col-md row my-3">
               <mat-form-field>
-                <mat-label>Tipo de Contrato</mat-label>
+                <mat-label>Tipo de contrato</mat-label>
                 <mat-select formControlName="idTipoContrato" (selectionChange)="onTipoContratoChange()">
                   <mat-option *ngFor="let tipoContrato of tipoContratos" [value]="tipoContrato.id">
                     {{ tipoContrato.descripcion }}
@@ -190,7 +190,7 @@
 
             <div class="col-md row my-3">
               <mat-form-field>
-                <mat-label>Fecha de Ingreso</mat-label>
+                <mat-label>Fecha de ingreso</mat-label>
                 <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fechaIngreso">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>

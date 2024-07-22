@@ -30,6 +30,7 @@ const planillaRouter = require('./routes/planillaRoutes');
 const foroRouter = require('./routes/foroRoutes');
 const tipoForoRouter = require('./routes/tipoForoRoutes');
 const usuarioForoRespuestaRouter = require('./routes/usuarioForoRespuestaRoutes');
+const usuarioSupervisorRouter = require('./routes/usuarioSupervisorRoutes');
 
 dotEnv.config();
 
@@ -90,6 +91,7 @@ app.use("/planilla/", planillaRouter);
 app.use("/foro/", foroRouter);
 app.use("/tipoForo/", tipoForoRouter);
 app.use("/usuarioForoRespuesta/", usuarioForoRespuestaRouter);
+app.use("/usuarioSupervisor/", usuarioSupervisorRouter);
 
 
 app.listen(port, () => {

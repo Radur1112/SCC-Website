@@ -43,7 +43,7 @@
     </mat-card>
     
     <div class="content-container-start-row mt-3">
-      <p class="res menos-opacidad me-3">{{ foro.cantRespuestas == 1 ? foro.cantRespuestas + ' Respuesta' : foro.cantRespuestas + ' Respuestas' }}</p>
+      <p class="res menos-opacidad me-3">{{ filtroRespuestas.length == 1 ? filtroRespuestas.length + ' Respuesta' : filtroRespuestas.length + ' Respuestas' }}</p>
       <mat-form-field appearance="outline" class="full-width">
         <mat-icon matSuffix class="primary-color me-2">search</mat-icon>
         <mat-label>Buscar una respuesta</mat-label>
@@ -65,11 +65,11 @@
       </form>
     </div>
 
-    <ng-container *ngIf="filtroRespuestas && filtroRespuestas[0] && filtroRespuestas[0].fecha">
+    <ng-container *ngIf="filtroRespuestas">
       <mat-card class="card-foro  my-4" *ngFor="let respuesta of filtroRespuestas">
         <mat-card-header class="titulito-res p-0">
           <mat-card-title class="foro-titulo px-3 py-2">
-            {{ respuesta.fecha | date: 'EEEE d \'de\' MMMM y, h:mm a' }}
+            {{ respuesta.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a' }}
           </mat-card-title>
           <div class="opciones-container" *ngIf="isAdmin">
             <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">

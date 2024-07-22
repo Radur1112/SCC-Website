@@ -5,13 +5,13 @@
   <div class="mx-auto">
     <mat-card-header class="content-container-center">
       <mat-card-title class="light-color">
-        <h2>Lista de Usuarios</h2>
+        <h2>Mantenimiento de usuarios</h2>
       </mat-card-title>
     </mat-card-header>
-    <mat-card-actions>
+    <mat-card-actions class="content-container-center">
       <div class="row">
         <div class="col-md px-4 content-container-center">
-          <button mat-flat-button class="primary-outline-inverted-button" routerLink="/usuario/registrar">Registrar Usuario</button>
+          <button mat-flat-button class="primary-outline-inverted-button" routerLink="/usuario/registrar">Registrar usuario</button>
         </div>
         <div class="col-md px-4 content-container-center">
           <mat-form-field appearance="outline">
@@ -35,55 +35,115 @@
   </div>
 </mat-card>
 
-<div class="table-container">
-  <table mat-table [dataSource]="dataSource" matSort>
-
-    <ng-container matColumnDef="identificacion">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Identificacion</th>
-      <td mat-cell *matCellDef="let row"> {{row.identificacion}} </td>
-    </ng-container>
-    
-    <ng-container matColumnDef="tipoUsuarioDescripcion">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo de Usuario</th>
-      <td mat-cell *matCellDef="let row"> {{row.tipoUsuarioDescripcion}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="nombre">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre Completo</th>
-      <td mat-cell *matCellDef="let row"> {{row.nombre}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="correo">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Correo Electrónico</th>
-      <td mat-cell *matCellDef="let row"> {{row.correo}} </td>
-    </ng-container>
-
-    <ng-container matColumnDef="tipoContratoDescripcion">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo de Contrato</th>
-      <td mat-cell *matCellDef="let row"> {{row.tipoContratoDescripcion !== undefined && row.tipoContratoDescripcion !== null ? row.tipoContratoDescripcion : 'No posee contrato'}} </td>
-    </ng-container>
+<mat-card class="card-table mx-auto"> 
+  <div class="container-fluid">
+    <mat-tab-group>
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>group</mat-icon>
+          Lista de usuarios
+        </ng-template>
+        
+        <div class="container-fluid my-4">
+          <div class="table-container">
+            <table mat-table [dataSource]="dataSource" matSort>
+              <ng-container matColumnDef="identificacion">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Identificacion</th>
+                <td mat-cell *matCellDef="let row"> {{row.identificacion}} </td>
+              </ng-container>
+              
+              <ng-container matColumnDef="tipoUsuarioDescripcion">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo de usuario</th>
+                <td mat-cell *matCellDef="let row"> {{row.tipoUsuarioDescripcion}} </td>
+              </ng-container>
           
-    <ng-container matColumnDef="estado">
-      <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
-      <td mat-cell *matCellDef="let row">
-        <button mat-fab extended color="accent" class="boton-accion" matTooltip="Actualizar Usuario" aria-label="Actualizar Usuario" (click)="actualizarUsuario(row.id)">
-          <mat-icon class="mat-18">edit</mat-icon>
-          Actualizar
-        </button>
-        <button mat-fab extended color="warn" class="boton-accion" matTooltip="Borrar Usuario" aria-label="Borrar Usuario" (click)="borrarUsuario(row)">
-          <mat-icon class="mat-18">delete</mat-icon>
-          Borrar
-        </button>
-      </td>
-    </ng-container> 
+              <ng-container matColumnDef="nombre">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre completo</th>
+                <td mat-cell *matCellDef="let row"> {{row.nombre}} </td>
+              </ng-container>
+          
+              <ng-container matColumnDef="correo">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Correo electrónico</th>
+                <td mat-cell *matCellDef="let row"> {{row.correo}} </td>
+              </ng-container>
+          
+              <ng-container matColumnDef="tipoContratoDescripcion">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo de contrato</th>
+                <td mat-cell *matCellDef="let row"> {{row.tipoContratoDescripcion !== undefined && row.tipoContratoDescripcion !== null ? row.tipoContratoDescripcion : 'No posee contrato'}} </td>
+              </ng-container>
+                    
+              <ng-container matColumnDef="estado">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
+                <td mat-cell *matCellDef="let row">
+                  <button mat-fab extended color="accent" class="boton-accion" matTooltip="Actualizar Usuario" aria-label="Actualizar Usuario" (click)="actualizarUsuario(row.id)">
+                    <mat-icon class="mat-18">edit</mat-icon>
+                    Actualizar
+                  </button>
+                  <button mat-fab extended color="warn" class="boton-accion" matTooltip="Borrar Usuario" aria-label="Borrar Usuario" (click)="borrarUsuario(row)">
+                    <mat-icon class="mat-18">delete</mat-icon>
+                    Borrar
+                  </button>
+                </td>
+              </ng-container> 
+          
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          
+              <tr class="mat-row" *matNoDataRow>
+                <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscar.value}}"</td>
+              </tr>
+            </table>
+          
+            <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
+          </div>
+        </div>
+      </mat-tab>
+    
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>manage_accounts</mat-icon>
+          Administrar supervisores
+        </ng-template>
 
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-    <tr class="mat-row" *matNoDataRow>
-      <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscar.value}}"</td>
-    </tr>
-  </table>
-
-  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page of users"></mat-paginator>
-</div>
+        <div class="container-fluid my-4">
+          <div class="table-container">
+            <table mat-table [dataSource]="dataSourceSupervisor">
+              <ng-container matColumnDef="identificacion">
+                  <th mat-header-cell *matHeaderCellDef>Identificacion</th>
+                  <td mat-cell *matCellDef="let row"> {{ row.identificacion }} </td>
+              </ng-container>
+          
+              <ng-container matColumnDef="nombre">
+                  <th mat-header-cell *matHeaderCellDef>Nombre completo</th>
+                  <td mat-cell *matCellDef="let row">{{ row.nombre }}</td>
+              </ng-container>
+          
+              <ng-container matColumnDef="correo">
+                  <th mat-header-cell *matHeaderCellDef>Correo electrónico</th>
+                  <td mat-cell *matCellDef="let row"> {{ row.correo }} </td>
+              </ng-container>
+          
+              <ng-container matColumnDef="puesto">
+                  <th mat-header-cell *matHeaderCellDef>Puesto</th>
+                  <td mat-cell *matCellDef="let row"> {{ row.puestoDescripcion }} </td>
+              </ng-container>
+                  
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef class="text-center">Acciones</th>
+                <td mat-cell *matCellDef="let row" class="text-center">
+                  <button mat-fab extended color="primary" class="boton-accion" matTooltip="Manejar usuarios" aria-label="Manejar usuarios" (click)="manejarUsuarios(row)">
+                    <mat-icon class="mat-18">supervisor_account</mat-icon>
+                    Manejar usuarios
+                  </button>
+                </td>
+              </ng-container> 
+            
+              <tr mat-header-row *matHeaderRowDef="displayedColumnsSupervisor; sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumnsSupervisor;"></tr>
+            </table>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</mat-card>

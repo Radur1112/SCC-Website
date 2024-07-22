@@ -185,6 +185,71 @@ module.exports.getByNoIdModulo = async(req, res, next) => {
   }
 }
 
+module.exports.getSupervisores = async(req, res, next) => {
+  try {
+    const data = await db.query(`
+      SELECT 
+        u.id AS id, u.identificacion AS identificacion, u.nombre AS nombre, u.correo AS correo,
+        p.descripcion AS puestoDescripcion, 
+        (
+          SELECT 
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'usuarioId', su.id,
+                'usuarioIdentificacion', su.identificacion,
+                'usuarioNombre', su.nombre,
+                'usuarioCorreo', su.correo,
+                'usuarioPuestoDescripcion', p2.descripcion
+              )
+            )
+          FROM usuario su
+          INNER JOIN usuariosupervisor us ON su.id = us.idUsuario
+          INNER JOIN puesto p2 ON p2.id = su.idPuesto
+          WHERE us.idSupervisor = u.id AND su.estado != 0
+        ) AS supervisados,
+        (
+          SELECT 
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'usuarioId', uno.id,
+                'usuarioIdentificacion', uno.identificacion,
+                'usuarioNombre', uno.nombre,
+                'usuarioCorreo', uno.correo,
+                'usuarioPuestoDescripcion', p3.descripcion
+              )
+            )
+          FROM usuario uno
+          INNER JOIN puesto p3 ON p3.id = uno.idPuesto
+          WHERE uno.id NOT IN (
+            SELECT idUsuario FROM usuariosupervisor WHERE idSupervisor = u.id
+          ) AND uno.estado != 0
+        ) AS noSupervisados
+      FROM ${nombreTabla} u
+      INNER JOIN puesto p ON p.id = u.idPuesto
+      WHERE u.estado != 0 AND u.idTipoUsuario = 3
+      GROUP BY u.id;`);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
 /*module.exports.getPlanilla = async(req, res, next) => {
   try {
     const data = await db.query(`

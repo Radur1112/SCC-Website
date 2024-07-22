@@ -74,6 +74,44 @@ module.exports.getById = async(req, res, next) => {
   }
 }
 
+module.exports.getByIdForo = async(req, res, next) => {
+    try {
+      const id = req.params.id;
+      if (!id) {
+        return res.status(404).send({
+          success: false,
+          message: 'Id inválido',
+        });
+      }
+
+    const data = await db.query(`
+        SELECT ufr.*, 
+        u.nombre as usuarioNombre
+        FROM ${nombreTabla} ufr
+        INNER JOIN usuario u ON u.id = ufr.idUsuario AND u.estado != 0
+        WHERE ufr.idForo = ?`, [id]);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
 module.exports.crear = async (req, res, next) => {
   try {
     const datos = req.body;

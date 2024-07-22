@@ -6,6 +6,7 @@ const usuarioForoRespuestaController = require("../controllers/usuarioForoRespue
 
 router.get('/', verifyToken, usuarioForoRespuestaController.get);
 router.get('/:id', verifyToken, usuarioForoRespuestaController.getById);
+router.get('/foro/:id', verifyToken, usuarioForoRespuestaController.getByIdForo);
 
 router.post("/", verifyToken, usuarioForoRespuestaController.crear);
 

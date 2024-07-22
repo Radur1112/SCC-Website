@@ -93,14 +93,14 @@
         </mat-card>
       </div>
       <div class="ultima-respuesta col-sm-3">
-        <ng-container *ngIf="foro.respuestasForo[0].fecha">
+        <ng-container *ngIf="foro.respuestaForo">
           <h5 class="primary-color my-3 pe-2">
             Última respuesta
           </h5>
-          <p class="content-container-center-row"><mat-icon class="smaller-icon me-1">account_circle</mat-icon>{{ foro.respuestasForo[0].usuarioNombre }}</p>
-          <div class="content-container-center"><p><strong>Fecha: </strong>{{ foro.respuestasForo[0].fecha | date: 'EEEE d \'de\' MMMM y, h:mm a' }}</p></div>
+          <p class="content-container-center-row"><mat-icon class="smaller-icon me-1">account_circle</mat-icon>{{ foro.respuestaForo.usuarioNombre }}</p>
+          <div class="content-container-center"><p><strong>Fecha: </strong>{{ foro.respuestaForo.fecha | date: 'EEEE d \'de\' MMMM y, h:mm a' }}</p></div>
         </ng-container>
-        <ng-container *ngIf="!foro.respuestasForo[0].fecha">
+        <ng-container *ngIf="!foro.respuestaForo">
           <h5 class="primary-color content-container-center my-3 pe-2">
             No hay respuestas
           </h5>

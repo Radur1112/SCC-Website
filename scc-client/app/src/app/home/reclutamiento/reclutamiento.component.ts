@@ -14,11 +14,12 @@ import { Subject, takeUntil } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { NotificacionService, TipoMessage } from '../../services/notification.service';
 import { GenericService } from '../../services/generic.service';
+import {MatRadioModule} from '@angular/material/radio';
 
 @Component({
   selector: 'app-reclutamiento',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatInputModule, MatSelectModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatCardModule],
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatInputModule, MatSelectModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatCardModule, MatRadioModule],
   templateUrl: './reclutamiento.component.html',
   styleUrl: './reclutamiento.component.scss',
   providers: [DatePipe]
@@ -148,15 +149,13 @@ export class ReclutamientoComponent {
   
 
   tieneExperiencia(event: any) {
-    const experiencia = event.checked;
+    const experiencia = event.value;
     const tiempoExpecienciaControl = this.reclutamientoForm.get('tiempoExperiencia');
 
     if (experiencia) {
-      this.textoExperiencia = 'Sí';
       tiempoExpecienciaControl.enable();
       tiempoExpecienciaControl.setValue('1-3');
     } else {
-      this.textoExperiencia = 'No';
       tiempoExpecienciaControl.reset();
       tiempoExpecienciaControl.disable();
     }

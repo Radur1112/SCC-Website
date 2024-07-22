@@ -1,0 +1,117 @@
+@use '../../../variables' as *;
+
+.mat-expansion-panel-header-description {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.asignar {
+    display: flex;
+    flex-direction: row;
+}
+  
+.usuarios-tables {
+    max-height: 70vh;
+    width: 100%;
+    overflow: auto;
+}
+  
+.usuarios-tables div{
+    max-height: 40vh;
+    width: 100%;
+    overflow: auto;
+}
+  
+.usuarios-tables mat-form-field{
+    width: 100%;
+}
+  
+.mat-mdc-row .mat-mdc-cell {
+    cursor: pointer;
+}
+  
+.mat-mdc-row:hover .mat-mdc-cell {
+    font-weight: bold;
+}
+  
+.clicked-row {
+    font-weight: bold;
+}
+
+mat-form-field {
+    margin-top: 27px;
+}
+
+
+.iconoUsuario {
+  width: 100px !important;
+  height: 100px !important;
+  padding: 0px !important;
+  margin: 0;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 80px;
+    transition: all 0.15s;
+  }
+}
+
+.iconoUsuario:hover {
+  mat-icon {
+      color: $secondary-color;
+  }
+}
+  
+
+@media screen and (max-width: 991.98px) {
+    .iconoUsuario {
+      width: 90px !important;
+      height: 90px !important;
+    
+      mat-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 70px;
+      }
+    }
+  }
+  
+  @media screen and (max-width: 767.98px) {
+    .iconoUsuario {
+      width: 80px !important;
+      height: 80px !important;
+    
+      mat-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 60px;
+      }
+    }
+  }
+  
+  @media screen and (max-width: 630px) {
+  }
+  
+  @media screen and (max-width: 575.98px) {
+    .iconoUsuario {
+      width: 70px !important;
+      height: 70px !important;
+      margin: 10px 0;
+    
+      mat-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 55px;
+      }
+    }
+  }
+  
+  @media screen and (max-width: 488px) {
+  }
+  
+  @media screen and (max-width: 400px) {
+  }

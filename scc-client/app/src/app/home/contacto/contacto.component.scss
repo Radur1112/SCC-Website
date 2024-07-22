@@ -9,8 +9,8 @@
 
 .card-contact {
     width: 99%;
-    height: 850px;
-    margin: 0 auto 25px;
+    height: 100%;
+    margin: 0 auto;
     border-radius: 55px;
     overflow: hidden;
     box-shadow: none;
@@ -144,10 +144,6 @@
 }
   
 @media screen and (max-width: 1400px) {
-    .card-contact {
-        height: 900px;
-    }
-
     .social {
         margin: 50px;
     }
@@ -155,10 +151,6 @@
 
   
 @media screen and (max-width: 1200px) {
-    .card-contact {
-        height: 1000px;
-    }
-
     .content-container-start {
         display: flex;
         flex-direction: column;
@@ -224,24 +216,21 @@
 }
   
 @media screen and (max-width: 575.98px) {
-    .card-contact {
-        height: 950px;
-    }
-    
     .social {
         margin: 20px;
     }
 }
   
 @media screen and (max-width: 488px) {
+    .large-icon {
+        height: 75px;
+        width: 75px;
+        fill: $primary-color;
+    }
 }
 
 @media screen and (max-width: 400px) {
-    .card-contact {
-        height: 850px;
-    }
-
-    .icon-container {
+   .icon-container {
         width: 40px;
         margin: 0 10px;
     }

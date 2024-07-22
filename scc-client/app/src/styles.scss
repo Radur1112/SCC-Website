@@ -363,8 +363,8 @@ a.active-link{
 
 .card {
   width: 99% !important;
-  height: 765px !important;
-  margin: 0 auto 25px !important;
+  height: 100% !important;
+  margin: 0 auto !important;
   border-radius: 55px !important;
   overflow: hidden !important;
   box-shadow: none !important;
@@ -377,7 +377,7 @@ a.active-link{
   justify-content: start;
   align-items: center;
   text-align: center;
-  height: 765px;
+  height: 100%;
 }
 
 .content-container-center {

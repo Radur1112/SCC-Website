@@ -1,0 +1,114 @@
+<mat-dialog-content class="mat-typography">
+  <div class="asignar">
+    <div class="usuarios-tables">
+      <h4 class="primary-color content-container-center mt-5 mb-0">Usuarios no asignados</h4>
+      <mat-form-field>
+        <mat-label>Buscar</mat-label>
+        <input matInput (keyup)="applyFilterNo($event)" #buscarNo>
+      </mat-form-field>
+      <div>
+        <table mat-table [dataSource]="dataSourceNo" class="mat-elevation-z8">
+          <ng-container matColumnDef="select">
+            <th class="p-0" mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? toggleAllRowsNo() : null"
+                            [checked]="selectionNo.hasValue() && isAllSelectedNo()"
+                            [indeterminate]="selectionNo.hasValue() && !isAllSelectedNo()">
+              </mat-checkbox>
+            </th>
+            <td class="p-0" mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                            (change)="$event ? selectionNo.toggle(row) : null"
+                            [checked]="selectionNo.isSelected(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="usuarioIdentificacion">
+            <th mat-header-cell *matHeaderCellDef> Identificación </th>
+            <td mat-cell *matCellDef="let element"> {{element.usuarioIdentificacion}} </td>
+          </ng-container>
+        
+          <ng-container matColumnDef="usuarioNombre">
+            <th mat-header-cell *matHeaderCellDef> Nombre </th>
+            <td mat-cell *matCellDef="let element"> {{element.usuarioNombre}} </td>
+          </ng-container>
+        
+          <ng-container matColumnDef="usuarioPuesto">
+            <th mat-header-cell *matHeaderCellDef> Puesto </th>
+            <td mat-cell *matCellDef="let element"> {{element.usuarioPuestoDescripcion}} </td>
+          </ng-container>
+        
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsNo; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsNo;"
+            (click)="selectionNo.toggle(row)">
+          </tr>
+        
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscarNo.value}}"</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  
+    <div class="botones-container content-container-center">
+      <div class="usuarios-botones">
+        <button mat-icon-button class="iconoUsuario" matTooltip="Asignar usuarios" (click)="asignarUsuarios()">
+          <mat-icon class="primary-color">arrow_circle_right</mat-icon>
+        </button>
+        <button mat-icon-button class="iconoUsuario" matTooltip="Desasignar usuarios" (click)="desasignarUsuarios()">
+          <mat-icon class="primary-color">arrow_circle_left</mat-icon>
+        </button>
+      </div>
+    </div>
+  
+    <div class="usuarios-tables">
+      <h4 class="primary-color content-container-center mt-5 mb-0">Usuarios asignados</h4>
+      <mat-form-field>
+        <mat-label>Buscar</mat-label>
+        <input matInput (keyup)="applyFilterSi($event)" #buscarSi>
+      </mat-form-field>
+      <div>
+        <table mat-table [dataSource]="dataSourceSi" class="mat-elevation-z8">
+          <ng-container matColumnDef="select">
+            <th class="p-0" mat-header-cell *matHeaderCellDef>
+              <mat-checkbox (change)="$event ? toggleAllRowsSi() : null"
+                            [checked]="selectionSi.hasValue() && isAllSelectedSi()"
+                            [indeterminate]="selectionSi.hasValue() && !isAllSelectedSi()">
+              </mat-checkbox>
+            </th>
+            <td class="p-0" mat-cell *matCellDef="let row">
+              <mat-checkbox (click)="$event.stopPropagation()"
+                            (change)="$event ? selectionSi.toggle(row) : null"
+                            [checked]="selectionSi.isSelected(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+  
+          <ng-container matColumnDef="usuarioIdentificacion">
+            <th mat-header-cell *matHeaderCellDef> Identificación </th>
+            <td mat-cell *matCellDef="let element"> {{element.usuarioIdentificacion}} </td>
+          </ng-container>
+        
+          <ng-container matColumnDef="usuarioNombre">
+            <th mat-header-cell *matHeaderCellDef> Nombre </th>
+            <td mat-cell *matCellDef="let element"> {{element.usuarioNombre}} </td>
+          </ng-container>
+        
+          <ng-container matColumnDef="usuarioPuesto">
+            <th mat-header-cell *matHeaderCellDef> Puesto </th>
+            <td mat-cell *matCellDef="let element"> {{element.usuarioPuestoDescripcion}} </td>
+          </ng-container>
+        
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsSi; sticky: true"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsSi;"
+          (click)="selectionSi.toggle(row)">
+          </tr>
+        
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscarSi.value}}"</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>

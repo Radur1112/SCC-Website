@@ -19,12 +19,12 @@
           <a routerLink="/reclutamiento" routerLinkActive="active-link" class="routerLinkA" (click)="collapseNavbar()">Únete a nosotros</a>
         </li>
         <li class="nav-item py-lg-0 py-3">
-          <a routerLink="/contacto" routerLinkActive="active-link" class="routerLinkA" (click)="collapseNavbar()">Contáctenos</a>
+          <a routerLink="/contacto" routerLinkActive="active-link" class="routerLinkA" (click)="collapseNavbar()">Contáctanos</a>
         </li>
       </ul>
       <div class="routerLinkA d-flex py-lg-0 py-3">
           <div *ngIf="!usuarioActual; else loggedIn">
-            <button mat-button color="primary" routerLink="/login" routerLinkActive="active-outline-button" class="primary-outline-button" (click)="collapseNavbar()">Inicio de Sesión</button>
+            <button mat-button color="primary" routerLink="/login" routerLinkActive="active-outline-button" class="primary-outline-button" (click)="collapseNavbar()">Inicio de sesión</button>
           </div>
           <ng-template #loggedIn>
             <button mat-icon-button class="iconoUsuario" [matMenuTriggerFor]="opcionesUsuario"  matTooltip="Menú de Usuario">
@@ -41,7 +41,7 @@
               </button>
               <button mat-menu-item (click)="logout()" (click)="collapseNavbar()">
                 <mat-icon>logout</mat-icon>
-                <span>Cerrar Sesión</span>
+                <span>Cerrar sesión</span>
               </button>
             </mat-menu>
           </ng-template>

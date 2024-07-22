@@ -97,6 +97,7 @@ export class ForoIndexComponent {
     this.gService.get(`foro`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
+        console.log(res.data)
         this.foros = res.data;
         this.filtroForos = this.foros;
       }

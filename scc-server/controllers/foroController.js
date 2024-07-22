@@ -6,31 +6,28 @@ module.exports.get = async(req, res, next) => {
   try {
     const data = await db.query(`
       SELECT f.*,
-      u.nombre AS usuarioNombre,
-      tf.descripcion AS tipoForoDescripcion,
-      JSON_ARRAYAGG(
-        JSON_OBJECT(
-          'id', ufr.id,
-          'usuarioNombre', ufr.usuarioNombre,
-          'descripcion', ufr.descripcion,
-          'fecha', ufr.fechaCreado
-        )
-      ) AS respuestasForo,
-      COUNT(ufr.usuarioNombre) AS cantRespuestas
+        u.nombre AS usuarioNombre,
+        tf.descripcion AS tipoForoDescripcion,
+        COUNT(ufrr.id) AS cantRespuestas,
+        (
+          SELECT 
+            JSON_OBJECT(
+              'usuarioNombre', u23.nombre,
+              'fecha', urf.fechaCreado
+            )
+          FROM usuariofororespuesta urf
+          LEFT JOIN usuario u23 ON u23.id = urf.idUsuario
+          WHERE urf.idForo = f.id
+          ORDER BY urf.fechaCreado DESC
+          LIMIT 1
+        ) AS respuestaForo
       FROM ${nombreTabla} f
       INNER JOIN usuario u ON u.id = f.idUsuario
       INNER JOIN tipoforo tf ON tf.id = f.idTipoForo
-      LEFT JOIN (
-        SELECT ufr.id, ufr.idForo,
-              u2.nombre AS usuarioNombre,
-              ufr.descripcion,
-              ufr.fechaCreado
-          FROM usuariofororespuesta ufr
-          LEFT JOIN usuario u2 ON u2.id = ufr.idUsuario
-          ORDER BY ufr.fechaCreado DESC
-      ) ufr ON ufr.idForo = f.id
+      LEFT JOIN usuariofororespuesta ufrr ON ufrr.idForo = f.id
       WHERE f.estado != 0
-      GROUP BY f.id`);
+      GROUP BY f.id
+      ORDER BY f.fechaCreado DESC`);
     if(data) {
       res.status(200).send({
         success: true,
@@ -65,28 +62,10 @@ module.exports.getById = async(req, res, next) => {
     const data = await db.query(`
       SELECT f.*,
       u.nombre AS usuarioNombre,
-      tf.descripcion AS tipoForoDescripcion,
-      JSON_ARRAYAGG(
-        JSON_OBJECT(
-          'id', ufr.id,
-          'usuarioNombre', ufr.usuarioNombre,
-          'descripcion', ufr.descripcion,
-          'fecha', ufr.fechaCreado
-        )
-      ) AS respuestasForo,
-      COUNT(ufr.usuarioNombre) AS cantRespuestas
+      tf.descripcion AS tipoForoDescripcion
       FROM ${nombreTabla} f
       INNER JOIN usuario u ON u.id = f.idUsuario
       INNER JOIN tipoforo tf ON tf.id = f.idTipoForo
-      LEFT JOIN (
-        SELECT ufr.id, ufr.idForo,
-              u2.nombre AS usuarioNombre,
-              ufr.descripcion,
-              ufr.fechaCreado
-          FROM usuariofororespuesta ufr
-          LEFT JOIN usuario u2 ON u2.id = ufr.idUsuario
-          ORDER BY ufr.fechaCreado DESC
-      ) ufr ON ufr.idForo = f.id
       WHERE f.estado != 0 AND f.id = ?
       GROUP BY f.id`, [id]);
     if(data) {

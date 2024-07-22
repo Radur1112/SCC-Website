@@ -71,6 +71,18 @@
     align-items: end;
     text-align: end;
 }
+
+.experiencia {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: center;
+    text-align: center;
+}
+
+.no {
+    margin: 0 20px 0 -10px;
+}
   
 @media screen and (max-width: 1400px) {
     
@@ -86,10 +98,20 @@
     .video-fluid {
         max-height: 350px;
     }
+
+    .no {
+        margin: 0;
+    }
 }
   
 @media screen and (max-width: 767.98px) {
+    .experiencia {
+        text-align: start;
+    }
 
+    .no {
+        margin: 0 20px 0 0;
+    }
 }
   
 @media screen and (max-width: 575.98px) {
