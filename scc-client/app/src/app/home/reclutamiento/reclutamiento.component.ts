@@ -164,7 +164,7 @@ export class ReclutamientoComponent {
 
   seleccionarArchivo(event: any) {
     const archivo = event.target.files[0];
-    const maxSizeInBytes = 5 * 1024 * 1024; // Tamaño máximo de 5 MB
+    const maxSizeInBytes = 10 * 1024 * 1024; // Tamaño máximo de 10 MB
 
     this.sizeError = maxSizeInBytes/1024/1024;
 
@@ -196,7 +196,7 @@ export class ReclutamientoComponent {
 
     this.gService.post(`reclutamiento`, formData).subscribe(response => {
       this.notificacion.mensaje('Información', response.toString(), TipoMessage.success);
-      this.reclutamientoForm.reset();
+      this.resetForm();
     });
   }
 
@@ -224,5 +224,15 @@ export class ReclutamientoComponent {
     return this.reclutamientoForm.get('distrito').value.NOM_DIST + ', ' 
     + this.reclutamientoForm.get('canton').value.NOM_CANT + ', '
     + this.reclutamientoForm.get('provincia').value.NOM_PROV;
+  }
+
+  resetForm() {
+    this.reclutamientoForm.reset({
+      provincia: null,
+      canton: { value: null, disabled: true },
+      distrito: { value: null, disabled: true },
+      tieneExperiencia: "",
+      tiempoExperiencia: { value: null, disabled: true }
+    });
   }
 }
