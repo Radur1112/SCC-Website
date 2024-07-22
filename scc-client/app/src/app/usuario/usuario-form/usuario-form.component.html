@@ -191,7 +191,7 @@
             <div class="col-md row my-3">
               <mat-form-field>
                 <mat-label>Fecha de ingreso</mat-label>
-                <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fechaIngreso">
+                <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" (focus)="picker.open()" formControlName="fechaIngreso">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker></mat-datepicker>
                 <mat-error *ngIf="errorHandling('fechaIngreso','required')">

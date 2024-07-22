@@ -172,7 +172,7 @@
             <div class="col-md row my-3">
               <mat-form-field>
                 <mat-label>Fecha de nacimiento</mat-label>
-                <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" formControlName="fecha">
+                <input matInput [min]="minDate" [max]="maxDate" [matDatepicker]="picker" (focus)="picker.open()" formControlName="fecha">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-datepicker #picker startView="multi-year"></mat-datepicker>
                 <mat-error *ngIf="errorHandling('fecha','required')">
