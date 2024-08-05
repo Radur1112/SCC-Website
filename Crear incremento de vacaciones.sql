@@ -2,24 +2,54 @@ SET GLOBAL event_scheduler = ON;
 
 show processlist;
 
+SHOW EVENTS;
+
+SHOW TRIGGERS;
+
+
+
+-- A los usuarios que sean asalariado, les suma 1 a las vacaciones si ya paso un mes, lo revisa cada día
+DELIMITER //
+
 CREATE EVENT IF NOT EXISTS updateVacaciones
 ON SCHEDULE EVERY 1 DAY
 STARTS CURRENT_TIMESTAMP
 DO
-UPDATE sccdb.usuario
-SET CantVacacion = CantVacacion + 1
-WHERE IdTipoContrato = 1
-  AND DAY(FechaIngreso) = DAY(CURDATE())
-  AND (MONTH(FechaIngreso) < MONTH(CURDATE()) 
-       OR (MONTH(FechaIngreso) >= MONTH(CURDATE()) 
-           AND YEAR(FechaIngreso) < YEAR(CURDATE())));
-           
+BEGIN
+    UPDATE sccdb.usuario
+    SET vacacion = vacacion + 1
+    WHERE idTipoContrato = 1
+      AND DAY(fechaIngreso) = DAY(CURDATE())
+      AND (
+           (MONTH(fechaIngreso) < MONTH(CURDATE())) 
+           OR (MONTH(fechaIngreso) >= MONTH(CURDATE()) 
+               AND YEAR(fechaIngreso) < YEAR(CURDATE()))
+          );
+END //
+
+DELIMITER ;  
+
+DELIMITER //
+
+CREATE EVENT IF NOT EXISTS xd
+ON SCHEDULE EVERY 1 MINUTE
+STARTS CURRENT_TIMESTAMP
+DO
+BEGIN
+    UPDATE sccdb.usuario
+    SET vacacion = vacacion + 1
+    WHERE idTipoContrato = 1;
+END //
+
+DELIMITER ;           
            
            
        
        
-PONER OTRO DE AFTER DELETE SI NECESARIO
            
+-- Estos 6 triggers son para el progreso de los modulos, se hacen cuando:
+-- se crea, actualiza, o borra el progreso de un video de un usuario (recorre los videos de los modulos que tengan ese usuario y ese video y les suma el progreso),
+-- se crea, actualiza, o borra un video en un modulo (a cada usuario que tenga ese modulo lo recorre los videos y le suma el progreso total)
 DELIMITER //
 CREATE TRIGGER update_usuario_modulo_progreso_insert
 AFTER INSERT ON usuarioVideo

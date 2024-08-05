@@ -103,6 +103,8 @@ export class CapacitacionVideoComponent {
       next: (res) => {
         if (res.data) {
           this.moduloVideos = res.data;
+          console.log(this.moduloVideos)
+          console.log(this.videoId)
           this.videoActual = this.moduloVideos.find((mv, index) => {
             if (mv.idVideo == this.videoId) {
               this.posicionActual = index;

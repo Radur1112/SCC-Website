@@ -95,6 +95,12 @@ export class GenericService {
         if (id === 'baneado') {
           this.notificacion.mensaje('Reclutamiento', message, TipoMessage.error);
         }
+        if (id === 'planillaActivo') {
+          this.notificacion.mensaje('Planilla', message, TipoMessage.warning);
+        }
+        if (id === 'completada') {
+          this.notificacion.mensaje('Planilla', message, TipoMessage.error);
+        }
         break;
       case 403:
         

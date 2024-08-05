@@ -46,6 +46,13 @@
   flex: 1;
 }
 
+.opciones-abs {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  z-index: 10;
+}
+
 .opciones-container {
   display: flex;
   justify-content: end;
@@ -102,7 +109,114 @@
   width: 100%;
 }
 
+.archivo-container {
+  display: flex;
+}
 
+.archivo {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  text-align: center;
+  color: #0041a4;
+  width: 100%;
+  text-decoration: none;
+  transition: all 0.15s;
+
+  mat-icon {
+    flex-shrink: 0;
+    margin-right: 5px;
+    transition: all 0.15s;
+  }
+  .archivo-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    flex-shrink: 1;
+  }
+}
+
+.archivo:hover {
+  color: $secondary-color;
+  
+  mat-icon {
+    color: $secondary-color;
+  }
+}
+
+.respuestas {
+  display: flex;
+  flex-direction: column;
+}
+
+.progress-bar {
+  height: 100px;
+  border-radius: 10px;
+}
+
+::ng-deep .mat-mdc-progress-bar.mat-accent .mdc-linear-progress__buffer-bar {
+  background-color: #d9d9d9;
+}
+
+.progress-bar-container {
+  position: relative;
+}
+
+.respuesta-borde {
+  border: 1px solid #dadada;
+  margin-top: -20px;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.respuesta-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  text-align: start;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+}
+
+.respuesta-descripcion {
+  max-height: 100%;
+  width: 70%;
+  overflow: auto;
+}
+
+.respuesta-otros {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.respuesta-cantidad,
+.respuesta-porcentaje {
+  flex: 1; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.respuesta-descripcion, .respuesta-cantidad, .respuesta-porcentaje {
+  padding: 0 15px;
+}
+
+
+
+:host {
+  --mdc-linear-progress-active-indicator-height: 100px;
+  --mdc-linear-progress-track-height: 100px;
+}
   
 @media screen and (max-width: 1400px) {
 }
@@ -126,6 +240,12 @@
     font-size: 40px;
     height: 40px;
     width: 40px;
+  }
+}
+  
+@media screen and (max-width: 619.98px) {
+  .respuesta-otros {
+    flex-direction: column;
   }
 }
   

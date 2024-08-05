@@ -223,8 +223,7 @@ a.active-link{
 .primary-button {
   border-radius: 10px !important;
   color: #ffffff !important;
-  background-color: $primary-color !important;
-  padding: 25px 20px !important;
+  padding: 25px 30px !important;
   border-width: 2px !important;
   transition: all 0.15s !important;
 }
@@ -460,6 +459,11 @@ a.active-link{
 
 .res-img {
   display: none;
+}
+
+
+.boton-accion {
+  border-radius: 10px !important;
 }
 
 

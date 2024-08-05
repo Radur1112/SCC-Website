@@ -5,6 +5,7 @@ const xlsx = require('xlsx');
 const path = require('path');
 const exceljs = require('exceljs');
 const fs = require('fs');
+const { create_planilla_insert_usuario, update_planilla_after_anotacion } = require('../utils/triggers.js')
 
 var nombreTabla = 'usuario';
 var selectNoPassword = 'u.id, u.idTipoUsuario, u.idTipoContrato, u.identificacion, u.correo, u.nombre, u.salario, u.fechaIngreso, u.vacacion, u.idPuesto, u.telefono';
@@ -185,6 +186,40 @@ module.exports.getByNoIdModulo = async(req, res, next) => {
   }
 }
 
+module.exports.getAsesores = async(req, res, next) => {
+  try {
+    const data = await db.query(`
+      SELECT ${selectNoPassword}, 
+      tu.descripcion as tipoUsuarioDescripcion, 
+      tc.descripcion as tipoContratoDescripcion, 
+      p.descripcion as puestoDescripcion 
+      FROM ${nombreTabla} u 
+      INNER JOIN tipousuario tu ON u.idTipoUsuario = tu.id 
+      LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id 
+      LEFT JOIN puesto p ON u.idPuesto = p.id 
+      WHERE u.estado != 0 AND u.idTipoUsuario = 2`);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
 module.exports.getSupervisores = async(req, res, next) => {
   try {
     const data = await db.query(`
@@ -222,7 +257,7 @@ module.exports.getSupervisores = async(req, res, next) => {
           INNER JOIN puesto p3 ON p3.id = uno.idPuesto
           WHERE uno.id NOT IN (
             SELECT idUsuario FROM usuariosupervisor WHERE idSupervisor = u.id
-          ) AND uno.estado != 0
+          ) AND uno.estado != 0 AND uno.idTipoUsuario = 2
         ) AS noSupervisados
       FROM ${nombreTabla} u
       INNER JOIN puesto p ON p.id = u.idPuesto
@@ -403,6 +438,8 @@ module.exports.registrar = async (req, res, next) => {
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [usuario]);
     if (data) {
+      create_planilla_insert_usuario(data[0].insertId);
+      
       res.status(201).json({
           status: true,
           message: "Usuario creado",
@@ -481,6 +518,10 @@ module.exports.actualizar = async (req, res, next) => {
     
     
     if (data) {
+      const [planilla] = await db.query(`SELECT * FROM planilla WHERE idUsuario = ${id} AND estado = 1 ORDER BY fechaFinal LIMIT 1`);
+      if (planilla.length > 0) {
+        update_planilla_after_anotacion(planilla[0].id)
+      }
       res.status(201).json({
           status: true,
           message: "Usuario actualizado"
@@ -1055,6 +1096,7 @@ module.exports.registrarMultiples = async (req, res, next) => {
 
       // Insert into database
       const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [usuario]);
+      create_planilla_insert_usuario(data[0].insertId);
       return data[0];
     });
 

@@ -124,7 +124,7 @@ export class UsuarioFormComponent {
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       salario: ['', [Validators.required, Validators.min(100), Validators.max(999999999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       fechaIngreso:  [new Date(), Validators.required],
-      vacacion:  [{ value: null, disabled: true }, [Validators.required, Validators.min(0), Validators.max(99)]],
+      vacacion:  [{ value: null, disabled: true }, [Validators.required, Validators.min(0), Validators.max(999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       idTipoUsuario: ['', Validators.required],
       idTipoContrato: ['', Validators.required],
       idPuesto: ['', Validators.required],

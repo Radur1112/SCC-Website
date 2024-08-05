@@ -108,7 +108,7 @@ module.exports.actualizar = async (req, res, next) => {
     }
 
 
-    const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE Id = ?`, [actualizarDatos, id]);
+    const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);
     if (data) {
       res.status(201).json({
           status: true,

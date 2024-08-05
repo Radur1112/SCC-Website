@@ -28,6 +28,7 @@ router.get('/:id', verifyToken, foroController.getById);
 
 router.post("/", verifyToken, foroController.crear);
 router.post("/archivos", verifyToken, upload.array('archivo'), foroController.crearArchivos);
+router.post("/respuestas", verifyToken, foroController.crearRespuestas);
 
 router.put("/:id", verifyAdministrador, foroController.actualizar);
 router.put("/borrar/:id", verifyAdministrador, foroController.borrar);

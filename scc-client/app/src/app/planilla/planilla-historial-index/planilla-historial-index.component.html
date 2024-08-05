@@ -1,0 +1,80 @@
+<mat-card class="card-primary">
+  <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto less-width">
+    <mat-card-header class="content-container-center">
+      <mat-card-title class="light-color">
+        <h2>Historial de anotaciones</h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-actions class="row">
+      <div class="row half-width content-container-center mx-auto">
+        <mat-form-field appearance="outline">
+          <mat-icon matSuffix class="secondary-color me-2">search</mat-icon>
+          <mat-label>Buscar</mat-label>
+          <input matInput #buscar (keyup)="busqueda($event)">
+        </mat-form-field>
+      </div>
+    </mat-card-actions>
+  </div>
+</mat-card>
+
+<div class="second-card-primary"></div>
+
+<mat-card class="card-pre mx-auto"></mat-card>
+
+<div class="table-container almost-width mx-auto">
+
+  <table mat-table [dataSource]="dataSource" matSort>
+
+    <ng-container matColumnDef="tipo">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Tipo </th>
+      <td mat-cell *matCellDef="let row"> {{ row.tipo + ' - ' + row.tipoDescripcion }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="usuarioNombre">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Nombre del usuario </th>
+      <td mat-cell *matCellDef="let row"> {{ row.usuarioNombre }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="descripcion">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Descripcion </th>
+      <td mat-cell *matCellDef="let row"> {{ row.descripcion }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="monto">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Monto </th>
+      <td mat-cell *matCellDef="let row"> {{ formatearNumero(row.monto) }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="fecha">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
+      <td mat-cell *matCellDef="let row"> {{ row.fecha | date: 'd \'de\' MMMM, y - hh:mm aa' }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="creadoPor">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Creado por </th>
+      <td mat-cell *matCellDef="let row"> {{ row.creadoPor ?? 'No especificado' }} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header> Acciones </th>
+      <td mat-cell *matCellDef="let row">
+        <button mat-fab extended color="accent" class="boton-accion" matTooltip="Actualizar anotacion" aria-label="Actualizar anotacion" [disabled]="row.fijo > 0" (click)="actualizarAnotacion(row)">
+          <mat-icon class="mat-18">edit</mat-icon>
+          Actualizar
+        </button>
+        <button mat-fab extended color="warn" class="boton-accion" matTooltip="Borrar anotacion" aria-label="Borrar anotacion" [disabled]="row.fijo > 0" (click)="borrarAnotacion(row)">
+          <mat-icon class="mat-18">delete</mat-icon>
+          Borrar
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+</div>

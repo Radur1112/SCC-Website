@@ -28,7 +28,17 @@
 }
 
 .planilla-item strong {
+  flex: 2;
+}
+
+.planilla-item p {
+  text-align: end;
   flex: 1;
+}
+
+.editable {
+  border: 1px solid rgb(0, 0, 0, 0.6);
+  border-radius: 3px;
 }
 
 .planilla-total {

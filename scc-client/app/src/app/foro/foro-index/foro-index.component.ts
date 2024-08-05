@@ -97,7 +97,6 @@ export class ForoIndexComponent {
     this.gService.get(`foro`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res.data)
         this.foros = res.data;
         this.filtroForos = this.foros;
       }
@@ -153,48 +152,70 @@ export class ForoIndexComponent {
     this.gService.post(`foro`, foro)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        if (foro.archivos.length > 0) {
-          const formData = new FormData();
-          formData.append('idForo', res.data.insertId,);
+        const archivoPromise = foro.archivos.length > 0 ? this.crearArchivos(foro, res.data.insertId) : Promise.resolve();
+        const respuestaPromise = foro.respuestas.length > 0 ? this.crearRespuestas({ idForo: res.data.insertId, respuestas: foro.respuestas }) : Promise.resolve();
       
-            foro.archivos.forEach((file, index) => {
-              formData.append(`archivo`, file, file.name);
-            });
-
-          this.gService.post(`foro/archivos`, formData)
-          .pipe(takeUntil(this.destroy$)).subscribe({
-            next:(res) => {
-              this.getForos();
-              this.notificacion.mensaje('Foro', 'Foro creado correctamente', TipoMessage.success);
-            }
+        Promise.all([archivoPromise, respuestaPromise])
+          .then(() => {
+            this.getForos();
+            this.notificacion.mensaje('Foro', 'Foro creado correctamente', TipoMessage.success);
+          })
+          .catch(error => {
+            this.getForos();
+            console.error("Error creating archivos or respuestas:", error);
+            this.notificacion.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
           });
-        } else {
-          this.getForos();
-          this.notificacion.mensaje('Foro', 'Foro creado correctamente', TipoMessage.success);
-        }
       }
     });
   }
+
+  crearArchivos(foro: any, idForo: any) {
+    const formData = new FormData();
+    formData.append('idForo', idForo,);
+
+      foro.archivos.forEach((file, index) => {
+        formData.append(`archivo`, file, file.name);
+      });
+
+    this.gService.post(`foro/archivos`, formData)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+      }
+    });
+  }
+
+  crearRespuestas(data: any) {
+    this.gService.post(`foro/respuestas`, data)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+      }
+    });
+  }
+
 
   abrirForo(foro: any) {
     this.router.navigate(['/foro/detalle', foro.id]);
   }
 
+  historialForo(id: any) {
+    this.router.navigate(['foro/historial', id]);
+  }
+
   borrarForo(foro: any) {
     this.confirmationService.confirm()
-      .subscribe(result => {
-        if (result) {
-          this.gService.put(`foro/borrar`, foro)
-          .pipe(takeUntil(this.destroy$)).subscribe({
-            next:(res) => {
-              this.notificacion.mensaje('Foro', 'Foro eliminado correctamente', TipoMessage.success);
-              this.getForos();
-            },
-            error:(err) => {
-              console.log(err);
-            }
-          });
-        }
-      });
+    .subscribe(result => {
+      if (result) {
+        this.gService.put(`foro/borrar`, foro)
+        .pipe(takeUntil(this.destroy$)).subscribe({
+          next:(res) => {
+            this.notificacion.mensaje('Foro', 'Foro eliminado correctamente', TipoMessage.success);
+            this.getForos();
+          },
+          error:(err) => {
+            console.log(err);
+          }
+        });
+      }
+    });
   }
 }

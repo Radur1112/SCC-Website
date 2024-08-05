@@ -1,0 +1,93 @@
+<mat-card class="card-primary">
+  <a routerLink="/foro" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto light-color">
+    <mat-card-header class="content-container-center">
+      <mat-card-title>
+        <h2>Justificación de incapacidades</h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="content-container-center my-5">
+      <h5>Vacaciones disponibles: {{ vacacionActual }}</h5>
+    </mat-card-content>
+  </div>
+</mat-card>
+
+<div class="second-card-primary"></div>
+  
+<mat-card class="card-pre mx-auto"></mat-card>
+
+<form [formGroup]="vacacionForm" class="content-container-center my-3"  (ngSubmit)="crearVacacion()">
+  <mat-card class="card-form"> 
+    <div class="row almost-width">
+      <div class="border-primary my-5 p-4">
+        <mat-card-content class="p-0">
+          <div class="row mb-4">
+            <mat-form-field>
+              <mat-label>Comentario (opcional)</mat-label>
+              <textarea matInput type="text" placeholder="Ingrese el comentario" formControlName="comentario"></textarea>
+              <mat-error *ngIf="errorHandling('comentario','maxlength')">
+                El comentario debe tener como máximo <strong>250 carácteres</strong>
+              </mat-error>
+            </mat-form-field>
+          </div>
+          
+          <div class="row mb-4">
+            <mat-form-field>
+              <mat-label>Fechas de incapacidad</mat-label>
+              <mat-date-range-input [dateFilter]="dateFilter" [rangePicker]="picker" [min]="minDate" [max]="maxDate">
+                <input matStartDate placeholder="Fecha inicial" formControlName="fechaInicio" (focus)="picker.open()">
+                <input matEndDate placeholder="Fecha final" formControlName="fechaFinal" (focus)="picker.open()">
+              </mat-date-range-input>
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-date-range-picker #picker>
+                <mat-date-range-picker-actions>
+                  <button mat-button matDateRangePickerCancel>Cancelar</button>
+                  <button mat-raised-button matDateRangePickerApply>Aceptar</button>
+                </mat-date-range-picker-actions>
+              </mat-date-range-picker>
+              <mat-error *ngIf="errorHandling('fechaInicio','required')">
+                  La fecha es <strong>requerida</strong>
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="row my-3" *ngIf="vacacionForm.get('fechaInicio').value && vacacionForm.get('fechaFinal').value">
+            <div class="content-container-start-row my-3">
+              <mat-checkbox (change)="horaInicio = !horaInicio; horaFinal = !horaFinal; ">Añadir horas específicas</mat-checkbox>
+            </div>
+            <div class="horas">
+              <div class="m-3" *ngIf="horaInicio">
+                <div class="content-container-start-row my-1">
+                  <h6>{{ vacacionForm.get('fechaInicio').value | date: 'dd/MM/yyyy' }} <strong>{{ previewHoraInicio }}</strong></h6>
+                </div>
+                <div class="content-container-start-row">
+                  <mat-form-field>
+                    <mat-label>Hora de inicio</mat-label>
+                    <input matInput type="time" formControlName="horaInicio" (blur)="verificarHora(true)">
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="m-3" *ngIf="horaFinal">
+                <div class="content-container-start-row my-1">
+                  <h6>{{ vacacionForm.get('fechaFinal').value | date: 'dd/MM/yyyy' }} <strong>{{ previewHoraFinal }}</strong></h6>
+                </div>
+                <div class="content-container-start-row">
+                  <mat-form-field>
+                    <mat-label>Hora finaliza</mat-label>
+                    <input matInput type="time" formControlName="horaFinal" (blur)="verificarHora(false)">
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+          </div>
+        </mat-card-content>
+      
+        <mat-card-actions class="button-container my-3">
+          <button mat-flat-button color="accent" type="submit" class="secondary-button" [disabled]="vacacionForm.invalid">Enviar justificación</button>
+        </mat-card-actions>
+      </div>
+    </div>
+  </mat-card>
+</form>

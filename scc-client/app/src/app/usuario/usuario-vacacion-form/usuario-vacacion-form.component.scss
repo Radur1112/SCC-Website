@@ -1,0 +1,30 @@
+@use '../../../variables' as *;
+
+.card-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 99%;
+  border-top-left-radius: 55px;
+  border-top-right-radius: 55px;
+  box-shadow: none;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  align-items: end;
+  text-align: end;
+}
+
+.horas {
+  display: flex;
+}
+  
+@media screen and (max-width: 575.98px) {
+  .horas {
+    flex-direction: column;
+  }
+}

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Inject, ViewChild } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSort, MatSortModule } from '@angular/material/sort';
@@ -13,11 +13,14 @@ import { MatIcon } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
 import { NotificacionService, TipoMessage } from '../../services/notification.service';
-import { MatPaginatorIntl } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { PlanillaDialogComponent } from '../planilla-dialog/planilla-dialog.component';
 import { MatSelectModule } from '@angular/material/select';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 
 export interface usuarioInterface {
   id: any;
@@ -35,9 +38,10 @@ export interface usuarioInterface {
 @Component({
   selector: 'app-planilla-admin-index',
   standalone: true,
-  imports: [CommonModule, RouterLink, MatTableModule, MatSortModule, MatButtonModule, MatTooltipModule, MatFormFieldModule, MatInputModule, MatCardModule, MatIcon, MatSelectModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatPaginatorModule, MatTableModule, MatSortModule, MatButtonModule, MatTooltipModule, MatFormFieldModule, MatInputModule, MatCardModule, MatIcon, MatSelectModule, MatDatepickerModule, MatNativeDateModule],
   templateUrl: './planilla-admin-index.component.html',
-  styleUrl: './planilla-admin-index.component.scss'
+  styleUrl: './planilla-admin-index.component.scss',
+  providers: [DatePipe]
 })
 export class PlanillaAdminIndexComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
@@ -53,17 +57,38 @@ export class PlanillaAdminIndexComponent {
   
   selectedfecha: any;
   
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+
+  selectedFecha = new FormGroup({
+    fechaInicio: new FormControl<Date | null>(null),
+    fechaFinal: new FormControl<Date | null>(null),
+  });
+
+  maxDate: Date;
+  minDate: Date;
 
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
     private notificacion: NotificacionService,
     private dialog: MatDialog,
+    private paginators: MatPaginatorIntl,
     private router:Router,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
+    @Inject(MAT_DATE_LOCALE) private _locale: string,
+    private _adapter: DateAdapter<any>
   ){
+    paginators.itemsPerPageLabel = 'Items por página'; 
+
+    this._locale = 'cr';
+    this._adapter.setLocale(this._locale);
+
+    const currentDate = new Date();
+    this.minDate = new Date(2024, 6, 15);
+    this.maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 6, currentDate.getDate());
+
       this.dataSource = new MatTableDataSource(this.dataUsuario)
   }
 
@@ -74,23 +99,41 @@ export class PlanillaAdminIndexComponent {
       }
     });
 
-    this.getFechas();
     this.getUsuarios();
   }
 
   busqueda(event: Event) {
     const filterValue = (event.target as HTMLInputElement).value;
     this.dataSource.filter = filterValue.trim().toLowerCase();
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
-  getFechas() {
-    this.gService.get(`planilla/fecha`)
+  crearPlanillas() {
+    this.gService.get(`planilla/crear`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.fechas = res.data;
-        this.selectedfecha = this.fechas[0].fecha
+        this.notificacion.mensaje('Planilla', 'planillas creadas correctamente', TipoMessage.success);
+        this.getFechas();
       }
     });
+  }
+
+  completarPlanillas() {
+    this.confirmationService.confirm()
+      .subscribe(result => {
+        if (result) {
+          this.gService.get(`planilla/completar`)
+          .pipe(takeUntil(this.destroy$)).subscribe({
+            next:(res) => {
+              this.notificacion.mensaje('Planilla', 'planillas completadas y creadas correctamente', TipoMessage.success);
+              this.getFechas();
+            }
+          });
+        }
+      });
   }
 
   getUsuarios() {
@@ -99,12 +142,53 @@ export class PlanillaAdminIndexComponent {
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+        
+        this.getFechas();
       }
     });
   }
 
+  getFechas() {
+    this.gService.get(`planilla/fechas`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        if (res.data) {
+          this.selectedFecha.setValue({
+            fechaInicio: new Date(res.data.fechaInicio),
+            fechaFinal: new Date(res.data.fechaFinal)
+          });
+        }
+      }
+    });
+  }
+
+  actualizarFechas() {
+    if (this.selectedFecha.value.fechaInicio && this.selectedFecha.value.fechaFinal){
+      const fechas = {
+        fechaInicio: this.formatearFecha(this.selectedFecha.value.fechaInicio),
+        fechaFinal: this.formatearFecha(this.selectedFecha.value.fechaFinal)
+      }
+
+      this.gService.post(`planilla/fechas`, fechas)
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next:(res) => {
+          this.notificacion.mensaje('Planilla', 'Rango de fechas actualizado correctamente', TipoMessage.success);
+        }
+      });
+    }
+  }
+
+  formatearFecha(fecha: Date): string {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
+  }
+
   mostrarPlanilla(idUsuario: any) {
-    this.gService.getParam(`planilla/usuario/${idUsuario}`, this.selectedfecha.split("T")[0])
+    this.gService.get(`planilla/usuario/${idUsuario}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.openPlanillaDialog(res, idUsuario);
@@ -115,6 +199,7 @@ export class PlanillaAdminIndexComponent {
   openPlanillaDialog(res: any, isAsalariado?: any): void {
     let width = isAsalariado != 2 ? '1200px' : '600px';
     let data = { 
+      idUsuarioActual: this.usuarioActual.id,
       planilla: res.data,
       isAsalariado: isAsalariado
     };
@@ -126,7 +211,6 @@ export class PlanillaAdminIndexComponent {
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log(result);
       }
     });
   }

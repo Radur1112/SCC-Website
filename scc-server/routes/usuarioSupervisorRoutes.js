@@ -5,7 +5,7 @@ const { verifyToken, verifyAdministrador, verifyUsuario } = require('../utils/ve
 const usuarioSupervisorController = require("../controllers/usuarioSupervisorController");
 
 router.get('/', verifyToken, usuarioSupervisorController.get);
-router.get('/:id', verifyToken, usuarioSupervisorController.getById);
+router.get('/supervisor/:id', verifyToken, usuarioSupervisorController.getByIdSupervisor);
 
 router.post("/", verifyAdministrador, usuarioSupervisorController.crear);
 router.post("/multiple", verifyAdministrador, usuarioSupervisorController.crearMultiples);

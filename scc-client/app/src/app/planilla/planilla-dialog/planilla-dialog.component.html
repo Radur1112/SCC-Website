@@ -10,20 +10,23 @@
         <div class="planilla-container">
           <div class="planilla-left">
             <div class="planilla-item"><strong>Salario Base:</strong> <p class="m-0"><strong>{{ formatearNumero(planilla.salarioBase) }}</strong></p></div>
-            <div class="planilla-item"><strong>Comisión:</strong> <p class="m-0" contenteditable="true" (blur)="confirmarTexto($event, 'comision')">{{ usuario.comision }}</p></div>
-            <div class="planilla-item"><strong>Horas Extra:</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.horasExtra }}</p></div>
-            <div class="planilla-item"><strong>Incentivos:</strong>  <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.incentivos }}</p></div>
-            <div class="planilla-item"><strong>Bonificaciones:</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.bonificaciones }}</p></div>
+            <ng-container *ngIf="aumentos">
+              <div class="planilla-item" *ngFor="let tipo of aumentos">
+                <strong>{{ tipo.descripcion }} {{ tipo.fijo == 2 ? tipo.valor + '%' : tipo.fijo == 1 ? tipo.valor : '' }}:</strong>
+                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+              </div>
+            </ng-container>
             <div class="planilla-item planilla-total"><strong>SALARIO BRUTO:</strong> <p class="m-0">{{ formatearNumero(planilla.salarioBruto) }}</p></div>
             <div class="planilla-item planilla-total"><strong>SALARIO NETO:</strong> <p class="m-0">{{ formatearNumero(planilla.salarioNeto) }}</p></div>
           </div>
           <div class="planilla-right">
             <div class="planilla-item"><strong>Menos:</strong></div>
-            <div class="planilla-item"><strong>CCSS (10.67%):</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.ccss }}</p></div>
-            <div class="planilla-item"><strong>Impuesto sobre la renta:</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.impuestoRenta }}</p></div>
-            <div class="planilla-item"><strong>Adelanto de Salario:</strong>  <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.adelantoSalario }}</p></div>
-            <div class="planilla-item"><strong>Préstamos:</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.prestamos }}</p></div>
-            <div class="planilla-item"><strong>Otros Rebajos:</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.otrosRebajos }}</p></div>
+            <ng-container *ngIf="deducciones">
+              <div class="planilla-item" *ngFor="let tipo of deducciones">
+                <strong>{{ tipo.descripcion }} {{ tipo.fijo == 2 ? tipo.valor + '%' : tipo.fijo == 1 ? tipo.valor : '' }}:</strong>
+                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+              </div>
+            </ng-container>
             <div class="planilla-item planilla-total planilla-deducciones"><strong>TOTAL DEDUCCIONES:</strong> {{ formatearNumero(planilla.totalDeducciones) }}</div>
           </div>
         </div>
@@ -34,7 +37,7 @@
           </div>
           <div class="planilla-right">
             <div class="planilla-item"><strong>Vacaciones:</strong> <p class="m-0"><strong>{{ planilla.usuarioVacacion }}</strong></p></div>
-            <div class="planilla-item"><strong>Fecha:</strong> <p class="m-0"><strong>{{ planilla.fecha | date: 'dd/MM/yyyy' }}</strong></p></div>
+            <div class="planilla-item"><strong>Fecha:</strong> <p class="m-0"><strong>{{ planilla.fechaInicio | date: 'dd/MM/yyyy' }} - {{ planilla.fechaFinal | date: 'dd/MM/yyyy' }}</strong></p></div>
           </div>
         </div>
       </ng-container>
@@ -42,18 +45,29 @@
       <ng-container *ngIf="isAsalariado == 2">
         <div>
           <div class="planilla-center">
-            <div class="planilla-item planilla-fecha"><strong>Fecha:</strong> <p class="m-0">{{ planilla.fecha | date: 'dd/MM/yyyy' }}</p></div>
+            <div class="planilla-item planilla-fecha"><strong>Fecha:</strong> <p class="m-0">{{ planilla.fechaInicio | date: 'dd/MM/yyyy' }} - {{ planilla.fechaFinal | date: 'dd/MM/yyyy' }}</p></div>
             <br>
-            <div class="planilla-item"><strong>Bono productividad:</strong> <p class="m-0"><strong>{{ formatearNumero(usuario.bonoProductividad) }}</strong></p></div>
-            <div class="planilla-item"><strong>Comisiones:</strong> <p class="m-0" contenteditable="true" (blur)="confirmarTexto($event, 'comision')">{{ usuario.viaticos }}</p></div>
-            <div class="planilla-item"><strong>Bono excedente meta:</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.viaticos }}</p></div>
-            <div class="planilla-item"><strong>Otros Bonos:</strong> <p class="m-0" contenteditable="true" (blur)="confirmarTexto($event, 'comision')">{{ usuario.viaticos }}</p></div>
-            <div class="planilla-item"><strong>Otros incentivos:</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.viaticos }}</p></div>
-            <div class="planilla-item planilla-total"><strong>BASE FACTURACION:</strong> <p class="m-0">{{ formatearNumero(usuario.baseFacturacion) }}</p></div>
-            <div class="planilla-item"><strong>Impuesto al valor Agregado:</strong>  <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.impuestoAgregado }}</p></div>
-            <div class="planilla-item planilla-total"><strong>SUBTOTAL:</strong> <p class="m-0">{{ formatearNumero(usuario.subtotal) }}</p></div>
-            <div class="planilla-item"><strong>Prestamos o adelantos de pago:</strong> <p class="m-0" contenteditable="true" (input)="textoEditado($event)" (focus)="focusTexto($event)" (blur)="confirmarTexto($event)">{{ usuario.viaticos }}</p></div>
-            <div class="planilla-item planilla-total"><strong>TOTAL DESEMBOLSO:</strong> <p class="m-0">{{ formatearNumero(usuario.totalDesembolso) }}</p></div>
+            <ng-container *ngIf="aumentos">
+              <div class="planilla-item" *ngFor="let tipo of aumentos">
+                <strong>{{ tipo.descripcion }}:</strong>
+                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+              </div>
+            </ng-container>
+            <div class="planilla-item planilla-total"><strong>BASE FACTURACION:</strong> <p class="m-0">{{ formatearNumero(planilla.baseFacturacion) }}</p></div>
+            <ng-container *ngIf="otrosPagos">
+              <div class="planilla-item" *ngFor="let tipo of otrosPagos">
+                <strong>{{ tipo.descripcion }}:</strong>
+                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+              </div>
+            </ng-container>
+            <div class="planilla-item planilla-total"><strong>SUBTOTAL:</strong> <p class="m-0">{{ formatearNumero(planilla.salarioBruto) }}</p></div>
+            <ng-container *ngIf="deducciones">
+              <div class="planilla-item" *ngFor="let tipo of deducciones">
+                <strong>{{ tipo.descripcion }}:</strong>
+                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+              </div>
+            </ng-container>
+            <div class="planilla-item planilla-total"><strong>TOTAL DESEMBOLSO:</strong> <p class="m-0">{{ formatearNumero(planilla.salarioNeto) }}</p></div>
           </div>
         </div>
       </ng-container>
@@ -63,5 +77,5 @@
 
 <mat-dialog-actions align="end">
   <button mat-button mat-dialog-close>Cancelar</button>
-  <button mat-button color="primary">Guardar</button>
+  <button mat-button color="primary" (click)="guardarPlanilla()">Guardar</button>
 </mat-dialog-actions>

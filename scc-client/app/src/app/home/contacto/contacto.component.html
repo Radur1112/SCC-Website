@@ -130,7 +130,7 @@
                 <mat-error *ngIf="errorHandling('identificacion','required')">
                     La identificacion es <strong>requerida</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('identificacion','maxLength')">
+                <mat-error *ngIf="errorHandling('identificacion','maxlength')">
                     La identificacion debe tener como máximo <strong>20 carácteres</strong>
                 </mat-error>
               </mat-form-field>
@@ -143,7 +143,7 @@
                 <mat-error *ngIf="errorHandling('nombre','required')">
                     El nombre completo es <strong>requerido</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('nombre','maxLength')">
+                <mat-error *ngIf="errorHandling('nombre','maxlength')">
                     El nombre debe tener como máximo <strong>250 carácteres</strong>
                 </mat-error>
               </mat-form-field>
@@ -162,7 +162,7 @@
                 <mat-error *ngIf="errorHandling('correo','email')">
                     El correo ingresado es <strong>inválido</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('correo','maxLength')">
+                <mat-error *ngIf="errorHandling('correo','maxlength')">
                     El correo debe tener como máximo <strong>250 carácteres</strong>
                 </mat-error>
               </mat-form-field>
@@ -209,7 +209,7 @@
               <mat-error *ngIf="errorHandling('mensaje','required')">
                   El mensaje es <strong>requerido</strong>
               </mat-error>
-              <mat-error *ngIf="errorHandling('mensaje','maxLength')">
+              <mat-error *ngIf="errorHandling('mensaje','maxlength')">
                   El mensaje debe tener como máximo <strong>3000 carácteres</strong>
               </mat-error>
             </div>

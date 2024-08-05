@@ -61,8 +61,35 @@ module.exports.getById = async(req, res, next) => {
     }
     const data = await db.query(`
       SELECT f.*,
-      u.nombre AS usuarioNombre,
-      tf.descripcion AS tipoForoDescripcion
+        u.nombre AS usuarioNombre,
+        tf.descripcion AS tipoForoDescripcion,
+        (
+          SELECT 
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'id', fa.id,
+                'ubicacion', fa.ubicacion
+              )
+            )
+          FROM foroarchivo fa
+          WHERE fa.idForo = f.id
+        ) AS archivos,
+        (
+          SELECT 
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'id', fr.id,
+                'descripcion', fr.descripcion,
+                'cantRespuestas', (
+                  SELECT COALESCE(COUNT(ufr.id), 0)
+                  FROM usuariofororespuesta ufr
+                  WHERE ufr.idForoRespuesta = fr.id
+                )
+              )
+            )
+          FROM fororespuesta fr
+          WHERE fr.idForo = f.id
+        ) AS respuestas
       FROM ${nombreTabla} f
       INNER JOIN usuario u ON u.id = f.idUsuario
       INNER JOIN tipoforo tf ON tf.id = f.idTipoForo
@@ -133,7 +160,7 @@ module.exports.crearArchivos = async (req, res, next) => {
     const archivosPromises = archivos.map(async (archivo) => {
       let crearDatos = {
         idForo: datos.idForo,
-        ubicacion: archivo.path
+        ubicacion: `${req.protocol}://${req.get('host')}/${archivo.path.replace(/\\/g, '/')}`
       }
 
       const data = await db.query(`INSERT INTO foroarchivo SET ?`, [crearDatos]);
@@ -145,6 +172,45 @@ module.exports.crearArchivos = async (req, res, next) => {
         res.status(201).json({
           success: true,
           message: "Foro archivos creados",
+          data: results,
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        res.status(400).json({
+          success: false,
+          message: error.message,
+        });
+      });
+  } catch (error) {
+    console.log(error)
+    res.status(500).send({
+    success: false,
+    message: `Error en registrar ${nombreTabla}`,
+    error: error
+    })
+  }
+};
+
+module.exports.crearRespuestas = async (req, res, next) => {
+  try {
+    const datos = req.body;
+
+    const respuestasPromises = datos.respuestas.map(async (dato) => {
+      let crearDatos = {
+        idForo: datos.idForo,
+        descripcion: dato.descripcion ?? dato.respuesta
+      }
+
+      const data = await db.query(`INSERT INTO fororespuesta SET ?`, [crearDatos]);
+      return data[0];
+    });
+
+    Promise.all(respuestasPromises)
+      .then((results) => {
+        res.status(201).json({
+          success: true,
+          message: `${nombreTabla} creados`,
           data: results,
         });
       })
@@ -185,7 +251,7 @@ module.exports.actualizar = async (req, res, next) => {
     }
 
 
-    const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE Id = ?`, [actualizarDatos, id]);
+    const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);
     if (data) {
       res.status(201).json({
           status: true,
@@ -231,3 +297,70 @@ module.exports.borrar = async (req, res, next) => {
     });
   }
 };
+
+/*
+module.exports.crearConArchivos = async (req, res, next) => {
+  const connection = await db.getConnection();
+
+  try {
+    await connection.beginTransaction();
+
+    const datos = req.body;
+    const archivos = req.files;
+    
+    let crearDatos = {
+      idTipoForo: datos.idTipoForo,
+      idUsuario: datos.idUsuario,
+      titulo: datos.titulo,
+      descripcion: datos.descripcion
+    }
+
+    const [data] = await connection.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
+    const idForo = data.insertId;
+
+
+    const archivosPromises = archivos.map((archivo) => {
+      const crearArchivoDatos = {
+        idForo,
+        ubicacion: `${req.protocol}://${req.get('host')}/${archivo.path.replace(/\\/g, '/')}`,
+      };
+
+      return connection.query(`INSERT INTO foroarchivo SET ?`, [crearArchivoDatos]);
+    });
+
+    
+    const respuestas = JSON.parse(datos.respuestas);
+
+    const respuestasPromises = respuestas.map(async (dato) => {
+      const crearRespuestaDatos = {
+        idForo,
+        descripcion: dato.descripcion ?? dato.respuesta
+      }
+
+      return connection.query(`INSERT INTO fororespuesta SET ?`, [crearRespuestaDatos]);
+    });
+
+    
+    await Promise.all([archivosPromises, respuestasPromises]);
+
+    await connection.commit();
+
+    res.status(201).json({
+      status: true,
+      message: `${nombreTabla} y archivos creados`,
+      data: { idForo },
+    });
+  } catch (error) {
+    await connection.rollback();
+
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: `Error en registrar ${nombreTabla}`,
+      error: error.message,
+    });
+  } finally {
+    connection.release();
+  }
+};
+*/

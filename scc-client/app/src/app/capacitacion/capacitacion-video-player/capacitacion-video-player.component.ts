@@ -92,7 +92,7 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
   }
 
   createPlayer(): void {
-    let startTimeInSeconds = this.initialProgress * this.videoDuration / 100;
+    let startTimeInSeconds = Math.floor(this.initialProgress * this.videoDuration / 100);
     if (this.player) {
       this.player.destroy();
     }

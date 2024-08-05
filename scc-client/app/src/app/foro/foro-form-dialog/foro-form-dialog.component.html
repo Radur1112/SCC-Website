@@ -1,11 +1,11 @@
 <form [formGroup]="foroForm" (ngSubmit)="guardarForo()">
   <mat-dialog-content class="mat-typography">
     <h4 class="primary-color my-3">{{ tituloForm }} foro</h4>
-    <div class="row my-3">
+    <div class="row my-4">
       <div class="col-md">
         <mat-form-field class="full-width">
           <mat-label>Tipo de foro</mat-label>
-          <mat-select formControlName="tipo">
+          <mat-select formControlName="tipo" (selectionChange)="verificarEncuesta()">
             <mat-option *ngFor="let tipoForo of tipoForos" [value]="tipoForo">
               {{ tipoForo.descripcion }}
             </mat-option>
@@ -22,27 +22,59 @@
           <mat-error *ngIf="errorHandling('titulo','required')">
             El título es <strong>requerido</strong>
           </mat-error>
-          <mat-error *ngIf="errorHandling('titulo','maxLength')">
+          <mat-error *ngIf="errorHandling('titulo','maxlength')">
              El título debe tener como máximo <strong>100 carácteres</strong>
           </mat-error>
         </mat-form-field>
       </div>
     </div>
       
-    <div class="row my-3">
+    <div class="row my-4">
       <mat-form-field>
         <mat-label>Descripción</mat-label>
         <textarea matInput placeholder="Ingrese la descripción" formControlName="descripcion"></textarea>
         <mat-error *ngIf="errorHandling('descripcion','required')">
             La descripción es <strong>requerida</strong>
         </mat-error>
-        <mat-error *ngIf="errorHandling('descripcion','maxLength')">
+        <mat-error *ngIf="errorHandling('descripcion','maxlength')">
             La descripción debe tener como máximo <strong>3000 carácteres</strong>
         </mat-error>
       </mat-form-field>
     </div>
 
-  <app-foro-subir-archivo (archivosSelected)="onArchivosSelected($event)"></app-foro-subir-archivo>
+    <div class="row my-4">
+      <app-foro-subir-archivo (archivosSelected)="onArchivosSelected($event)"></app-foro-subir-archivo>
+      <mat-error *ngIf="errorHandling('archivo','size')">
+          Cada archivo deben pesar menos de <strong>{{ sizeError }} MB</strong>
+      </mat-error>
+    </div>
+
+    <ng-container *ngIf="foroForm.get('tipo').value.descripcion == 'Encuesta'">
+      <div formArrayName="respuestas">
+        <div class="respuesta" *ngFor="let respuesta of respuestas().controls; let i = index;" [formGroupName]="i">
+          <mat-form-field>
+            <mat-label>Respuesta</mat-label> 
+            <input matInput placeholder="Ingrese la descripción" formControlName="respuesta" (change)="verificarIguales()"/>
+            <mat-error *ngIf="errorHandlingRespuesta('respuesta','required',i,'respuestas')">
+                La respuesta es <strong>requerida</strong>
+            </mat-error>
+            <mat-error *ngIf="errorHandlingRespuesta('respuesta','maxlength',i,'respuestas')">
+                La respuesta debe tener como máximo <strong>250 carácteres</strong>
+            </mat-error>
+          </mat-form-field>
+          <div class="remover">
+            <button mat-flat-button type="button" class="boton-respuesta" color="warn" [disabled]="respuestas().length == 1" (click)="removerRespuesta(i)">
+              <span>Remover</span>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </div>
+        </div>
+        <mat-error class="mb-3" *ngIf="errorHandling('respuestas','duplicate')">
+            Estas respuestas están repetidas: <strong>{{ respuestasRepetidas.join(', ') }}</strong>
+        </mat-error>
+        <button mat-flat-button type="button" class="boton-respuesta" color="primary" (click)="agregarRespuesta()">Agregar respuesta <mat-icon>add_circle</mat-icon></button>
+      </div>
+    </ng-container>
 
   </mat-dialog-content>
   

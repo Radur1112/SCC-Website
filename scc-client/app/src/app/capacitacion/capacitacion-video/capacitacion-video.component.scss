@@ -35,6 +35,7 @@
 }
 
 h5, button {
+  cursor: pointer;
   transition: all 0.15s;
 }
 
@@ -42,6 +43,17 @@ h5:hover {
   color: $secondary-color;
   button {
     color: $secondary-color;
+  }
+}
+
+.deshabilitado {
+  color: rgb(0, 0, 0, 0.38);
+}
+
+.deshabilitado:hover {
+  color: rgb(0, 0, 0, 0.38);
+  button {
+    color: rgb(0, 0, 0, 0.38);
   }
 }
 

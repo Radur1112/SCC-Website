@@ -24,7 +24,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
-import {MatProgressBarModule} from '@angular/material/progress-bar';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-capacitacion-index',
@@ -89,30 +89,30 @@ export class CapacitacionIndexComponent {
 
   cargarModulos() {
     this.gService.get(`usuarioModulo/usuario/all/${this.usuarioActual.id}` )
-      .pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => {
-          if (res.data && res.data.length > 0) {
-            this.modulos = res.data
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        if (res.data && res.data.length > 0) {
+          this.modulos = res.data
 
-            this.modulos.forEach(modulo => {
-              modulo.ellipsis = false;
-              modulo.progreso = modulo.progreso ?? '0.00';
-              this.progresoTotal += parseFloat(modulo.progreso);
-              modulo.videosByModulo.forEach(item => {
-                if (item.videos) {
-                  item.videos.forEach(video => {
-                    video.videoThumbnail = this.getThumbnailUrl(video.videoLink);
-                    video.videoProgreso = video.videoProgreso ?? parseFloat('0.00');
-                  });
-                }
-              });
+          this.modulos.forEach(modulo => {
+            modulo.ellipsis = false;
+            modulo.progreso = modulo.progreso ?? '0.00';
+            this.progresoTotal += parseFloat(modulo.progreso);
+            modulo.videosByModulo.forEach(item => {
+              if (item.videos) {
+                item.videos.forEach(video => {
+                  video.videoThumbnail = this.getThumbnailUrl(video.videoLink);
+                  video.videoProgreso = video.videoProgreso ?? parseFloat('0.00');
+                });
+              }
             });
-            
-            this.progresoTotal /= this.modulos.length;
-            this.filtroModulos = this.modulos;
-          }
+          });
+          
+          this.progresoTotal /= this.modulos.length;
+          this.filtroModulos = this.modulos;
         }
-      });
+      }
+    });
   }
 
   getThumbnailUrl(link: string): string {

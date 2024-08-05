@@ -50,7 +50,7 @@
                 <mat-error *ngIf="errorHandling('identificacion','required')">
                     La identificacion es <strong>requerida</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('identificacion','maxLength')">
+                <mat-error *ngIf="errorHandling('identificacion','maxlength')">
                     La identificacion debe tener como máximo <strong>20 carácteres</strong>
                 </mat-error>
               </mat-form-field>
@@ -63,7 +63,7 @@
                 <mat-error *ngIf="errorHandling('nombre','required')">
                     El nombre es <strong>requerido</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('nombre','maxLength')">
+                <mat-error *ngIf="errorHandling('nombre','maxlength')">
                     El nombre debe tener como máximo <strong>100 carácteres</strong>
                 </mat-error>
               </mat-form-field>
@@ -76,7 +76,7 @@
                 <mat-error *ngIf="errorHandling('telefono','required')">
                     El teléfono es <strong>requerido</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('telefono','maxLength')">
+                <mat-error *ngIf="errorHandling('telefono','maxlength')">
                     El teléfono debe tener como máximo <strong>20 carácteres</strong>
                 </mat-error>
                 <mat-error *ngIf="errorHandling('telefono','pattern')">
@@ -99,7 +99,7 @@
                 <mat-error *ngIf="errorHandling('correo','email')">
                     El correo ingresado es <strong>inválido</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('correo','maxLength')">
+                <mat-error *ngIf="errorHandling('correo','maxlength')">
                     El correo debe tener como máximo <strong>250 carácteres</strong>
                 </mat-error>
               </mat-form-field>
@@ -113,7 +113,7 @@
                   <mat-error *ngIf="errorHandling('password','required')">
                       La contraseña es <strong>requerida</strong>
                   </mat-error>
-                  <mat-error *ngIf="errorHandling('password','maxLength')">
+                  <mat-error *ngIf="errorHandling('password','maxlength')">
                       La contraseña debe tener como máximo <strong>60 carácteres</strong>
                   </mat-error>
                 </mat-form-field>
@@ -158,7 +158,7 @@
             <div class="col-md row my-3">
               <mat-form-field>
                 <mat-label>Cantidad inicial de vacaciones</mat-label>
-                <input matInput type="number" formControlName="vacacion" />
+                <input matInput type="text" formControlName="vacacion" />
                 <mat-error *ngIf="errorHandling('vacacion','required')">
                     La cantidad de vacaciones es <strong>requerida</strong>
                 </mat-error>
@@ -167,6 +167,9 @@
                 </mat-error>
                 <mat-error *ngIf="errorHandling('vacacion','max')">
                     La cantidad máxima es de <strong>99 días</strong>
+                </mat-error>
+                <mat-error *ngIf="errorHandling('vacacion','pattern')">
+                  La cantidad de vacaciones tiene un formato <strong>inválido</strong>
                 </mat-error>
               </mat-form-field>
             </div>

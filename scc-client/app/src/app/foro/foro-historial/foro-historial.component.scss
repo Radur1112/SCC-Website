@@ -1,0 +1,112 @@
+@use '../../../variables' as *;
+
+.card-pre {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 99%;
+  min-height: 61px;
+  border-top-left-radius: 55px;
+  border-top-right-radius: 55px;
+  box-shadow: none;
+}
+
+.table-container {
+  min-height: 200px;
+}
+
+
+.table-container {
+  margin-bottom: 30px;
+  overflow-x: auto;
+}
+
+table {
+  width: 10px;
+  table-layout: auto;
+}
+
+th {
+  font-size: 16px;
+  text-align: center;
+}
+
+td {
+  height: 75px;
+  width: 200px;
+}
+
+.boton-accion {
+    margin: 5px;
+    color: #ffffff;
+}
+
+mat-icon {
+  flex-shrink: 0;
+}
+
+:host {
+  --mat-datepicker-range-input-separator-color: #ffffff; 
+  --mat-datepicker-toggle-icon-color: #f19e0b;
+  --mat-datepicker-toggle-active-state-icon-color: #f19e0b;
+  
+  --mat-select-enabled-trigger-text-color: #ffffff; 
+  --mat-select-enabled-arrow-color: #ffffff; 
+  --mat-select-focused-arrow-color: #f19e0b;
+
+  //Fondo
+  --mdc-outlined-text-field-container-color: rgba(0, 0, 0, 0);
+  //Texto del label
+  --mdc-outlined-text-field-label-text-color: #ffffff;
+  //Texto del label cuando esta focus
+  --mdc-outlined-text-field-focus-label-text-color: #f19e0b;
+  //Texto del label cuando esta hover
+  --mdc-outlined-text-field-hover-label-text-color: #f19e0b;
+  //Texto del input
+  --mdc-outlined-text-field-input-text-color: #ffffff;
+  //Linea de abajo del input
+  --mdc-outlined-text-field-outline-color: #ffffff;
+  //Linea de abajo del input cuando esta focus
+  --mdc-outlined-text-field-focus-outline-color: #f19e0b;
+  //Linea de abajo del input cuando esta hover
+  --mdc-outlined-text-field-hover-outline-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+  --mdc-outlined-text-field-caret-color: #ffffff;
+
+  --mdc-outlined-text-field-outline-width: 2px;
+  
+  //Texto del label Error
+  --mdc-outlined-text-field-error-label-text-color: #ffffff;
+  //Texto del label cuando esta focus Error
+  --mdc-outlined-text-field-error-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover Error
+  --mdc-outlined-text-field-error-hover-label-text-color: #f19e0b;
+  /*
+  //Fondo
+  --mdc-filled-text-field-container-color: rgba(0, 0, 0, 0);
+  //Texto del label
+  --mdc-filled-text-field-label-text-color: #ffffff;
+  //Texto del label cuando esta focus
+  --mdc-filled-text-field-focus-label-text-color: #f19e0b;
+  //Texto del label cuando esta hover
+  --mdc-filled-text-field-hover-label-text-color: #f19e0b;
+  //Texto del input
+  --mdc-filled-text-field-input-text-color: #ffffff;
+  //Linea de abajo del input
+  --mdc-filled-text-field-active-indicator-color: #ffffff;
+  //Linea de abajo del input cuando esta focus
+  --mdc-filled-text-field-focus-active-indicator-color: #f19e0b;
+  //Linea de abajo del input cuando esta hover
+  --mdc-filled-text-field-hover-active-indicator-color: #f19e0b;
+  //No estoy seguro, se que cambia la linea que sale cuando uno escribe
+  --mdc-filled-text-field-caret-color: #ffffff;
+  
+  //Texto del label Error
+  --mdc-filled-text-field-error-label-text-color: #ffffff;
+  //Texto del label cuando esta focus Error
+  --mdc-filled-text-field-error-focus-label-text-color: #ffffff;
+  //Texto del label cuando esta hover Error
+  --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
+  */
+}

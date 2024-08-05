@@ -6,10 +6,17 @@
   align-items: center;
   text-align: center;
   width: 99%;
-  min-height: 60px;
+  min-height: 61px;
   border-top-left-radius: 55px;
   border-top-right-radius: 55px;
   box-shadow: none;
+}
+
+.primary, .secondary {
+  border-radius: 10px !important;
+  width: 230px;
+  height: 55px;
+  color: #ffffff !important;
 }
 
 .table-container {
@@ -19,7 +26,7 @@
 
 
 .table-container {
-    margin: 0 20px 30px;
+    margin-bottom: 30px;
     overflow-x: auto;
 }
 
@@ -48,6 +55,10 @@ mat-form-field {
 }
 
 :host {
+    --mat-datepicker-range-input-separator-color: #ffffff; 
+    --mat-datepicker-toggle-icon-color: #f19e0b;
+    --mat-datepicker-toggle-active-state-icon-color: #f19e0b;
+    
     --mat-select-enabled-trigger-text-color: #ffffff; 
     --mat-select-enabled-arrow-color: #ffffff; 
     --mat-select-focused-arrow-color: #f19e0b;

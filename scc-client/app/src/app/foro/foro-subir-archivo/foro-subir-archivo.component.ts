@@ -35,6 +35,13 @@ export class ForoSubirArchivoComponent {
     this.emitFiles();
   }
 
+  removeFiles() {
+    while (this.uploader.queue.length > 0) {
+      this.uploader.removeFromQueue(this.uploader.queue[0]);
+    }
+    this.emitFiles();
+  }
+
   emitFiles() {
     const archivos = this.uploader.queue.map(fileItem => fileItem._file);
     this.archivosSelected.emit(archivos);

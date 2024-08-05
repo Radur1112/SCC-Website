@@ -10,7 +10,7 @@
                 <mat-error *ngIf="errorHandling('titulo','required')">
                     El título es <strong>requerido</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('titulo','maxLength')">
+                <mat-error *ngIf="errorHandling('titulo','maxlength')">
                     El título debe tener como máximo <strong>100 carácteres</strong>
                 </mat-error>
             </mat-form-field>
@@ -23,7 +23,7 @@
                 <mat-error *ngIf="errorHandling('descripcion','required')">
                     La descripción es <strong>requerida</strong>
                 </mat-error>
-                <mat-error *ngIf="errorHandling('descripcion','maxLength')">
+                <mat-error *ngIf="errorHandling('descripcion','maxlength')">
                     La descripción debe tener como máximo <strong>3000 carácteres</strong>
                 </mat-error>
             </mat-form-field>

@@ -6,31 +6,46 @@ const multer = require('multer');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const session = require("express-session")
+const path = require('path');
 
 const app = express();
+
+
+const recultamientoRouter = require('./routes/recultamientoRoutes');
+const contactoRouter = require('./routes/contactoRoutes');
 
 const usuarioRouter = require("./routes/usuarioRoutes");
 const tipoUsuarioRouter = require('./routes/tipoUsuarioRoutes');
 const tipoContratoRouter = require('./routes/tipoContratoRoutes');
-const recultamientoRouter = require('./routes/recultamientoRoutes');
-const contactoRouter = require('./routes/contactoRoutes');
 const puestoRouter = require('./routes/puestoRoutes');
+const incapacidadRouter = require('./routes/incapacidadRoutes');
+const vacacionRouter = require('./routes/vacacionRoutes');
+
 const moduloRouter = require('./routes/moduloRoutes');
+const videoRouter = require('./routes/videoRoutes');
 const moduloVideoRouter = require('./routes/moduloVideoRoutes');
-const quizPreguntaRouter = require('./routes/quizPreguntaRoutes');
+const usuarioModuloRouter = require('./routes/usuarioModuloRoutes');
+const usuarioVideoRouter = require('./routes/usuarioVideoRoutes');
 const quizRouter = require('./routes/quizRoutes');
+const quizPreguntaRouter = require('./routes/quizPreguntaRoutes');
 const quizRespuestaRouter = require('./routes/quizRespuestaRoutes');
 const tipoPreguntaRouter = require('./routes/tipoPreguntaRoutes');
-const usuarioModuloRouter = require('./routes/usuarioModuloRoutes');
 const usuarioQuizRouter = require('./routes/usuarioQuizRoutes');
 const usuarioQuizRespuestaRouter = require('./routes/usuarioQuizRespuestaRoutes');
-const usuarioVideoRouter = require('./routes/usuarioVideoRoutes');
-const videoRouter = require('./routes/videoRoutes');
+
 const planillaRouter = require('./routes/planillaRoutes');
+const aumentoRouter = require('./routes/aumentoRoutes');
+const tipoAumentoRouter = require('./routes/tipoAumentoRoutes');
+const deduccionRouter = require('./routes/deduccionRoutes');
+const tipoDeduccionRouter = require('./routes/tipoDeduccionRoutes');
+const otroPagoRouter = require('./routes/otroPagoRoutes');
+const usuarioSupervisorRouter = require('./routes/usuarioSupervisorRoutes');
+
 const foroRouter = require('./routes/foroRoutes');
+const foroHistorialRouter = require('./routes/foroHistorialRoutes');
 const tipoForoRouter = require('./routes/tipoForoRoutes');
 const usuarioForoRespuestaRouter = require('./routes/usuarioForoRespuestaRoutes');
-const usuarioSupervisorRouter = require('./routes/usuarioSupervisorRoutes');
+
 
 dotEnv.config();
 
@@ -70,28 +85,44 @@ app.use(session({
 
 const port = process.env.PORT;
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+
+
+app.use("/reclutamiento/", recultamientoRouter);
+app.use("/contacto/", contactoRouter);
+
 app.use("/usuario/", usuarioRouter);
 app.use("/tipoUsuario/", tipoUsuarioRouter);
 app.use("/tipoContrato/", tipoContratoRouter);
-app.use("/reclutamiento/", recultamientoRouter);
-app.use("/contacto/", contactoRouter);
 app.use("/puesto/", puestoRouter);
+app.use("/incapacidad/", incapacidadRouter);
+app.use("/vacacion/", vacacionRouter);
+
 app.use("/modulo/", moduloRouter);
+app.use("/video/", videoRouter);
 app.use("/moduloVideo/", moduloVideoRouter);
-app.use("/quizPregunta/", quizPreguntaRouter);
+app.use("/usuarioModulo/", usuarioModuloRouter);
+app.use("/usuarioVideo/", usuarioVideoRouter);
 app.use("/quiz/", quizRouter);
+app.use("/quizPregunta/", quizPreguntaRouter);
 app.use("/quizRespuesta/", quizRespuestaRouter);
 app.use("/tipoPregunta/", tipoPreguntaRouter);
-app.use("/usuarioModulo/", usuarioModuloRouter);
 app.use("/usuarioQuiz/", usuarioQuizRouter);
 app.use("/usuarioQuizRespuesta/", usuarioQuizRespuestaRouter);
-app.use("/usuarioVideo/", usuarioVideoRouter);
-app.use("/video/", videoRouter);
+
 app.use("/planilla/", planillaRouter);
+app.use("/aumento/", aumentoRouter);
+app.use("/tipoAumento/", tipoAumentoRouter);
+app.use("/deduccion/", deduccionRouter);
+app.use("/tipoDeduccion/", tipoDeduccionRouter);
+app.use("/otroPago/", otroPagoRouter);
+app.use("/usuarioSupervisor/", usuarioSupervisorRouter)
+
 app.use("/foro/", foroRouter);
+app.use("/foroHistorial/", foroHistorialRouter);
 app.use("/tipoForo/", tipoForoRouter);
 app.use("/usuarioForoRespuesta/", usuarioForoRespuestaRouter);
-app.use("/usuarioSupervisor/", usuarioSupervisorRouter);
 
 
 app.listen(port, () => {

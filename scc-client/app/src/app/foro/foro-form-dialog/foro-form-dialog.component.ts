@@ -1,5 +1,5 @@
 import { Component, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { GenericService } from '../../services/generic.service';
 import { Observable, Subject, map, startWith, takeUntil } from 'rxjs';
@@ -13,10 +13,11 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { MatSelectModule } from '@angular/material/select';
 import { ForoSubirArchivoComponent } from "../foro-subir-archivo/foro-subir-archivo.component"
+import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-foro-form-dialog',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatTooltipModule, MatDialogModule, MatSelectModule, ForoSubirArchivoComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatTooltipModule, MatDialogModule, MatSelectModule, ForoSubirArchivoComponent, MatIconModule],
   templateUrl: './foro-form-dialog.component.html',
   styleUrl: './foro-form-dialog.component.scss'
 })
@@ -31,7 +32,9 @@ export class ForoFormDialogComponent {
 
   tipoForos: any;
 
-  selectedArchivos: File[] = [];
+  sizeError: any;
+  
+  respuestasRepetidas: any = [];
   
   constructor(
     private gService: GenericService,
@@ -66,6 +69,8 @@ export class ForoFormDialogComponent {
       tipo: ['', Validators.required],
       titulo: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.required, Validators.maxLength(3000)]],
+      archivo: [null],
+      respuestas: this.fb.array([])
     });
   }
   
@@ -83,7 +88,75 @@ export class ForoFormDialogComponent {
   }
 
   onArchivosSelected(archivos: any) {
-    this.selectedArchivos = archivos;
+    this.foroForm.get('archivo').setErrors(null);
+    
+    archivos.forEach(archivo => {
+      const maxSizeInBytes = 10 * 1024 * 1024; // Tamaño máximo de 10 MB
+  
+      this.sizeError = maxSizeInBytes / 1024 / 1024;
+  
+      if (archivo.size > maxSizeInBytes) {
+        this.foroForm.get('archivo').setErrors({'size': true});
+      }
+    });
+
+    if (!this.foroForm.get('archivo').getError('size')) {
+      this.foroForm.get('archivo').setValue(archivos);
+    }
+  }
+
+
+  respuestas(): FormArray {
+    return this.foroForm.get('respuestas') as FormArray;
+  }
+
+  nuevaRespuesta() {
+    return this.fb.group({
+      respuesta: ['', [Validators.required, Validators.maxLength(250)]]
+    });
+  }
+
+  agregarRespuesta() {
+    this.respuestas().push(this.nuevaRespuesta());
+  }
+
+  removerRespuesta(index: any) {
+    this.respuestas().removeAt(index);
+  }
+
+  removerRespuestas() {
+    this.respuestas().clear();
+  }
+
+  public errorHandlingRespuesta = (control: string, error: string, index: number, arrayName: string) => {
+    return (this.foroForm.get(arrayName) as FormArray).at(index).get(control).hasError(error);
+  };
+
+  verificarEncuesta() {
+    if (this.foroForm.value.tipo.descripcion == 'Encuesta' && this.respuestas().length == 0) {
+      this.agregarRespuesta();
+    } else {
+      this.removerRespuestas();
+    }
+  }
+
+  verificarIguales() {
+    const respuestas = this.respuestas().value.map(item => item.respuesta.trim());
+    const unicas = new Set();
+    this.respuestasRepetidas = [];
+  
+    for (const respuesta of respuestas) {
+      if (unicas.has(respuesta)) {
+        this.respuestasRepetidas.push(respuesta);
+      } else {
+        unicas.add(respuesta);
+      }
+    }
+
+    if (this.respuestasRepetidas.length > 0) {
+      this.foroForm.get('respuestas').setErrors({'duplicate': true});
+    }
+
   }
 
 
@@ -97,7 +170,8 @@ export class ForoFormDialogComponent {
       idUsuario: this.usuarioActual.id,
       titulo: this.foroForm.value.titulo,
       descripcion: this.foroForm.value.descripcion,
-      archivos: this.selectedArchivos
+      archivos: this.foroForm.value.archivo,
+      respuestas: this.respuestas().value
     }
 
     this.dialogRef.close(foro);

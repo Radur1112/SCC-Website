@@ -2,6 +2,9 @@
   <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
     <mat-icon class="light-color">arrow_back</mat-icon>
   </a>
+  <div class="descargar mx-auto" *ngIf="isAdmin">
+    <button mat-flat-button class="primary-outline-inverted-button" routerLink="/foro/historial">Ver historial</button>
+  </div>
   <div class="mx-auto">
     <mat-card-header class="content-container-center">
       <mat-card-title class="light-color">
@@ -36,8 +39,8 @@
             <mat-form-field appearance="outline" class="full-width">
               <mat-label>Elija el rango de fechas</mat-label>
               <mat-date-range-input [rangePicker]="picker" [min]="minDate" [max]="maxDate" [formGroup]="selectedFecha">
-                <input matStartDate placeholder="Fecha inicial" formControlName="inicio" (dateChange)="busqueda(null)">
-                <input matEndDate placeholder="Fecha final" formControlName="fin" (dateChange)="busqueda(null)">
+                <input matStartDate placeholder="Fecha inicial" formControlName="inicio" (focus)="picker.open()" (dateChange)="busqueda(null)">
+                <input matEndDate placeholder="Fecha final" formControlName="fin" (focus)="picker.open()" (dateChange)="busqueda(null)">
               </mat-date-range-input>
               <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-date-range-picker #picker></mat-date-range-picker>
@@ -65,6 +68,10 @@
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #opciones="matMenu">
+            <button mat-menu-item (click)="historialForo(foro.id)">
+              <mat-icon>history</mat-icon>
+              <span>Ver historial</span>
+            </button>
             <button mat-menu-item (click)="borrarForo(foro)">
               <mat-icon>delete</mat-icon>
               <span>Borrar</span>
@@ -85,7 +92,7 @@
               <p class="smaller-body-text m-0">{{ foro.tipoForoDescripcion }}</p>
               <p class="smaller-body-text m-0"><mat-icon class="smaller-icon mt-2 me-1">forum</mat-icon>{{ foro.cantRespuestas == 1 ? foro.cantRespuestas + ' Respuesta' : foro.cantRespuestas + ' Respuestas' }}</p>
             </div>
-            <p class="smaller-body-text menos-opacidad m-0"><strong>Publicado: </strong>{{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a' }}</p>
+            <p class="smaller-body-text menos-opacidad m-0"><strong>Publicado: </strong>{{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y - hh:mm aa' }}</p>
           </mat-card-header>
           <mat-card-content class="foro-descripcion mt-3">
             {{ foro.descripcion }}
@@ -98,7 +105,7 @@
             Última respuesta
           </h5>
           <p class="content-container-center-row"><mat-icon class="smaller-icon me-1">account_circle</mat-icon>{{ foro.respuestaForo.usuarioNombre }}</p>
-          <div class="content-container-center"><p><strong>Fecha: </strong>{{ foro.respuestaForo.fecha | date: 'EEEE d \'de\' MMMM y, h:mm a' }}</p></div>
+          <div class="content-container-center"><p><strong>Fecha: </strong>{{ foro.respuestaForo.fecha | date: 'EEEE d \'de\' MMMM y - hh:mm aa' }}</p></div>
         </ng-container>
         <ng-container *ngIf="!foro.respuestaForo">
           <h5 class="primary-color content-container-center my-3 pe-2">

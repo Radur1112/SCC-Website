@@ -71,10 +71,10 @@ export class PlanillaSupervisorIndexComponent {
     this.authService.usuarioActual.subscribe((x) => {
       if (x && Object.keys(x).length !== 0) {
         this.usuarioActual = x.usuario;
+
+        this.getUsuarios();
       }
     });
-;
-    this.getUsuarios();
   }
 
   busqueda(event: Event) {
@@ -83,7 +83,11 @@ export class PlanillaSupervisorIndexComponent {
   }
 
   getUsuarios() {
-    this.gService.get(`usuario`)
+    let query = `usuario`;
+    if (this.usuarioActual.idTipoUsuario == 3) {
+      query = `usuariosupervisor/supervisor/${this.usuarioActual.id}`
+    }
+    this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);
@@ -104,6 +108,7 @@ export class PlanillaSupervisorIndexComponent {
   openPlanillaDialog(res: any): void {
     let width = '1200px';
     let data = { 
+      idUsuarioActual: this.usuarioActual.id,
       planilla: res.data,
       
     };

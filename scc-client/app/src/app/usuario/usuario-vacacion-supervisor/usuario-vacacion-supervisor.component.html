@@ -1,0 +1,73 @@
+<mat-card class="card-primary">
+  <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto">
+    <mat-card-header class="content-container-center">
+      <mat-card-title class="light-color">
+        <h2>Lista de justificantes</h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-actions class="content-container-center">
+      <div class="row full-width">
+        <mat-form-field appearance="outline">
+          <mat-icon matSuffix class="secondary-color me-2">search</mat-icon>
+          <mat-label>Buscar</mat-label>
+          <input matInput #buscar (keyup)="busqueda($event)">
+        </mat-form-field>
+      </div>
+    </mat-card-actions>
+  </div>
+</mat-card>
+
+<div class="second-card-primary"></div>
+
+<mat-card class="card-pre mx-auto"> 
+  <div class="row">
+    <mat-card-content>
+    </mat-card-content>
+  </div>
+</mat-card>
+
+<div class="table-container almost-width mx-auto">
+  <table mat-table [dataSource]="dataSource" matSort>
+      
+      <ng-container matColumnDef="usuarioIdentificacion">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Identificacion</th>
+          <td mat-cell *matCellDef="let row"> {{ row.usuarioIdentificacion }} </td>
+      </ng-container>
+  
+      <ng-container matColumnDef="usuarioNombre">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre completo</th>
+          <td mat-cell *matCellDef="let row">{{ row.usuarioNombre }}</td>
+      </ng-container>
+  
+      <ng-container matColumnDef="fechaInicio">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Fechas de vacaciones</th>
+          <td mat-cell *matCellDef="let row"> {{ row.fechaInicio | date: 'd \'de\' MMMM, y - hh:mm a' }} / {{ row.fechaFinal | date: 'd \'de\' MMMM, y - hh:mm a' }} </td>
+      </ng-container>
+  
+      <ng-container matColumnDef="comentario">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Comentario</th>
+          <td mat-cell *matCellDef="let row"> {{ row.comentario ?? 'Sin comentarios' }} </td>
+      </ng-container>
+          
+      <ng-container matColumnDef="acciones">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
+        <td mat-cell *matCellDef="let row">
+          <button mat-fab extended color="primary" class="boton-accion" matTooltip="Confirmar justificacion" aria-label="Confirmar justificacion" (click)="confirmar(row.id)">
+            <mat-icon class="mat-18">check</mat-icon>
+            Confirmar
+          </button>
+          <button mat-fab extended color="warn" class="boton-accion" matTooltip="Rechazar justificacion" aria-label="Rechazar justificacion" (click)="rechazar(row.id)">
+            <mat-icon class="mat-18">close</mat-icon>
+            Rechazar
+          </button>
+        </td>
+      </ng-container>
+    
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let element; columns: displayedColumns;"></tr>
+  
+  </table>
+</div>

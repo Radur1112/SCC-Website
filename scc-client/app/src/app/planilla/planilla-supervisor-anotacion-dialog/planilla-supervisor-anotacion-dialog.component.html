@@ -6,7 +6,7 @@
       <div class="col-md">
         <mat-form-field class="full-width">
           <mat-label>Tipo de anotación</mat-label>
-          <mat-select formControlName="tipo" (selectionChange)="calcularMonto()">
+          <mat-select formControlName="tipo" (selectionChange)="calcularMonto($event)">
             @for (tipo of tipos; track tipo) {
               <mat-optgroup [label]="tipo.tipo" class="group-title">
                 @for (lista of tipo.lista; track lista) {
@@ -27,7 +27,7 @@
           <mat-error *ngIf="errorHandling('descripcion','required')">
               La descripción es <strong>requerida</strong>
           </mat-error>
-          <mat-error *ngIf="errorHandling('descripcion','maxLength')">
+          <mat-error *ngIf="errorHandling('descripcion','maxlength')">
               La descripción debe tener como máximo <strong>100 carácteres</strong>
           </mat-error>
         </mat-form-field>
@@ -38,13 +38,19 @@
       <div class="col-md">
         <mat-form-field class="full-width">
           <mat-label>Cantidad de horas</mat-label>
-          <input matInput type="time" formControlName="hora" (input)="calcularMonto()">
+          <input matInput #hora type="text" minlength="5" maxlength="5" formControlName="hora" (input)="onInputChange($event)" (keydown)="onKeyDown($event)" (click)="selectText($event)" (blur)="calcularMonto()">
         </mat-form-field>
+        <!--
+        <mat-form-field class="full-width">
+          <mat-label>Cantidad de horas</mat-label>
+          <input matInput type="time" formControlName="hora">
+        </mat-form-field>
+        -->
       </div>
       <div class="col-md">
         <mat-form-field class="full-width">
           <mat-label>Monto</mat-label>
-          <input matInput type="text" formControlName="monto" />
+          <input matInput type="text" formControlName="monto">
           <mat-error *ngIf="errorHandling('monto','required')">
               El monto es <strong>requerido</strong>
           </mat-error>

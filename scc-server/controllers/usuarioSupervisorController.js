@@ -34,11 +34,10 @@ module.exports.get = async(req, res, next) => {
   }
 }
 
-module.exports.getById = async(req, res, next) => {
+module.exports.getByIdSupervisor = async(req, res, next) => {
   try {
-    const idModulo = req.params.idModulo;
-    const idVideo = req.params.idVideo;
-    if (!idModulo || !idVideo) {
+    const id = req.params.id;
+    if (!id) {
       return res.status(404).send({
         success: false,
         message: 'Id inválido',
@@ -46,18 +45,19 @@ module.exports.getById = async(req, res, next) => {
     }
 
     const data = await db.query(`
-        SELECT mv.*, 
-        m.titulo as moduloTitulo, m.descripcion as moduloDescripcion, 
-        v.id as videoId, v.titulo as videoTitulo, v.descripcion as videoDescripcion, v.link as videoLink, v.fechaLimite as videoFechaLimite, v.requerido as videoRequerido 
-        FROM ${nombreTabla} mv
-        INNER JOIN modulo m ON mv.idModulo = m.id AND m.estado != 0
-        INNER JOIN video v ON mv.idVideo = v.id AND v.estado != 0
-        WHERE mv.idModulo = ? AND mv.idVideo = ?`, [idModulo, idVideo]);
+        SELECT
+          u.id, u.identificacion, u.nombre, u.correo, p.descripcion AS puestoDescripcion,
+          tc.descripcion AS tipoContratoDescripcion
+        FROM ${nombreTabla} us
+        INNER JOIN usuario u ON u.id = us.idUsuario AND u.estado != 0
+        INNER JOIN puesto p ON p.id = u.idPuesto
+        LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id 
+        WHERE us.idSupervisor = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
         message: 'Datos obtenidos correctamente',
-        data: data[0][0]
+        data: data[0]
       });
     } else {
       res.status(404).send({

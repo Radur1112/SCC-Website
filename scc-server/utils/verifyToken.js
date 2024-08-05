@@ -52,6 +52,19 @@ const verifyUsuario = (req, res, next) => {
     });
 }
 
+const verifySupervisor = (req, res, next) => {
+    verifyToken(req, res, () => {
+        if (req.usuario.idTipoUsuario == 3 || req.usuario.idTipoUsuario == 1) {
+            next();
+        } else {
+            return res.status(403).json({
+                success: false,
+                message: "Usuario no autorizado",
+            });
+        }
+    });
+}
+
 const verifyAdministrador = (req, res, next) => {
     verifyToken(req, res, () => {
         if (req.usuario.idTipoUsuario == 1) {
@@ -68,5 +81,6 @@ const verifyAdministrador = (req, res, next) => {
 module.exports = {
     verifyToken,
     verifyUsuario,
+    verifySupervisor,
     verifyAdministrador
 };

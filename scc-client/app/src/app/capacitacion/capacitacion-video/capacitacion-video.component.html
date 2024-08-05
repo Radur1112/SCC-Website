@@ -23,17 +23,17 @@
           
 <div *ngIf="usuarioVideo && moduloVideos">
   <div class="row almost-width mb-5 mx-auto">
-    <div class="col">
-      <h5 class="button-icon-left">
+    <div class="col button-icon-left">
+      <h5 class="content-container-center-row" (click)="anteriorVideo()" [ngClass]="{'deshabilitado': posicionActual == 0}">
         <mat-icon>chevron_left</mat-icon>
-        <button mat-button (click)="anteriorVideo()" [disabled]="posicionActual == 0">
+        <button mat-button [disabled]="posicionActual == 0">
           Video anterior
         </button>
       </h5>
     </div>
-    <div class="col">
-      <h5 class="button-icon-right text-end">
-        <button mat-button (click)="siguienteVideo()" [disabled]="posicionActual == moduloVideos.length - 1">
+    <div class="col button-icon-right">
+      <h5 class="content-container-center-row text-end" (click)="siguienteVideo()" [ngClass]="{'deshabilitado': posicionActual == moduloVideos.length - 1}">
+        <button mat-button [disabled]="posicionActual == moduloVideos.length - 1">
           Siguiente video 
         </button>
         <mat-icon>chevron_right</mat-icon>

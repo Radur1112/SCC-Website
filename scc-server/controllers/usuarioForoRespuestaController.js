@@ -86,10 +86,13 @@ module.exports.getByIdForo = async(req, res, next) => {
 
     const data = await db.query(`
         SELECT ufr.*, 
-        u.nombre as usuarioNombre
+        u.nombre AS usuarioNombre,
+        fr.descripcion AS respuesta
         FROM ${nombreTabla} ufr
         INNER JOIN usuario u ON u.id = ufr.idUsuario AND u.estado != 0
-        WHERE ufr.idForo = ?`, [id]);
+        LEFT JOIN fororespuesta fr ON fr.id = ufr.idForoRespuesta
+        WHERE ufr.idForo = ?
+        ORDER BY ufr.fechaCreado DESC`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -119,7 +122,8 @@ module.exports.crear = async (req, res, next) => {
     let crearDatos = {
         idForo: datos.idForo,
         idUsuario: datos.idUsuario,
-        descripcion: datos.descripcion
+        idForoRespuesta: datos.idForoRespuesta ?? null,
+        descripcion: datos.descripcion ?? null
     }
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
@@ -159,7 +163,8 @@ module.exports.actualizar = async (req, res, next) => {
     let actualizarDatos = {
         idForo: datos.idForo,
         idUsuario: datos.idUsuario,
-        descripcion: datos.descripcion
+        idForoRespuesta: datos.idForoRespuesta ?? null,
+        descripcion: datos.descripcion ?? null
     }
 
     const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);

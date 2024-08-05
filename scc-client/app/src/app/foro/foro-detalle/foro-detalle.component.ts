@@ -16,11 +16,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { ConfirmationService } from '../../services/confirmation.service';
+import { MatListModule } from '@angular/material/list';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 @Component({
   selector: 'app-foro-detalle',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule, MatButtonModule, MatInputModule, MatCardModule, MatIconModule, MatTooltipModule, MatSelectModule, MatMenuModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule, MatButtonModule, MatInputModule, MatCardModule, MatProgressBarModule, MatIconModule, MatTooltipModule, MatRadioModule, MatSelectModule, MatMenuModule, MatListModule],
   templateUrl: './foro-detalle.component.html',
   styleUrl: './foro-detalle.component.scss',
   providers: [DatePipe]
@@ -34,8 +37,11 @@ export class ForoDetalleComponent {
   foro: any;
 
   filtroRespuestas: any = [];
+  respuestas: any = [];
 
   respuestaForm: FormGroup;
+
+  usuarioRespuesta: any;
 
   constructor(
     private gService: GenericService,
@@ -72,6 +78,15 @@ export class ForoDetalleComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.foro = res.data;
+        
+        if (this.foro.archivos) {
+          this.foro.archivos = this.foro.archivos.map(archivo => ({
+            ...archivo,
+            nombreArchivo: archivo.ubicacion.substring(archivo.ubicacion.lastIndexOf('/') + 1)
+          }));
+        }
+        console.log(this.foro)
+        this.registrarAcceso();
         this.getRespuestas();
         this.formularioReactive();
       }
@@ -82,8 +97,23 @@ export class ForoDetalleComponent {
     this.gService.get(`usuariofororespuesta/foro/${this.foroId}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res);
-        this.filtroRespuestas = res.data;
+        this.respuestas = res.data;
+        this.filtroRespuestas = this.respuestas;
+      }
+    });
+  }
+
+  registrarAcceso(idForoArchivo?: any) {
+    const acceso = {
+      idForo: this.foroId,
+      idForoArchivo: idForoArchivo,
+      idUsuario: this.usuarioActual.id
+    }
+
+    this.gService.post(`foroHistorial`, acceso)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        
       }
     });
   }
@@ -100,11 +130,36 @@ export class ForoDetalleComponent {
     return this.respuestaForm.controls[control].hasError(error);
   };
 
+  convertLineBreaks(descripcion: string): string {
+    return descripcion.replace(/\n/g, '<br>');
+  }
 
   busqueda(event: Event) {
     const filtro = (event.target as HTMLInputElement).value;
     
-    this.filtroRespuestas = this.foro.respuestasForo.filter(respuesta => respuesta.descripcion.includes(filtro) || this.datePipe.transform(respuesta.fecha, "EEEE d 'de' MMMM y, h:mm a").replace(/\u00A0/g, ' ').includes(filtro) || respuesta.usuarioNombre.includes(filtro));
+    this.filtroRespuestas = this.respuestas.filter(respuesta => respuesta.descripcion.includes(filtro) || this.datePipe.transform(respuesta.fecha, "EEEE d 'de' MMMM y, h:mm a").replace(/\u00A0/g, ' ').includes(filtro) || respuesta.usuarioNombre.includes(filtro));
+  }
+
+  historialForo(id: any) {
+    this.router.navigate(['foro/historial', id]);
+  }
+
+  borrarForo(foro: any) {
+    this.confirmationService.confirm()
+    .subscribe(result => {
+      if (result) {
+        this.gService.put(`foro/borrar`, foro)
+        .pipe(takeUntil(this.destroy$)).subscribe({
+          next:(res) => {
+            this.notificacion.mensaje('Foro', 'Foro eliminado correctamente', TipoMessage.success);
+            this.router.navigate(['foro']);
+          },
+          error:(err) => {
+            console.log(err);
+          }
+        });
+      }
+    });
   }
 
   borrarRespuesta(respuesta: any) {
@@ -115,7 +170,7 @@ export class ForoDetalleComponent {
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
               this.notificacion.mensaje('Respuesta', 'Respuesta eliminada correctamente', TipoMessage.success);
-              this.getRespuestas();
+              this.getForo();
             },
             error:(err) => {
               console.log(err);
@@ -137,7 +192,30 @@ export class ForoDetalleComponent {
     this.gService.post(`usuarioForoRespuesta/`, this.respuestaForm.value)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.getRespuestas();
+        this.respuestaForm.reset();
+        this.getForo();
+        this.notificacion.mensaje('Respuesta', 'Foro respondido correctamente', TipoMessage.success);
+      }
+    });
+  }
+
+  responderEncuesta() {
+    if(!this.usuarioRespuesta) {
+      return; 
+    }
+
+    const data = {
+      idForo: this.foroId,
+      idUsuario: this.usuarioActual.id,
+      idForoRespuesta: this.usuarioRespuesta.id
+    }
+
+    this.gService.post(`usuarioForoRespuesta/`, data)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.respuestaForm.reset();
+        this.getForo();
+        this.notificacion.mensaje('Respuesta', 'Foro respondido correctamente', TipoMessage.success);
       }
     });
   }
