@@ -22,6 +22,7 @@ import { UsuarioIncapacidadFormComponent } from './usuario/usuario-incapacidad-f
 import { UsuarioIncapacidadSupervisorComponent } from './usuario/usuario-incapacidad-supervisor/usuario-incapacidad-supervisor.component';
 import { UsuarioVacacionFormComponent } from './usuario/usuario-vacacion-form/usuario-vacacion-form.component';
 import { UsuarioVacacionSupervisorComponent } from './usuario/usuario-vacacion-supervisor/usuario-vacacion-supervisor.component';
+import { PlanillaAnotacionIndexComponent } from './planilla/planilla-anotacion-index/planilla-anotacion-index.component';
 
 export const routes: Routes = [
   { path: 'inicio', component: InicioComponent },
@@ -95,31 +96,36 @@ export const routes: Routes = [
   },
   { path: 'foro/historial', component: ForoHistorialComponent, canActivate:[AuthGuard],
     data:{
-      permisos: ['Todos']
+      permisos: [1]
     } 
   },
   { path: 'foro/historial/:id', component: ForoHistorialComponent, canActivate:[AuthGuard],
     data:{
-      permisos: ['Todos']
+      permisos: [1]
     } 
   },
 
   { path: 'planilla', component: PlanillaAdminIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: ['Todos']
+      permisos: [1]
     } 
   },
   { path: 'planilla/supervisor', component: PlanillaSupervisorIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: ['Todos']
+      permisos: [1, 3]
+    } 
+  },
+  { path: 'planilla/anotaciones', component: PlanillaAnotacionIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: [1, 3]
     } 
   },
   { path: 'planilla/historial', component: PlanillaHistorialIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: ['Todos']
+      permisos: [1]
     } 
   },
-  { path: 'comprobante', component: PlanillaComprobanteIndexComponent, canActivate:[AuthGuard],
+  { path: 'comprobante/:id', component: PlanillaComprobanteIndexComponent, canActivate:[AuthGuard],
     data:{
       permisos: ['Todos']
     } 

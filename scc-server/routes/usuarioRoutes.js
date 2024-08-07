@@ -19,10 +19,10 @@ const upload = multer({ storage: storage });
 
 const usuarioController = require("../controllers/usuarioController");
 
-router.get('/', verifyAdministrador, usuarioController.get);
+router.get('/', verifyToken, usuarioController.get);
 router.get('/exportarUsuarios', verifyAdministrador, usuarioController.exportUsuarios);
 router.get('/asesores', verifyAdministrador, usuarioController.getAsesores);
-router.get('/supervisores', verifyToken, usuarioController.getSupervisores);
+router.get('/supervisores', verifyAdministrador, usuarioController.getSupervisores);
 router.get('/:id', verifyToken, usuarioController.getById);
 router.get('/noModulo/:id', verifyToken, usuarioController.getByNoIdModulo);
 router.get('/identificacion/:id', verifyToken, usuarioController.getByIdentificacion);

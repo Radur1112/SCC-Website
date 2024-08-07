@@ -10,7 +10,6 @@ SHOW TRIGGERS;
 
 -- A los usuarios que sean asalariado, les suma 1 a las vacaciones si ya paso un mes, lo revisa cada día
 DELIMITER //
-
 CREATE EVENT IF NOT EXISTS updateVacaciones
 ON SCHEDULE EVERY 1 DAY
 STARTS CURRENT_TIMESTAMP
@@ -26,11 +25,9 @@ BEGIN
                AND YEAR(fechaIngreso) < YEAR(CURDATE()))
           );
 END //
-
 DELIMITER ;  
 
 DELIMITER //
-
 CREATE EVENT IF NOT EXISTS xd
 ON SCHEDULE EVERY 1 MINUTE
 STARTS CURRENT_TIMESTAMP
@@ -40,7 +37,6 @@ BEGIN
     SET vacacion = vacacion + 1
     WHERE idTipoContrato = 1;
 END //
-
 DELIMITER ;           
            
            

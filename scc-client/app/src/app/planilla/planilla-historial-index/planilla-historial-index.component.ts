@@ -30,7 +30,7 @@ import { PlanillaAnotacionFormDialogComponent } from '../planilla-anotacion-form
 export class PlanillaHistorialIndexComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
-  displayedColumns: string[] = ['tipo', 'usuarioNombre', 'descripcion', 'monto', 'fecha', 'creadoPor', 'acciones'];
+  displayedColumns: string[] = ['numero', 'fecha', 'acciones'];
   dataSource: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -47,30 +47,13 @@ export class PlanillaHistorialIndexComponent {
     private route:ActivatedRoute,
     private dialog: MatDialog
   ){
-      paginators.itemsPerPageLabel = 'Items por página'; 
-  }
-
-  ngOnInit(): void {
-    this.authService.usuarioActual.subscribe((x) => {
-      if (x && Object.keys(x).length !== 0) {
-        this.usuarioActual = x.usuario;
-      }
-    });
-
+    paginators.itemsPerPageLabel = 'Items por página'; 
+      
     this.getHistorial();
   }
 
-  busqueda(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
-  }
-
   getHistorial() {
-    let query = `planilla/historial`;
-    if (this.usuarioActual.idTipoUsuario == 3) {
-      query = `planilla/historial/supervisor/${this.usuarioActual.id}`
-    }
-    this.gService.get(query)
+    this.gService.get(`planilla/historial`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         console.log(res.data)
@@ -80,69 +63,4 @@ export class PlanillaHistorialIndexComponent {
       }
     });
   }
-
-  formatearNumero(valor: string) {
-    let formateado = parseFloat(valor.replace(/[^\d.-]/g, ''));
-    
-    if (isNaN(formateado)) {
-      return '0.00';
-    }
-
-    const parts = formateado.toFixed(2).split('.');
-    let integerPart = parts[0];
-    let decimalPart = parts.length > 1 ? parts[1] : '';
-
-    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-
-    return `${integerPart}.${decimalPart}`;
-  }
-
-  actualizarAnotacion(anotacion: any) {
-    let width = '600px';
-    let data = { 
-      idUsuarioActual: this.usuarioActual.id,
-      anotacion: anotacion
-    };
-    
-    const dialogRef = this.dialog.open(PlanillaAnotacionFormDialogComponent, {
-      data,
-      width
-    });
-  
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.getHistorial();
-      }
-    });
-  }
-
-  borrarAnotacion(anotacion: any) {
-    this.confirmationService.confirm()
-      .subscribe(result => {
-        if (result) {
-          this.gService.put(`${transformarTipo(anotacion.tipo)}/borrar`, anotacion)
-          .pipe(takeUntil(this.destroy$)).subscribe({
-            next:(res) => {
-              this.notificacion.mensaje('Anotacion', 'Anotacion eliminada correctamente', TipoMessage.success);
-              this.getHistorial();
-            },
-            error:(err) => {
-              console.log(err);
-            }
-          });
-        }
-      });
-  }
-}
-
-function transformarTipo(input) {
-  let lowerCaseStr = input.toLowerCase();
-
-  let words = lowerCaseStr.split(' ');
-
-  for (let i = 1; i < words.length; i++) {
-    words[i] = words[i][0].toUpperCase() + words[i].slice(1);
-  }
-
-  return words.join('');
 }

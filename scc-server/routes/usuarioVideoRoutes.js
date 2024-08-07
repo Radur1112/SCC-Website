@@ -10,9 +10,9 @@ router.get('/usuario/:id', verifyToken, usuarioVideoController.getByIdUsuario);
 router.get('/video/:id', verifyToken, usuarioVideoController.getByIdVideo);
 router.get('/:idUsuario/:idVideo', verifyToken, usuarioVideoController.getByIdUsuarioIdVideo);
 
-router.post("/", verifyAdministrador, usuarioVideoController.crear);
+router.post("/", verifyToken, usuarioVideoController.crear);
 
-router.put("/:id", verifyAdministrador, usuarioVideoController.actualizar);
-router.put("/borrar/:id", verifyAdministrador, usuarioVideoController.borrar);
+router.put("/:id", verifyToken, usuarioVideoController.actualizar);
+router.put("/borrar/:id", verifyToken, usuarioVideoController.borrar);
 
 module.exports = router;

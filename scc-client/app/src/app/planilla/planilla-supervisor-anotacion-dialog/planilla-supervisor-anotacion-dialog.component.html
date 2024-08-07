@@ -38,7 +38,7 @@
       <div class="col-md">
         <mat-form-field class="full-width">
           <mat-label>Cantidad de horas</mat-label>
-          <input matInput #hora type="text" minlength="5" maxlength="5" formControlName="hora" (input)="onInputChange($event)" (keydown)="onKeyDown($event)" (click)="selectText($event)" (blur)="calcularMonto()">
+          <input matInput #hora type="text" minlength="5" maxlength="5" formControlName="hora" (input)="onInputChange($event)" (keydown)="onKeyDown($event)" (click)="selectText($event)" (blur)="calcularMonto(); postAjuste($event)">
         </mat-form-field>
         <!--
         <mat-form-field class="full-width">

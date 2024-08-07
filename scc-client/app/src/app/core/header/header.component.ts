@@ -19,6 +19,7 @@ export class HeaderComponent {
   usuarioActual: any;
   
   isAdmin: boolean;
+  isSupervisor: boolean;
   
   constructor(
     private authService: AuthService,
@@ -32,9 +33,11 @@ export class HeaderComponent {
       if (x && Object.keys(x).length !== 0) {
         this.usuarioActual = x.usuario;
         this.isAdmin = this.usuarioActual.idTipoUsuario == 1;
+        this.isSupervisor = this.usuarioActual.idTipoUsuario == 3 || this.usuarioActual.idTipoUsuario == 1;
       } else {
         this.usuarioActual = null;
         this.isAdmin = false;
+        this.isSupervisor = false;
       }
     });
   }
@@ -56,5 +59,9 @@ export class HeaderComponent {
       navbarToggler.setAttribute('aria-expanded', 'false');
       navbarToggler.classList.add('collapsed');
     }
+  }
+
+  redireccionar(route: any) {
+    this.router.navigate([route, this.usuarioActual.id]);
   }
 }

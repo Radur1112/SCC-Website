@@ -54,7 +54,7 @@ export class PlanillaSupervisorAnotacionDialogComponent {
   ) {
     this.idUsuarioActual = data.idUsuarioActual;
     this.planilla = data.planilla;
-    console.log(this.planilla)
+    
     this.reactiveForm();
     this.getTipos();
   }
@@ -73,7 +73,13 @@ export class PlanillaSupervisorAnotacionDialogComponent {
   };
 
   getTipos() {
-    this.gService.get(`planilla/tipos`)
+    let query = '';
+    if (this.planilla.usuarioIdTipoContrato == 1) {
+      query = 'planilla/tipos/asalariado'
+    } else {
+      query = 'planilla/tipos/sp'
+    }
+    this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.tipos = res.data;
@@ -94,7 +100,6 @@ export class PlanillaSupervisorAnotacionDialogComponent {
 
     if (inputValue.length < 5) {
       inputValue = this.restaurarHora(inputValue);
-      this.selectionStart();
     }
 
     this.anotacionForm.get('hora').setValue(inputValue);
@@ -126,7 +131,7 @@ export class PlanillaSupervisorAnotacionDialogComponent {
       '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
     ];
 
-    if (input.selectionStart === 2 && event.key == 'Delete' || input.selectionStart === 3 && event.key == 'Backspace') {
+    if (input.selectionEnd === 2 && event.key == 'Delete' || input.selectionEnd === 3 && event.key == 'Backspace') {
       event.preventDefault();
     }
 
@@ -152,19 +157,19 @@ export class PlanillaSupervisorAnotacionDialogComponent {
             inputValue = this.reemplazarChar(inputValue, 1, event.key)
             
             this.selectionStart();
-          } else if (this.numInputs == 2) {
-            inputValue = this.reemplazarChar(inputValue, 2, event.key);
+          } else {
+            inputValue = this.reemplazarChar(inputValue, 1, event.key);
             
             this.selectionEnd();
             this.numInputs = 0;
           }
         } else if (input.selectionStart == 3 && input.selectionEnd == 5) {
           if (this.numInputs == 1) {
-            inputValue = this.reemplazarChar(inputValue, 4, event.key)
+            inputValue = this.reemplazarChar(inputValue, 2, event.key)
             
             this.selectionEnd();
-          } else if (this.numInputs == 2) {
-            inputValue = this.reemplazarChar(inputValue, 5, event.key)
+          } else {
+            inputValue = this.reemplazarChar(inputValue, 2, event.key)
 
             this.selectionEnd();
             this.numInputs = 0;
@@ -173,13 +178,14 @@ export class PlanillaSupervisorAnotacionDialogComponent {
         break;
       case 'ArrowLeft':
         this.selectionStart();
+        this.numInputs = 0;
         break;
       case 'ArrowRight':
         this.selectionEnd();
+        this.numInputs = 0;
         break;
       default:
     }
-
 
     this.anotacionForm.get('hora').setValue(inputValue);
     this.inputElement.nativeElement.value = inputValue;
@@ -200,25 +206,29 @@ export class PlanillaSupervisorAnotacionDialogComponent {
 
   reemplazarChar(valor: string, index: number, char: string): string {
     if (index == 1) {
-      return '0' + char + valor.slice(2);
-    } else if (index == 2) {
-      return valor.slice(1, 2) + char + valor.slice(2);
-    } else if (index == 4) {
-      if (valor.slice(3).includes('-')) {
-        return  valor.slice(0, 3) + '0' + char;
-      }
-      return  valor.slice(0, 3) + valor.slice(4) + char;
-    } else  {
+      let hours = valor.slice(1, 2) + char;
+      return hours.replace('-', '0') + valor.slice(2);
+    } else {
       let minutos = valor.slice(4) + char;
-      if (parseInt(minutos) > 59)
-        minutos = '59'
-      return  valor.slice(0, 3) + minutos;
+      return  valor.slice(0, 3) + minutos.replace('-', '0');
     }
+  }
+
+  postAjuste(event: any) {
+    const input = (event as KeyboardEvent).target as HTMLInputElement;
+    let inputValue = input.value;
+    if (parseInt(inputValue.slice(3)) > 59) {
+      inputValue = inputValue.slice(0, 2) + '59';
+    }
+
+    this.anotacionForm.get('hora').setValue(inputValue);
+    this.inputElement.nativeElement.value = inputValue;
   }
 
   selectText(event: MouseEvent) {
     const input = event.target as HTMLInputElement;
     
+    this.numInputs = 0;
     if (input.selectionStart !== null && input.selectionEnd !== null) {
       // Select the first two characters if clicked on the first part
       if (input.selectionStart <= 2) {
@@ -230,6 +240,9 @@ export class PlanillaSupervisorAnotacionDialogComponent {
         input.setSelectionRange(0, 0);
         input.setSelectionRange(3, 5);
       }
+    } else {
+      input.setSelectionRange(0, 0);
+      input.setSelectionRange(0, 2);
     }
     event.preventDefault();
   }

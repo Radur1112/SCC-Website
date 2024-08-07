@@ -4,13 +4,13 @@ const { verifyToken, verifyAdministrador, verifyUsuario } = require('../utils/ve
 
 const foroHistorialController = require("../controllers/foroHistorialController");
 
-router.get('/', verifyToken, foroHistorialController.get);
-router.get('/:id', verifyToken, foroHistorialController.getById);
-router.get('/foro/:id', verifyToken, foroHistorialController.getByIdForo);
+router.get('/', verifyAdministrador, foroHistorialController.get);
+router.get('/:id', verifyAdministrador, foroHistorialController.getById);
+router.get('/foro/:id', verifyAdministrador, foroHistorialController.getByIdForo);
 
 router.post("/", verifyToken, foroHistorialController.crear);
 
-router.put("/:id", verifyAdministrador, foroHistorialController.actualizar);
+router.put("/:id", verifyToken, foroHistorialController.actualizar);
 router.put("/borrar/:id", verifyAdministrador, foroHistorialController.borrar);
 
 module.exports = router;

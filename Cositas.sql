@@ -28,6 +28,8 @@ SELECT * FROM deduccion;
 SELECT * FROM tipodeduccion;
 SELECT * FROM otropago;
 SELECT * FROM tipootropago;
+SELECT * FROM comprobanteplanilla;
+SELECT * FROM planillahistorial;
 
 SELECT * FROM usuariofororespuesta;
 
@@ -38,6 +40,10 @@ ALTER TABLE incapacidad AUTO_INCREMENT = 1;
 DELETE FROM vacacion WHERE id > 0;
 ALTER TABLE vacacion AUTO_INCREMENT = 1;
 
+DELETE FROM planillahistorial WHERE id > 0;
+ALTER TABLE planillahistorial AUTO_INCREMENT = 1;
+DELETE FROM comprobanteplanilla WHERE id > 0;
+ALTER TABLE comprobanteplanilla AUTO_INCREMENT = 1;
 DELETE FROM aumento WHERE id > 0;
 ALTER TABLE aumento AUTO_INCREMENT = 1;
 DELETE FROM deduccion WHERE id > 0;
@@ -141,4 +147,41 @@ SELECT u.id, u.identificacion, u.nombre, u.correo, p.descripcion AS puestoDescri
         FROM usuariosupervisor us
         INNER JOIN usuario u ON u.id = us.idUsuario AND u.estado != 0
         INNER JOIN puesto p ON p.id = u.idPuesto
-        WHERE us.idSupervisor = 8
+        WHERE us.idSupervisor = 8;
+        
+        
+        
+SELECT 
+	JSON_ARRAYAGG(
+	  JSON_OBJECT(
+		'tipoAumentoId', ta.id,
+		'tipoAumentoDescripcion', ta.descripcion,
+		'tipoValorHoras', ta.valorHoras,
+		'totalAumentoMonto', SUM(a.monto)
+	  )
+	)
+  FROM aumento a
+  INNER JOIN tipoaumento ta ON ta.id = a.idTipoAumento 
+  WHERE a.idPlanilla = 9 
+  GROUP BY ta.id, ta.descripcion, ta.valorHoras;
+  
+SELECT 
+  JSON_ARRAYAGG(
+    JSON_OBJECT(
+      'tipoAumentoId', subquery.tipoAumentoId,
+      'tipoAumentoDescripcion', subquery.tipoAumentoDescripcion,
+      'tipoValorHoras', subquery.tipoValorHoras,
+      'totalAumentoMonto', subquery.totalAumentoMonto
+    )
+  ) AS result
+FROM (
+  SELECT 
+    ta.id AS tipoAumentoId,
+    ta.descripcion AS tipoAumentoDescripcion,
+    ta.valorHoras AS tipoValorHoras,
+    SUM(a.monto) AS totalAumentoMonto
+  FROM aumento a
+  INNER JOIN tipoaumento ta ON ta.id = a.idTipoAumento 
+  WHERE a.idPlanilla = 9 
+  GROUP BY ta.id, ta.descripcion, ta.valorHoras
+) AS subquery;

@@ -7,7 +7,7 @@ const aumentoController = require("../controllers/aumentoController");
 router.post("/", verifySupervisor, aumentoController.crear);
 router.post("/multiple", verifySupervisor, aumentoController.crearMultiples);
 
-router.put("/:id", verifyAdministrador, aumentoController.actualizar);
-router.put("/borrar/:id", verifyAdministrador, aumentoController.borrar);
+router.put("/:id", verifySupervisor, aumentoController.actualizar);
+router.put("/borrar/:id", verifySupervisor, aumentoController.borrar);
 
 module.exports = router;

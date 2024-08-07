@@ -7,7 +7,7 @@ const deduccionController = require("../controllers/deduccionController");
 router.post("/", verifySupervisor, deduccionController.crear);
 router.post("/multiple", verifySupervisor, deduccionController.crearMultiples);
 
-router.put("/:id", verifyAdministrador, deduccionController.actualizar);
-router.put("/borrar/:id", verifyAdministrador, deduccionController.borrar);
+router.put("/:id", verifySupervisor, deduccionController.actualizar);
+router.put("/borrar/:id", verifySupervisor, deduccionController.borrar);
 
 module.exports = router;

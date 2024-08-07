@@ -10,11 +10,11 @@ router.get('/usuario/:id', verifyToken, usuarioModuloController.getByIdUsuario);
 router.get('/usuario/all/:id', verifyToken, usuarioModuloController.getAllByIdUsuario);
 router.get('/modulo/:id', verifyToken, usuarioModuloController.getByIdModulo);
 
-router.post("/", verifyAdministrador, usuarioModuloController.crear);
-router.post("/multiple", verifyAdministrador, usuarioModuloController.crearMultiples);
-router.post("/borrar/multiple", verifyAdministrador, usuarioModuloController.borrarMultiple);
+router.post("/", verifyToken, usuarioModuloController.crear);
+router.post("/multiple", verifyToken, usuarioModuloController.crearMultiples);
+router.post("/borrar/multiple", verifyToken, usuarioModuloController.borrarMultiple);
 
-router.put("/:id", verifyAdministrador, usuarioModuloController.actualizar);
-router.put("/borrar/:id", verifyAdministrador, usuarioModuloController.borrar);
+router.put("/:id", verifyToken, usuarioModuloController.actualizar);
+router.put("/borrar/:id", verifyToken, usuarioModuloController.borrar);
 
 module.exports = router;

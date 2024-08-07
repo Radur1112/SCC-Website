@@ -68,6 +68,11 @@ export class PlanillaAdminIndexComponent {
   maxDate: Date;
   minDate: Date;
 
+  lastDate: Date;
+  
+  dateFilter = (date: Date | null): boolean => true;
+  
+
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
@@ -116,6 +121,7 @@ export class PlanillaAdminIndexComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.notificacion.mensaje('Planilla', 'planillas creadas correctamente', TipoMessage.success);
+        this.getFechaActual();
         this.getFechas();
       }
     });
@@ -129,6 +135,7 @@ export class PlanillaAdminIndexComponent {
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
               this.notificacion.mensaje('Planilla', 'planillas completadas y creadas correctamente', TipoMessage.success);
+              this.getFechaActual();
               this.getFechas();
             }
           });
@@ -144,6 +151,7 @@ export class PlanillaAdminIndexComponent {
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
         
+        this.getFechaActual();
         this.getFechas();
       }
     });
@@ -151,6 +159,27 @@ export class PlanillaAdminIndexComponent {
 
   getFechas() {
     this.gService.get(`planilla/fechas`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        if (res.data) {
+          const fechaInicio = new Date(res.data.fechaInicio);
+          const fechaFinal = new Date(res.data.fechaFinal);
+          this.lastDate = new Date(res.data.fechaFinal);
+        
+          this.dateFilter = (date: Date | null): boolean => {
+            if (date) {
+              const timestamp = date.getTime();
+              return timestamp < fechaInicio.getTime() || timestamp > fechaFinal.getTime();
+            }
+            return true;
+          }
+        }
+      }
+    });
+  }
+
+  getFechaActual() {
+    this.gService.get(`planilla/fechaActual`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         if (res.data) {
@@ -165,6 +194,13 @@ export class PlanillaAdminIndexComponent {
 
   actualizarFechas() {
     if (this.selectedFecha.value.fechaInicio && this.selectedFecha.value.fechaFinal){
+      let fechaInicio = new Date(this.selectedFecha.value.fechaInicio);
+      let fechaFinit = new Date(this.lastDate.getFullYear(), this.lastDate.getMonth(), this.lastDate.getDate() + 1);
+
+      if (fechaInicio > fechaFinit) {
+        this.notificacion.mensaje('Planilla', 'Este cambio dejaria por fuera una día, asegurese de haber hecho el cambio correctamente', TipoMessage.warning);
+      }
+
       const fechas = {
         fechaInicio: this.formatearFecha(this.selectedFecha.value.fechaInicio),
         fechaFinal: this.formatearFecha(this.selectedFecha.value.fechaFinal)
@@ -187,11 +223,11 @@ export class PlanillaAdminIndexComponent {
     return `${year}-${month}-${day}`;
   }
 
-  mostrarPlanilla(idUsuario: any) {
-    this.gService.get(`planilla/usuario/${idUsuario}`)
+  mostrarPlanilla(usuario: any) {
+    this.gService.get(`planilla/usuario/${usuario.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.openPlanillaDialog(res, idUsuario);
+        this.openPlanillaDialog(res, usuario.idTipoContrato);
       }
     });
   }
@@ -211,6 +247,7 @@ export class PlanillaAdminIndexComponent {
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+          this.notificacion.mensaje('Planilla', 'Planilla actualizada correctamente', TipoMessage.success);
       }
     });
   }
@@ -232,5 +269,9 @@ export class PlanillaAdminIndexComponent {
       link.download = fileName;
       link.click();
     });
+  }
+
+  redireccionar(route: any, idUsuario: any) {
+    this.router.navigate([route, idUsuario]);
   }
 }

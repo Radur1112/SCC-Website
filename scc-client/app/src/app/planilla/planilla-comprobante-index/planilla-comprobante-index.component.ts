@@ -59,31 +59,13 @@ export class PlanillaComprobanteIndexComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   displayedColumns: string[] = ['numero', 'fecha', 'salarioNeto', 'acciones'];
-  dataComprobante = [
-    {
-      id: '1',
-      idForo: '1',
-      ubicacion: '1',
-      fecha: '15/07/2024',
-      salarioNeto: '340000'
-    },
-    {
-      id: '1',
-      idForo: '1',
-      ubicacion: '1',
-      fecha: '01/08/2024',
-      salarioNeto: '570000'
-    },
-    {
-      id: '1',
-      idForo: '1',
-      ubicacion: '1',
-      fecha: '15/08/2024',
-      salarioNeto: '785555'
-    }
-  ];
+  dataComprobante = [];
   dataSource: MatTableDataSource<comproabanteInterface>;
+
+  usuarioId: any;
+  usuarioNombre: any;
   
+  @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   constructor(private gService:GenericService,
@@ -92,19 +74,46 @@ export class PlanillaComprobanteIndexComponent {
     private notificacion: NotificacionService,
     private dialog: MatDialog,
     private router:Router,
+    private paginators: MatPaginatorIntl,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
   ){
-      this.dataSource = new MatTableDataSource(this.dataComprobante)
-  }
-  
-
-  busqueda(event: Event) {
-    const filterValue = (event.target as HTMLInputElement).value;
-    this.dataSource.filter = filterValue.trim().toLowerCase();
+    paginators.itemsPerPageLabel = 'Items por página'; 
   }
 
-  descargarComprobante(id: any) {
+  ngOnInit(): void {
+    this.route.paramMap.subscribe(params => {
+      this.usuarioId = params.get('id');
 
+      this.getComprobantes();
+    });
+  }
+
+  getComprobantes() {
+    this.gService.get(`planilla/comprobante/${this.usuarioId}`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.usuarioNombre = res.data[0].usuarioNombre;
+        this.dataSource = new MatTableDataSource(res.data);
+        this.dataSource.sort = this.sort;
+        this.dataSource.paginator = this.paginator;
+      }
+    });
+  }
+
+  formatearNumero(valor: string) {
+    let formateado = parseFloat(valor.replace(/[^\d.-]/g, ''));
+    
+    if (isNaN(formateado)) {
+      return '0.00';
+    }
+
+    const parts = formateado.toFixed(2).split('.');
+    let integerPart = parts[0];
+    let decimalPart = parts.length > 1 ? parts[1] : '';
+
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+    return `${integerPart},${decimalPart}`;
   }
 }

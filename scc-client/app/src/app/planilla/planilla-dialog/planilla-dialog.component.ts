@@ -32,6 +32,8 @@ export class PlanillaDialogComponent {
   deducciones: any = [];
   otrosPagos: any = [];
 
+  showOtrosPagos: any;
+
   aumentosInicial: any = [];
   deduccionesInicial: any = [];
   otrosPagosInicial: any = [];
@@ -123,6 +125,11 @@ export class PlanillaDialogComponent {
         }
       }
     });
+
+    this.showOtrosPagos = this.otrosPagos
+    .filter(op => op.monto !== '0.00')
+    .map(op => op.descripcion)
+    .join(', ');  
   }
 
   focusTexto(evento: any) {
@@ -149,7 +156,7 @@ export class PlanillaDialogComponent {
 
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-    return `${integerPart}.${decimalPart}`;
+    return `${integerPart},${decimalPart}`;
   }
 
   confirmarTexto(event: any, field?: any) {

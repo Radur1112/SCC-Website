@@ -1,19 +1,25 @@
 const express = require('express');
 const router = express.Router();
+const { verifyToken, verifySupervisor, verifyAdministrador, verifyUsuario } = require('../utils/verifyToken')
 
 const planillaController = require("../controllers/planillaController");
 
-router.get('/crear', planillaController.crearTodos);
-router.get('/completar', planillaController.completarTodos);
-router.get('/tipos', planillaController.getTipos);
-router.get('/fechas', planillaController.getFechas);
-router.get('/historial', planillaController.getHistorialAnotaciones);
-router.get('/usuario/:id', planillaController.getByIdUsuario);
-router.get('/historial/supervisor/:id', planillaController.getHistorialAnotacionesBySupervisor);
+router.get('/crear', verifyAdministrador, planillaController.crearTodos);
+router.get('/completar', verifyAdministrador, planillaController.completarTodos);
+router.get('/tipos', verifySupervisor, planillaController.getTipos);
+router.get('/fechaActual', verifySupervisor, planillaController.getFechaActual);
+router.get('/fechas', verifySupervisor, planillaController.getFechas);
+router.get('/anotaciones', verifySupervisor, planillaController.getHistorialAnotaciones);
+router.get('/historial', verifySupervisor, planillaController.getHistorial);
+router.get('/comprobante/:id', verifyToken, planillaController.getComprobantesByIdUsuario);
+router.get('/usuario/:id', verifyAdministrador, planillaController.getByIdUsuario);
+router.get('/tipos/asalariado', verifySupervisor, planillaController.getTiposAsalariado);
+router.get('/tipos/sp', verifySupervisor, planillaController.getTiposSP);
+router.get('/historial/supervisor/:id', verifySupervisor, planillaController.getHistorialAnotacionesBySupervisor);
 
-router.post('/', planillaController.crear);
-router.post('/fechas', planillaController.actualizarFechas);
+router.post('/', verifyAdministrador, planillaController.crear);
+router.post('/fechas', verifyAdministrador, planillaController.actualizarFechas);
 
-router.put('/:id', planillaController.actualizar);
+router.put('/:id', verifyAdministrador, planillaController.actualizar);
 
 module.exports = router;
