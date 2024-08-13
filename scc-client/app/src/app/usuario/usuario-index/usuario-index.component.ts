@@ -66,7 +66,6 @@ export class UsuarioIndexComponent {
     private authService: AuthService,
     private confirmationService: ConfirmationService,
     private notificacion: NotificacionService,
-    private paginators: MatPaginatorIntl,
     private router:Router,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
@@ -74,9 +73,8 @@ export class UsuarioIndexComponent {
     private fb: FormBuilder,
     private dialog: MatDialog
   ){
-      paginators.itemsPerPageLabel = 'Items por página'; 
-      this.dataSource = new MatTableDataSource(this.dataUsuario)
-      this.dataSourceSupervisor = new MatTableDataSource(this.dataSupervisor)
+    this.dataSource = new MatTableDataSource(this.dataUsuario)
+    this.dataSourceSupervisor = new MatTableDataSource(this.dataSupervisor)
   }
 
   ngOnInit(): void {

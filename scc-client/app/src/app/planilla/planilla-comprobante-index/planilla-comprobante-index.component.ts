@@ -74,11 +74,10 @@ export class PlanillaComprobanteIndexComponent {
     private notificacion: NotificacionService,
     private dialog: MatDialog,
     private router:Router,
-    private paginators: MatPaginatorIntl,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
   ){
-    paginators.itemsPerPageLabel = 'Items por página'; 
+    
   }
 
   ngOnInit(): void {

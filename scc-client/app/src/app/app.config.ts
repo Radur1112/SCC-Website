@@ -10,11 +10,14 @@ import { customHttpInterceptor } from './services/customHttpInterceptor.service'
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeEsCR from '@angular/common/locales/es-CR';
+import { MatPaginatorIntl } from '@angular/material/paginator';
+import { CustomPaginatorService } from './services/custom-paginator.service';
 
 registerLocaleData(localeEsCR, 'es-CR');
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    { provide: MatPaginatorIntl, useClass: CustomPaginatorService },
     { provide: LOCALE_ID, useValue: 'es-CR' },
     provideZoneChangeDetection({ eventCoalescing: true }), 
     provideRouter(routes), 

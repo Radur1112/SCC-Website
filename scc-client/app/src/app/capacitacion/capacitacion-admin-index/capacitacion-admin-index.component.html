@@ -15,7 +15,7 @@
         <mat-form-field [floatLabel]="selectedModulo ? 'always' : 'auto'" appearance="outline">
           <mat-label [ngClass]="{'': isOpenned}">
             <div *ngIf="!isOpenned">
-              Seleccione un módulo
+              Seleccione o busque un módulo
             </div>
             <div class="input-div">
               <input #moduloInput type="text" placeholder="Buscar módulo" (focus)="buscarModulo($event)" (keyup)="buscarModulo($event)"  [ngClass]="{'primary-color': (!isOpenned && !filtro && !selectedModulo) || (!isOpenned && selectedModulo)}" class="light-color custom-input">
@@ -51,6 +51,8 @@
     </mat-card-actions>
   </div>
 </mat-card>
+
+<div class="second-half-pre-card-primary"></div>
   
 <div class="second-card-primary"></div>
 
@@ -98,8 +100,7 @@
                       <div class="video-img">
                         <img [src]="video.videoThumbnail" alt="{{ video.titulo }}">
                       </div>
-                      <mat-card-content class="video-desc">
-                        <p>{{video.videoDescripcion}}</p>
+                      <mat-card-content class="video-desc" [innerHTML]="convertService.convertLineBreaks(video.videoDescripcion)">
                       </mat-card-content>
                       <mat-card-actions>
                         <button mat-fab extended color="accent" class="boton-accion" matTooltip="Actualizar Usuario" aria-label="Actualizar Usuario" (click)="openVideoFormDialog(false, video.videoId)">

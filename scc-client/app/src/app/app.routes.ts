@@ -23,6 +23,8 @@ import { UsuarioIncapacidadSupervisorComponent } from './usuario/usuario-incapac
 import { UsuarioVacacionFormComponent } from './usuario/usuario-vacacion-form/usuario-vacacion-form.component';
 import { UsuarioVacacionSupervisorComponent } from './usuario/usuario-vacacion-supervisor/usuario-vacacion-supervisor.component';
 import { PlanillaAnotacionIndexComponent } from './planilla/planilla-anotacion-index/planilla-anotacion-index.component';
+import { UsuarioIncapacidadIndexComponent } from './usuario/usuario-incapacidad-index/usuario-incapacidad-index.component';
+import { UsuarioVacacionIndexComponent } from './usuario/usuario-vacacion-index/usuario-vacacion-index.component';
 
 export const routes: Routes = [
   { path: 'inicio', component: InicioComponent },
@@ -57,9 +59,20 @@ export const routes: Routes = [
       permisos: [1, 3]
     } 
   },
-  { path: 'vacacion', component: UsuarioVacacionFormComponent, canActivate:[AuthGuard],
+  { path: 'incapacidad/historial', component: UsuarioIncapacidadIndexComponent, canActivate:[AuthGuard],
     data:{
       permisos: ['Todos']
+    } 
+  },
+  { path: 'incapacidad/historial/:id', component: UsuarioIncapacidadIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: [1, 3]
+    } 
+  },
+  { path: 'vacacion', component: UsuarioVacacionFormComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos'],
+      vacaciones: [1],
     } 
   },
   { path: 'vacacion/solicitudes', component: UsuarioVacacionSupervisorComponent, canActivate:[AuthGuard],
@@ -67,10 +80,20 @@ export const routes: Routes = [
       permisos: [1, 3]
     } 
   },
+  { path: 'vacacion/historial', component: UsuarioVacacionIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos']
+    } 
+  },
+  { path: 'vacacion/historial/:id', component: UsuarioVacacionIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: [1, 3]
+    } 
+  },
 
   { path: 'capacitacion/admin', component: CapacitacionAdminIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: [1]
+      permisos: [1, 4]
     } 
   },
   { path: 'capacitacion/video/:idVideo/:idModulo', component: CapacitacionVideoComponent, canActivate:[AuthGuard],
@@ -107,22 +130,22 @@ export const routes: Routes = [
 
   { path: 'planilla', component: PlanillaAdminIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: [1]
+      permisos: [1, 3, 5]
     } 
   },
   { path: 'planilla/supervisor', component: PlanillaSupervisorIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: [1, 3]
+      permisos: [1, 3, 5]
     } 
   },
   { path: 'planilla/anotaciones', component: PlanillaAnotacionIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: [1, 3]
+      permisos: [1, 3, 5]
     } 
   },
   { path: 'planilla/historial', component: PlanillaHistorialIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: [1]
+      permisos: [1, 5]
     } 
   },
   { path: 'comprobante/:id', component: PlanillaComprobanteIndexComponent, canActivate:[AuthGuard],
@@ -131,7 +154,8 @@ export const routes: Routes = [
     } 
   },
 
-  { path:'', redirectTo:'/inicio' ,pathMatch:'full'},
+  { path:'nosotros', redirectTo:'/sobre-nosotros', pathMatch:'full'},
+  { path:'', redirectTo:'/inicio', pathMatch:'full'},
   { path:'**',component:PaginaNoEncontradaComponent},
 
   /*

@@ -26,12 +26,21 @@ export const AuthGuard: CanActivateFn = (route, state) => {
 
   if (isAuthenticated) {
     const usuarioPermisos = usuarioActual.usuario.idTipoUsuario;
+    const usuarioVacaciones = usuarioActual.usuario.vacacion;
     //roles.length && roles.indexOf(verify.role)===-1
     if(route.data['permisos'].length && !route.data['permisos'].includes(usuarioPermisos) && !route.data['permisos'].includes('Todos')){ 
-        router.navigate(['/inicio'], {
-          //Parametro para mostrar mensaje en home
-          queryParams: { auth: 'no' }
-        });
+      router.navigate(['/inicio'], {
+        //Parametro para mostrar mensaje en home
+        queryParams: { auth: 'no' }
+      });
+      return false;
+    }
+
+    if(route.data['vacaciones'] && route.data['vacaciones'].length && route.data['vacaciones'].includes(1) && (usuarioVacaciones == null || isNaN(Number(usuarioVacaciones)))) {
+      router.navigate(['/inicio'], {
+        //Parametro para mostrar mensaje en home
+        queryParams: { auth: 'no' }
+      });
       return false;
     }
     return true;

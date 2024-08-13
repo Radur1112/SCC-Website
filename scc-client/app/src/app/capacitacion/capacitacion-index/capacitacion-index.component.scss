@@ -164,6 +164,11 @@ mat-form-field {
   overflow: auto;
 }
 
+.video-sub {
+  display: flex;
+  justify-content: space-between;
+}
+
 .video-progreso {
   text-align: right;
 }

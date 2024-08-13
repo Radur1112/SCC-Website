@@ -1,5 +1,7 @@
 const db = require('../utils/db.js');
 
+const { update_usuario_modulo_progreso } = require('../utils/triggers.js')
+
 var nombreTabla = 'modulovideo';
 
 module.exports.get = async(req, res, next) => {
@@ -125,7 +127,8 @@ module.exports.getByIdModulo = async(req, res, next) => {
         FROM ${nombreTabla} mv
         INNER JOIN modulo m ON mv.idModulo = m.id AND m.estado != 0
         INNER JOIN video v ON mv.idVideo = v.id AND v.estado != 0
-        WHERE mv.idModulo = ?`, [id]);
+        WHERE mv.idModulo = ?
+        ORDER BY mv.nivel, mv.idVideo`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -159,10 +162,13 @@ module.exports.getByIdModuloGroupByNivel = async(req, res, next) => {
     }
     
     const data = await db.query(`
-        SELECT mv.nivel, 
-        JSON_ARRAYAGG(JSON_OBJECT(
-        'moduloTitulo', m.titulo, 'moduloDescripcion', m.descripcion, 
-        'videoId', v.id , 'videoTitulo', v.titulo, 'videoDescripcion', v.descripcion, 'videoLink', v.link, 'videoFechaLimite', v.fechaLimite, 'videoRequerido', v.requerido)) AS moduloVideos
+        SELECT mv.nivel,
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'moduloTitulo', m.titulo, 'moduloDescripcion', m.descripcion, 
+            'videoId', v.id , 'videoTitulo', v.titulo, 'videoDescripcion', v.descripcion, 'videoLink', v.link, 'videoFechaLimite', v.fechaLimite, 'videoRequerido', v.requerido
+          )
+        ) AS moduloVideos
         FROM ${nombreTabla} mv
         INNER JOIN modulo m ON mv.idModulo = m.id AND m.estado != 0
         INNER JOIN video v ON mv.idVideo = v.id AND v.estado != 0
@@ -314,8 +320,10 @@ module.exports.borrar = async (req, res, next) => {
         message: 'Id inválido',
       });
     }
-
+    
     await db.query(`DELETE FROM ${nombreTabla} WHERE idModulo = ? AND idVideo = ?`, [idModulo, idVideo]);
+    update_usuario_modulo_progreso(null, idModulo);
+
     res.status(201).json({
         status: true,
         message: `${nombreTabla} borrado`

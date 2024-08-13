@@ -405,15 +405,42 @@ a.active-link{
 .card-primary {
   background-color: $primary-color !important;
   width: 99% !important;
-  height: 450px !important;
+  height: 100% !important;
   margin: 0 auto !important;
+  padding-bottom: 70px;
   border-top-left-radius: 55px !important;
   border-top-right-radius: 55px !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
   box-shadow: none !important;
 }
 
 .card-primary h2 {
   margin: 90px 0 20px !important;
+}
+
+.second-pre-card-primary {
+  background-color: $primary-color !important;
+  width: 99% !important;
+  height: 60px !important;
+  margin: 0 auto !important;
+  border-radius: 0 !important;
+}
+
+.second-half-pre-card-primary {
+  background-color: $primary-color !important;
+  width: 99% !important;
+  height: 30px !important;
+  margin: 0 auto !important;
+  border-radius: 0 !important;
+}
+
+.second-double-pre-card-primary {
+  background-color: $primary-color !important;
+  width: 99% !important;
+  height: 90px !important;
+  margin: 0 auto !important;
+  border-radius: 0 !important;
 }
 
 .second-card-primary {
@@ -425,6 +452,7 @@ a.active-link{
   position: absolute;
   left: 40px;
   top: 40px;
+  cursor: pointer;
 }
 
 .go-back mat-icon {

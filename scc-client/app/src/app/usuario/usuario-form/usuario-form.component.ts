@@ -110,7 +110,7 @@ export class UsuarioFormComponent {
         })
         const password = this.usuarioForm.get('password');
         password.disable();
-        this.onTipoContratoChange();
+        this.onVacacioChange();
       }
     });
   }
@@ -122,9 +122,9 @@ export class UsuarioFormComponent {
       correo: ['', [Validators.required, Validators.email, Validators.maxLength(250)]],
       password: ['', [Validators.required, Validators.maxLength(60)]],
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
-      salario: ['', [Validators.required, Validators.min(100), Validators.max(999999999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      salario: ['', [Validators.required, Validators.min(0), Validators.max(999999999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       fechaIngreso:  [new Date(), Validators.required],
-      vacacion:  [{ value: null, disabled: true }, [Validators.required, Validators.min(0), Validators.max(999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      vacacion:  [null, [Validators.required, Validators.min(0), Validators.max(99999)]],
       idTipoUsuario: ['', Validators.required],
       idTipoContrato: ['', Validators.required],
       idPuesto: ['', Validators.required],
@@ -187,20 +187,6 @@ export class UsuarioFormComponent {
     password.setValue(identificacion);
   }
 
-  onTipoContratoChange() {
-    const tipoContrato = this.usuarioForm.get('idTipoContrato').value;
-    const vacacion = this.usuarioForm.get('vacacion');
-
-    if (tipoContrato == 1) {
-      vacacion.enable();
-      if (!vacacion.value) {
-        vacacion.setValue(0);
-      }
-    } else {
-      vacacion.disable();
-    }
-  }
-
   cambiarPassword(checked: any) {
     const password = this.usuarioForm.get('password');
     
@@ -224,6 +210,13 @@ export class UsuarioFormComponent {
       salario.setValue(valorNumerico.toFixed(2));
     } else {
       salario.setValue('');
+    }
+  }
+
+  onVacacioChange() {
+    const vacacion = this.usuarioForm.get('vacacion');
+    if (vacacion.value == null || isNaN(Number(vacacion.value)) || vacacion.value == '') {
+      vacacion.setValue('Sin vacaciones');
     }
   }
 

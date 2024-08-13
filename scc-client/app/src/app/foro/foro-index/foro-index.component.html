@@ -52,6 +52,8 @@
   </div>
 </mat-card>
 
+<div class="second-half-pre-card-primary"></div>
+
 <div class="second-card-primary"></div>
   
 <mat-card class="card-pre mx-auto"></mat-card>
@@ -63,14 +65,18 @@
   <ng-container *ngIf="filtroForos">
     <div class="row each-foro my-5" *ngFor="let foro of filtroForos">
       <div class="col-sm-9 opciones-god my-3"> 
-        <div class="opciones-container" *ngIf="isAdmin">
+        <div class="opciones-container" *ngIf="foro.idUsuario == usuarioActual.id || isAdmin">
           <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #opciones="matMenu">
-            <button mat-menu-item (click)="historialForo(foro.id)">
+            <button mat-menu-item (click)="historialForo(foro.id)" *ngIf="isAdmin">
               <mat-icon>history</mat-icon>
               <span>Ver historial</span>
+            </button>
+            <button mat-menu-item (click)="openForoFormDialog(false, foro.id)">
+              <mat-icon>edit</mat-icon>
+              <span>Editar</span>
             </button>
             <button mat-menu-item (click)="borrarForo(foro)">
               <mat-icon>delete</mat-icon>
@@ -94,8 +100,7 @@
             </div>
             <p class="smaller-body-text menos-opacidad m-0"><strong>Publicado: </strong>{{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y - hh:mm aa' }}</p>
           </mat-card-header>
-          <mat-card-content class="foro-descripcion mt-3">
-            {{ foro.descripcion }}
+          <mat-card-content class="foro-descripcion mt-3" [innerHTML]="convertService.convertLineBreaks(foro.descripcion)">
           </mat-card-content>
         </mat-card>
       </div>

@@ -42,12 +42,11 @@ export class PlanillaAnotacionIndexComponent {
     private authService: AuthService,
     private confirmationService: ConfirmationService,
     private notificacion: NotificacionService,
-    private paginators: MatPaginatorIntl,
     private router:Router,
     private route:ActivatedRoute,
     private dialog: MatDialog
   ){
-      paginators.itemsPerPageLabel = 'Items por página'; 
+    
   }
 
   ngOnInit(): void {

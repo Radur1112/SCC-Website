@@ -20,6 +20,9 @@ export class HeaderComponent {
   
   isAdmin: boolean;
   isSupervisor: boolean;
+  isCapacitador: boolean;
+  isPlanillero: boolean;
+  isVacaciones: boolean;
   
   constructor(
     private authService: AuthService,
@@ -34,10 +37,17 @@ export class HeaderComponent {
         this.usuarioActual = x.usuario;
         this.isAdmin = this.usuarioActual.idTipoUsuario == 1;
         this.isSupervisor = this.usuarioActual.idTipoUsuario == 3 || this.usuarioActual.idTipoUsuario == 1;
+        this.isCapacitador = this.usuarioActual.idTipoUsuario == 4 || this.usuarioActual.idTipoUsuario == 1;
+        this.isPlanillero = this.usuarioActual.idTipoUsuario == 5 || this.usuarioActual.idTipoUsuario == 1;
+        this.isPlanillero = this.usuarioActual.idTipoUsuario == 5 || this.usuarioActual.idTipoUsuario == 1;
+        this.isVacaciones = this.usuarioActual.vacacion != null && !isNaN(Number(this.usuarioActual.vacacion))
       } else {
         this.usuarioActual = null;
         this.isAdmin = false;
         this.isSupervisor = false;
+        this.isCapacitador = false;
+        this.isPlanillero = false;
+        this.isVacaciones = false;
       }
     });
   }

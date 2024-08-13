@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
 
-import {MatPaginator, MatPaginatorIntl, MatPaginatorModule} from '@angular/material/paginator';
+import {MatPaginator, MatPaginatorModule} from '@angular/material/paginator';
 import {MatSort, MatSortModule} from '@angular/material/sort';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 import {MatInput, MatInputModule} from '@angular/material/input';
@@ -27,6 +27,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
 import { CapacitacionAdminModuloFormDialogComponent } from '../capacitacion-admin-modulo-form-dialog/capacitacion-admin-modulo-form-dialog.component';
 import { CapacitacionAdminVideoFormDialogComponent } from '../capacitacion-admin-video-form-dialog/capacitacion-admin-video-form-dialog.component';
+import { ConvertLineBreaksService } from '../../services/convert-line-breaks.service';
 
 export interface videoInterface {
   id: any;
@@ -106,13 +107,13 @@ export class CapacitacionAdminIndexComponent {
     private authService: AuthService,
     private confirmationService: ConfirmationService,
     private notificacion: NotificacionService,
-    private paginators: MatPaginatorIntl,
     private router:Router,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
     private httpClient:HttpClient,
     private dialog: MatDialog,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    public convertService: ConvertLineBreaksService
   ){
 
   }
@@ -168,19 +169,28 @@ export class CapacitacionAdminIndexComponent {
     }
   }
 
-  getModulos() {
+  getModulos(selectId?: number) {
     this.gService.get(`modulo`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         if (res) {
           this.modulos = res.data;
           this.filtroModulos = this.modulos;
+
+          if (selectId) {
+            this.selectedModulo = this.modulos.find(m => m.id == selectId)
+            this.getModuloThings();
+          } else {
+            this.selectedModulo = this.filtroModulos[0];
+            this.getModuloThings();
+          }
         }
       }
     });
   }
 
   getModuloThings() {
+    console.log(this.selectedModulo)
     this.getModuloVideosByIdModulo();
     this.getUsuariosByModulo();
   }
@@ -223,7 +233,7 @@ export class CapacitacionAdminIndexComponent {
       next:(res) => {
         this.selectedModulo = null;
         this.moduloVideos = null;
-        this.getModulos();
+        this.getModulos(res.data.insertId);
         this.notificacion.mensaje('Modulo', 'Modulo creado correctamente', TipoMessage.success);
       }
     });
@@ -235,7 +245,7 @@ export class CapacitacionAdminIndexComponent {
       next:(res) => {
         this.selectedModulo = null;
         this.moduloVideos = null;
-        this.getModulos();
+        this.getModulos(modulo.id);
         this.notificacion.mensaje('Modulo', 'Modulo actualizado correctamente', TipoMessage.success);
       }
     });
@@ -385,7 +395,6 @@ export class CapacitacionAdminIndexComponent {
     this.gService.get(`usuario/noModulo/${this.selectedModulo.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res.data)
         this.dataSourceNo = new MatTableDataSource(res.data);
         this.selectionNo.clear();
         this.selectionSi.clear();
@@ -395,7 +404,6 @@ export class CapacitacionAdminIndexComponent {
     this.gService.get(`usuarioModulo/modulo/${this.selectedModulo.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res.data)
         this.dataSourceSi = new MatTableDataSource(res.data);
       }
     });

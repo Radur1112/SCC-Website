@@ -28,13 +28,18 @@ export class ForoFormDialogComponent {
   tituloForm: any;
 
   crear: any;
+  foroId: any;
   usuarioActual: any;
 
   tipoForos: any;
+  archivosExistentes: any = [];
+  respuestasExistentes: any = [];
 
   sizeError: any;
   
   respuestasRepetidas: any = [];
+  borrarRespuestas: number[] = [];
+  borrarArchivos: any = [];
   
   constructor(
     private gService: GenericService,
@@ -44,6 +49,7 @@ export class ForoFormDialogComponent {
     private fb: FormBuilder
   ) {
     this.crear = this.data.crear;
+    this.foroId = this.data.foroId;
 
     this.formularioReactive();
   }
@@ -59,6 +65,8 @@ export class ForoFormDialogComponent {
     
     if (this.crear) {
       this.tituloForm = 'Crear';
+    } else {
+      this.tituloForm = 'Actualizar';
     }
     this.getTipoForos();
   }
@@ -70,6 +78,7 @@ export class ForoFormDialogComponent {
       titulo: ['', [Validators.required, Validators.maxLength(100)]],
       descripcion: ['', [Validators.required, Validators.maxLength(3000)]],
       archivo: [null],
+      existente: [null],
       respuestas: this.fb.array([])
     });
   }
@@ -83,6 +92,46 @@ export class ForoFormDialogComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.tipoForos = res.data;
+
+        if (!this.crear) {
+          
+      this.cargarDatos();
+        }
+      }
+    });
+  }
+
+  cargarDatos() {
+    this.gService.get(`foro/${this.foroId}`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        let foro = res.data;
+        
+        if (foro.archivos !== null) {
+          foro.archivos = foro.archivos.map(archivo => ({
+            ...archivo,
+            nombreArchivo: archivo.ubicacion.substring(archivo.ubicacion.lastIndexOf('/') + 1)
+          }));
+          this.archivosExistentes = foro.archivos;
+        }
+        
+        this.foroForm.setValue({
+          id: this.foroId,
+          tipo: this.tipoForos.find(tp => tp.id === foro.idTipoForo),
+          titulo: foro.titulo,
+          descripcion: foro.descripcion,
+          archivo: [],
+          existente: this.archivosExistentes,
+          respuestas: []
+        });
+        this.foroForm.get('tipo').disable();
+
+        if (foro.respuestas !== null) {
+          for (let respuesta of foro.respuestas) {
+            this.agregarRespuesta(respuesta.descripcion, true);
+          }
+          this.respuestasExistentes = foro.respuestas;
+        }
       }
     });
   }
@@ -105,22 +154,33 @@ export class ForoFormDialogComponent {
     }
   }
 
+  onBorrarArchivosSelected(borrarArchivo: any) {
+    this.borrarArchivos.push(borrarArchivo)
+  }
+
 
   respuestas(): FormArray {
     return this.foroForm.get('respuestas') as FormArray;
   }
 
-  nuevaRespuesta() {
+  nuevaRespuesta(text: string = '', disabled: boolean = false) {
     return this.fb.group({
-      respuesta: ['', [Validators.required, Validators.maxLength(250)]]
+      respuesta: [{ value: text, disabled: disabled }, [Validators.required, Validators.maxLength(250)]]
     });
   }
 
-  agregarRespuesta() {
-    this.respuestas().push(this.nuevaRespuesta());
+  agregarRespuesta(text: string = '', disabled: boolean = false) {
+    this.respuestas().push(this.nuevaRespuesta(text, disabled));
   }
 
   removerRespuesta(index: any) {
+    if (this.respuestasExistentes && this.respuestasExistentes.length > 0) {
+      const respuesta = this.respuestas().controls[index].value.respuesta;
+      const id = this.respuestasExistentes.find(re => re.descripcion == respuesta)?.id
+      if (id) {
+        this.borrarRespuestas.push(id);
+      }
+    }
     this.respuestas().removeAt(index);
   }
 
@@ -133,7 +193,7 @@ export class ForoFormDialogComponent {
   };
 
   verificarEncuesta() {
-    if (this.foroForm.value.tipo.descripcion == 'Encuesta' && this.respuestas().length == 0) {
+    if (this.foroForm.value.tipo.descripcion == 'Encuesta' && this.respuestas().controls.length == 0) {
       this.agregarRespuesta();
     } else {
       this.removerRespuestas();
@@ -141,7 +201,7 @@ export class ForoFormDialogComponent {
   }
 
   verificarIguales() {
-    const respuestas = this.respuestas().value.map(item => item.respuesta.trim());
+    const respuestas = this.respuestas().controls.map(item => item.value.respuesta.trim());
     const unicas = new Set();
     this.respuestasRepetidas = [];
   
@@ -165,15 +225,32 @@ export class ForoFormDialogComponent {
       return;
     }
     
-    const foro = {
-      idTipoForo: this.foroForm.value.tipo.id,
-      idUsuario: this.usuarioActual.id,
-      titulo: this.foroForm.value.titulo,
-      descripcion: this.foroForm.value.descripcion,
-      archivos: this.foroForm.value.archivo,
-      respuestas: this.respuestas().value
+    let foro = {};
+    if (this.crear) {
+      foro = {
+        idTipoForo: this.foroForm.value.tipo.id,
+        idUsuario: this.usuarioActual.id,
+        titulo: this.foroForm.value.titulo,
+        descripcion: this.foroForm.value.descripcion,
+        archivos: this.foroForm.value.archivo,
+        respuestas: this.respuestas().value
+      }
+    } else {
+      this.foroForm.get('tipo').enable();
+      
+      foro = {
+        id: this.foroForm.value.id,
+        idTipoForo: this.foroForm.value.tipo.id,
+        idUsuario: this.usuarioActual.id,
+        titulo: this.foroForm.value.titulo,
+        descripcion: this.foroForm.value.descripcion,
+        archivos: this.foroForm.value.archivo,
+        archivosBorrar: this.borrarArchivos,
+        respuestasBorrarIds: this.borrarRespuestas,
+        respuestasNuevas: this.respuestas().controls.filter(r => !r.disabled).map(c => c.value)
+      }
     }
-
+    
     this.dialogRef.close(foro);
   }
 }

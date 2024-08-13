@@ -34,6 +34,28 @@ const enviarCorreoElectronico = async (opciones, ubicacionCV) => {
   }
 };
 
+const enviarCorreoElectronicoNoBorrar = async (opciones, ubicacionCV) => {
+  try {
+
+    // Configuarar el email transporter
+    const transporter = nodemailer.createTransport({
+      service: process.env.EMAIL_SERVICE,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+    
+    // Enviar correo
+    await transporter.sendMail(opciones);
+    
+    //console.log("correo enviado a "+process.env.HR_EMAIL+" con asunto "+ datos.asunto)
+      
+  } catch (error) {
+    console.log(error)
+  }
+};
+
 
 const enviarCorreoReclutamiento = async (formData, ubicacionCV) => {
   const datos = formData;
@@ -120,7 +142,7 @@ const enviarCorreoComprobante = async (formData, ubicacionCV) => {
     ]
   };
 
-  enviarCorreoElectronico(opcionesCorreo, ubicacionCV);
+  enviarCorreoElectronicoNoBorrar (opcionesCorreo, ubicacionCV);
 };
 
 

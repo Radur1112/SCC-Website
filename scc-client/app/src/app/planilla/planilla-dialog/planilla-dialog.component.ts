@@ -156,7 +156,7 @@ export class PlanillaDialogComponent {
 
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
-    return `${integerPart},${decimalPart}`;
+    return `${integerPart}.${decimalPart}`;
   }
 
   confirmarTexto(event: any, field?: any) {

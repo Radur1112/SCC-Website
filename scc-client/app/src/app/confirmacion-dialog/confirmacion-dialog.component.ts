@@ -19,7 +19,7 @@ export class ConfirmacionDialogComponent {
     if (data.mensaje) {
       this.mensaje = data.mensaje;
     } else {
-      this.mensaje = '¿Está segur@ que desea realizar esta acción?'
+      this.mensaje = '¿Está seguro que desea realizar esta acción?'
     }
   }
 }

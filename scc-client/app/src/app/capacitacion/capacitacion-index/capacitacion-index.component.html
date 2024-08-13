@@ -17,6 +17,8 @@
   </div>
 </mat-card>
 
+<div class="second-half-pre-card-primary"></div>
+
 <div class="second-card-primary"></div>
 
 
@@ -32,7 +34,7 @@
 <div class="container-fluid my-4">
   <ng-container *ngIf="filtroModulos">
     <h3 class="content-container-center primary-color mb-5">Progreso total</h3>
-    <div class="progress-bar-container less-width mx-auto mb-5">
+    <div class="progress-bar-container less-width mx-auto mb-5" [matTooltip]="'Progreso: ' + progresoTotal.toFixed(2) + '%'">
       <mat-progress-bar class="progress-bar" mode="determinate" color="accent" [value]="progresoTotal"></mat-progress-bar>
       <div class="checkpoints">
         <div class="checkpoint" *ngFor="let point of checkpoints" [style.left]="point + '%'" [ngClass]="{'border-color-secondary': point < this.progresoTotal}">
@@ -55,8 +57,7 @@
               </div>
             </mat-panel-description>
           </mat-expansion-panel-header>
-          <div class="desc" [ngClass]="{'ellipsis': !modulo.ellipsis}">
-            {{ modulo.moduloDescripcion }}
+          <div class="desc" [ngClass]="{'ellipsis': !modulo.ellipsis}" [innerHTML]="convertService.convertLineBreaks(modulo.moduloDescripcion)">
           </div>
           <button mat-button class="boton-ellipsis" (click)="modulo.ellipsis = !modulo.ellipsis"> {{ !modulo.ellipsis ? 'ver más' : 'ver menos'}}</button>
           <mat-expansion-panel class="my-3" *ngFor="let moduloVideo of modulo.videosByModulo">
@@ -79,8 +80,13 @@
                         <div class="video-titulo pe-2">
                           {{ video.videoTitulo }}
                         </div>
-                        <div class="video-progreso" [ngClass]="{'warn-color': video.videoProgreso == 0, 'secondary-color': video.videoProgreso >= 100}">
-                          {{ video.videoProgreso }}%
+                        <div class="video-sub">
+                          <div [ngClass]="{'warn-color': !video.videoRequerido}">
+                            {{ video.videoRequerido ? 'Requerido' : 'No requerido' }}
+                          </div>
+                          <div class="video-progreso" [ngClass]="{'warn-color': video.videoProgreso == 0, 'secondary-color': video.videoProgreso >= 100}">
+                            {{ video.videoProgreso }}%
+                          </div>
                         </div>
                       </mat-card-title>
                     </mat-card-header>

@@ -43,7 +43,7 @@
     </div>
 
     <div class="row my-4">
-      <app-foro-subir-archivo (archivosSelected)="onArchivosSelected($event)"></app-foro-subir-archivo>
+      <app-foro-subir-archivo [existingFiles]="archivosExistentes" (archivosSelected)="onArchivosSelected($event)" (borrarArchivosSelected)="onBorrarArchivosSelected($event)"></app-foro-subir-archivo>
       <mat-error *ngIf="errorHandling('archivo','size')">
           Cada archivo deben pesar menos de <strong>{{ sizeError }} MB</strong>
       </mat-error>

@@ -438,7 +438,9 @@ module.exports.registrar = async (req, res, next) => {
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [usuario]);
     if (data) {
-      create_planilla_insert_usuario(data[0].insertId);
+      if (usuario.idPuesto != 1 && usuario.idPuesto != 2) {
+        create_planilla_insert_usuario(data[0].insertId);
+      }
       
       res.status(201).json({
           status: true,
@@ -574,7 +576,7 @@ function validarUsuario(usuarioData) {
   const MAX_NOMBRE_LENGTH = 250;
   const MAX_TELEFONO_LENGTH = 20; 
 
-  const MIN_SALARIO = 100;
+  const MIN_SALARIO = 0;
   const MAX_SALARIO = 999999999;
   const MIN_ID = 0;
   const MAX_ID = 99;
@@ -629,10 +631,6 @@ function validarUsuario(usuarioData) {
 
   if (!usuarioData.fechaIngreso || !isValidDate(usuarioData.fechaIngreso)) {
     throw new Error('fechaIngreso debe ser una fecha válida');
-  }
-
-  if (usuarioData.vacacion !== null && (isNaN(usuarioData.vacacion) || usuarioData.vacacion < MIN_ID || usuarioData.vacacion > MAX_ID)) {
-    throw new Error('vacacion debe ser un número válido dentro del límite establecido');
   }
 }
 
@@ -708,13 +706,17 @@ async function validarDatos(data) {
   const tipoContratos = await getMap('tipocontrato');
   const puestos = await getMap('puesto');
 
-  const minSalario = 100;
+  const [rows1] = await db.query('SELECT * FROM tipousuario');
+  const [rows2] = await db.query('SELECT * FROM tipocontrato');
+  const [rows3] = await db.query('SELECT * FROM puesto');
+  const tus = rows1.length ? rows1 : null;
+  const tcs = rows2.length ? rows2 : null;
+  const ps = rows3.length ? rows3 : null;
+
+  const minSalario = 0;
   const maxSalario = 999999999;
 
-  const minVacaciones = 0;
-  const maxVacaciones = 99;
-
-  data.forEach((row, rowIndex) => {
+  data.forEach(async (row, rowIndex) => {
     for (let nombreColumnaExcel in row) {
       const nombreValidado = validarNombre(nombreColumnaExcel);
 
@@ -735,22 +737,8 @@ async function validarDatos(data) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
                 errors[rowIndex + 1]['tipoUsuario'] = `El tipo de usuario es inválido.`;
               } else {
-                switch (idTipoUsuario) {
-                  case 1:
-                    tipoUsuario = 'Administrador';
-                    break;
-                  case 2:
-                    tipoUsuario = 'Usuario';
-                    break;
-                  case 3:
-                    tipoUsuario = 'Supervisor';
-                    break;
-                  case 4:
-                    tipoUsuario = 'Capacitador';
-                    break;
-                  default:
-                    break;
-                }
+                tipoUsuario = tus.find(tu => tu.id == idTipoUsuario)?.descripcion;
+                
                 row[nombreColumnaExcel] = tipoUsuario;
               }
             }
@@ -767,18 +755,13 @@ async function validarDatos(data) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
                 errors[rowIndex + 1]['tipoContrato'] = `El tipo de contrato es inválido.`;
               } else {
+                tipoContrato = tcs.find(tc => tc.id == idTipoContrato)?.descripcion;
                 switch (idTipoContrato) {
                   case 1:
                     isAsalariado = true;
-                    tipoContrato = 'Asalariado';
-                    break;
-                  case 2:
-                    isAsalariado = false;
-                    tipoContrato = 'Servicios Profesionales';
                     break;
                   default:
                     isAsalariado = false;
-                    break;
                 }
                 row[nombreColumnaExcel] = tipoContrato;
               }
@@ -827,14 +810,8 @@ async function validarDatos(data) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
                 errors[rowIndex + 1]['puesto'] = `El puesto es inválido.`;
               } else {
-                switch (idPuesto) {
-                  case 1:
-                    puesto = 'TI';
-                    break;
-                  default:
-                    puesto = 'No definido';
-                    break;
-                }
+                puesto = ps.find(p => p.id == idPuesto)?.descripcion;
+
                 row[nombreColumnaExcel] = puesto;
               }
             }
@@ -876,24 +853,11 @@ async function validarDatos(data) {
             }
             break;
           case 'vacacion':
-            if (isNaN(row[nombreColumnaExcel])) {
-              if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['vacacion'] = `La cantidad de vacaciones es inválida. Debe ser un número válido`;
-            } else {
-              const vacaciones = parseFloat(row[nombreColumnaExcel]);
-              if (vacaciones < minVacaciones || vacaciones > maxVacaciones) {
-                if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-                errors[rowIndex + 1]['vacacion'] = `La cantidad de vacaciones está fuera de los límites establecidos. Debe estar entre ${minVacaciones} y ${maxVacaciones}.`;
-              }
-            }
+            const vacaciones = row[nombreColumnaExcel];
             break;
         }
       }
       fila[nombreValidado] = row[nombreColumnaExcel];
-    }
-    
-    if (!fila['tipoUsuario']) {
-      fila['tipoUsuario'] = 'Usuario';
     }
 
     if (!fila['identificacion']) {
@@ -945,13 +909,33 @@ async function validarDatos(data) {
       fila['fechaIngreso'] = fechaHoy();
     }
 
-    if (isAsalariado) {
-      if (!fila['vacacion']) {
-        fila['vacacion'] = 0;
-      }
-    } else {
-      delete fila['vacacion'];
+    if (!fila['vacacion']) {
+      fila['vacacion'] = 'Sin vacaciones';
     }
+
+    if (!fila['tipoUsuario']) {
+      switch(fila['puesto']) {
+        case 'TI':
+          fila['tipoUsuario'] = 'Administrador';
+          break;
+        case 'Gerente':
+          fila['tipoUsuario'] = 'Administrador';
+          break;
+        case 'Supervisor':
+          fila['tipoUsuario'] = 'Supervisor';
+          break;
+        case 'Asesor':
+          fila['tipoUsuario'] = 'Asesor';
+          break;
+        case 'Contabilidad':
+          fila['tipoUsuario'] = 'Supervisor';
+          break;
+        case 'Rango Medio':
+          fila['tipoUsuario'] = 'Supervisor';
+          break;
+      }
+    }
+    console.log(fila)
 
     datos.push(fila)
     fila = {};
@@ -1096,7 +1080,9 @@ module.exports.registrarMultiples = async (req, res, next) => {
 
       // Insert into database
       const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [usuario]);
-      create_planilla_insert_usuario(data[0].insertId);
+      if (usuario.idPuesto != 1 && usuario.idPuesto != 2) {
+        create_planilla_insert_usuario(data[0].insertId);
+      }
       return data[0];
     });
 

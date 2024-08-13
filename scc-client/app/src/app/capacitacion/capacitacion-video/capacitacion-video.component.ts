@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,10 +9,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
-import { NotificacionService } from '../../services/notification.service';
+import { NotificacionService, TipoMessage } from '../../services/notification.service';
 import { Subject, takeUntil } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CapacitacionVideoPlayerComponent } from "../capacitacion-video-player/capacitacion-video-player.component";
+import { ConvertLineBreaksService } from '../../services/convert-line-breaks.service';
 
 @Component({
     selector: 'app-capacitacion-video',
@@ -23,6 +24,7 @@ import { CapacitacionVideoPlayerComponent } from "../capacitacion-video-player/c
 })
 export class CapacitacionVideoComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
+  @ViewChild(CapacitacionVideoPlayerComponent) videoPlayer: CapacitacionVideoPlayerComponent;
   
   tituloModulo: any;
 
@@ -34,10 +36,10 @@ export class CapacitacionVideoComponent {
   videoActual: any;
   posicionActual: any;
 
+  progreso: any;
+
   usuarioVideo: any;
   youtubeVideo: any;
-
-  descEllipsis: any;
 
   constructor(
     private gService: GenericService,
@@ -46,7 +48,8 @@ export class CapacitacionVideoComponent {
     private route: ActivatedRoute,
     private router: Router,
     private notificacion: NotificacionService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    public convertService: ConvertLineBreaksService
   ) {
     
   }
@@ -75,6 +78,8 @@ export class CapacitacionVideoComponent {
       next: (res) => {
         if (res.data) {
           this.usuarioVideo = res.data
+          this.tituloModulo = this.usuarioVideo.videoTitulo;
+          this.progreso = this.usuarioVideo.progreso;
         } else {
           const createData = {
             idUsuario: this.usuarioActual.id,
@@ -88,7 +93,8 @@ export class CapacitacionVideoComponent {
                 next: (res) => {
                   if (res.data) {
                     this.usuarioVideo = res.data
-                    this.tituloModulo = this.usuarioVideo;
+                    this.tituloModulo = this.usuarioVideo.videoTitulo;
+                    this.progreso = this.usuarioVideo.progreso;
                   }
                 }
               });
@@ -103,8 +109,6 @@ export class CapacitacionVideoComponent {
       next: (res) => {
         if (res.data) {
           this.moduloVideos = res.data;
-          console.log(this.moduloVideos)
-          console.log(this.videoId)
           this.videoActual = this.moduloVideos.find((mv, index) => {
             if (mv.idVideo == this.videoId) {
               this.posicionActual = index;
@@ -115,6 +119,16 @@ export class CapacitacionVideoComponent {
         }
       }
     });
+  }
+
+  async irAtras() {
+    try {
+      await this.videoPlayer.guardarProgresoPromise();
+      this.router.navigate(['capacitacion']);
+    } catch (error) {
+      this.notificacion.mensaje('Video', 'Error al guardar el progreso', TipoMessage.error);
+      this.router.navigate(['capacitacion']);
+    }
   }
 
   anteriorVideo() {
@@ -130,6 +144,19 @@ export class CapacitacionVideoComponent {
       const moduloVideoSiguiente = this.moduloVideos[this.posicionActual + 1];
 
       this.router.navigate(['capacitacion/video', moduloVideoSiguiente.idVideo, moduloVideoSiguiente.idModulo]);
+    }
+  }
+
+  onProgresoChange(progreso: number) {
+    if (typeof progreso === 'number' && !isNaN(progreso)) {
+      this.progreso = progreso.toFixed(2);
+    } else if (typeof progreso === 'string') {
+      const numericProgreso = parseFloat(progreso);
+      if (!isNaN(numericProgreso)) {
+        this.progreso = numericProgreso.toFixed(2);
+      } else {
+        this.progreso = '0.00';
+      }
     }
   }
 }

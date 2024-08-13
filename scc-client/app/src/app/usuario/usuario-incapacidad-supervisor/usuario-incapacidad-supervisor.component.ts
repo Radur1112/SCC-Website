@@ -38,7 +38,7 @@ export class UsuarioIncapacidadSupervisorComponent {
 
   usuarioActual: any;
   
-  displayedColumns: string[] = ['usuarioIdentificacion', 'usuarioNombre', 'fechaInicio', 'acciones'];
+  displayedColumns: string[] = ['expandir', 'usuarioIdentificacion', 'usuarioNombre', 'fechaInicio', 'acciones'];
   expandedElement: any | null;
   dataUsuario = new Array();
   dataSource: MatTableDataSource<any>;
@@ -86,6 +86,10 @@ export class UsuarioIncapacidadSupervisorComponent {
         this.dataSource.sort = this.sort;
       }
     });
+  }
+
+  toggleRow(element: any): void {
+    this.expandedElement = this.expandedElement === element ? null : element;
   }
 
   confirmar(id: any) {

@@ -1,19 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken, verifyAdministrador, verifyUsuario } = require('../utils/verifyToken')
+const { verifyToken } = require('../utils/verifyToken')
 
 const usuarioQuizRespuestaController = require("../controllers/usuarioQuizRespuestaController");
 
-router.get('/', verifyToken, usuarioQuizRespuestaController.get);
-router.get('/:id', verifyToken, usuarioQuizRespuestaController.getById);
-router.get('/usuarioQuiz/:id', verifyToken, usuarioQuizRespuestaController.getByIdUsuarioQuiz);
-router.get('/usuario/:id', verifyToken, usuarioQuizRespuestaController.getByIdUsuario);
-router.get('/pregunta/:id', verifyToken, usuarioQuizRespuestaController.getByIdPregunta);
-router.get('/quiz/:id', verifyToken, usuarioQuizRespuestaController.getByIdRespuesta);
+router.get('/', verifyToken([0]), usuarioQuizRespuestaController.get);
+router.get('/:id', verifyToken([0]), usuarioQuizRespuestaController.getById);
+router.get('/usuarioQuiz/:id', verifyToken([0]), usuarioQuizRespuestaController.getByIdUsuarioQuiz);
+router.get('/usuario/:id', verifyToken([0]), usuarioQuizRespuestaController.getByIdUsuario);
+router.get('/pregunta/:id', verifyToken([0]), usuarioQuizRespuestaController.getByIdPregunta);
+router.get('/quiz/:id', verifyToken([0]), usuarioQuizRespuestaController.getByIdRespuesta);
 
-router.post("/", verifyAdministrador, usuarioQuizRespuestaController.crear);
+router.post("/", verifyToken([1, 4]), usuarioQuizRespuestaController.crear);
 
-router.put("/:id", verifyAdministrador, usuarioQuizRespuestaController.actualizar);
-router.put("/borrar/:id", verifyAdministrador, usuarioQuizRespuestaController.borrar);
+router.put("/:id", verifyToken([1, 4]), usuarioQuizRespuestaController.actualizar);
+router.put("/borrar/:id", verifyToken([1, 4]), usuarioQuizRespuestaController.borrar);
 
 module.exports = router;

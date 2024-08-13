@@ -41,6 +41,17 @@ mat-form-field {
     margin-top: 27px;
 }
 
+.detalles {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  text-align: center;
+}
+
+.detalles button {
+  margin-top: -5px;
+}
+
 .archivo-container {
   display: flex;
 }
@@ -140,52 +151,52 @@ mat-form-field {
 
 
 tr.expandible-row {
-    height: 0;
-  }
-  
-  tr.element-row:not(.expanded-row):hover {
-    background: whitesmoke;
-  }
-  
-  tr.element-row:not(.expanded-row):active {
-    background: #efefef;
-  }
-  
-  .element-row td {
-    border-bottom-width: 0;
-    cursor: pointer;
-  }
-  
-  .expandible {
-    overflow: hidden;
-    display: flex;
-    width: 50%;
-  }
+  height: 0;
+}
 
-  .contenido-expandible {
-    flex-shrink: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-    align-items: start;
+tr.element-row:not(.expanded-row):hover {
+  background: whitesmoke;
+}
+
+tr.element-row:not(.expanded-row):active {
+  background: #efefef;
+}
+
+.element-row td {
+  border-bottom-width: 0;
+  cursor: pointer;
+}
+
+.expandible {
+  overflow: hidden;
+  display: flex;
+  width: 50%;
+}
+
+.contenido-expandible {
+  flex-shrink: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  width: 100%;
+  margin: 10px;
+}
+
+@media screen and (max-width: 1400px) {
+  .expandible {
+    width: 75%;
+  }
+}
+
+@media screen and (max-width: 767.98px) {
+  .expandible {
     width: 100%;
-    margin: 10px;
   }
-  
-  @media screen and (max-width: 1400px) {
-    .expandible {
-      width: 75%;
-    }
+}
+
+@media screen and (max-width: 575.98px) {
+  .expandible {
+    flex-direction: column;
   }
-  
-  @media screen and (max-width: 767.98px) {
-    .expandible {
-      width: 100%;
-    }
-  }
-  
-  @media screen and (max-width: 575.98px) {
-    .expandible {
-      flex-direction: column;
-    }
-  }
+}

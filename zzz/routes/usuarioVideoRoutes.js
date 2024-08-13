@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken, verifyAdministrador, verifyUsuario } = require('../utils/verifyToken')
+const { verifyToken } = require('../utils/verifyToken')
 
 const usuarioVideoController = require("../controllers/usuarioVideoController");
 
-router.get('/', verifyToken, usuarioVideoController.get);
-router.get('/:id', verifyToken, usuarioVideoController.getById);
-router.get('/usuario/:id', verifyToken, usuarioVideoController.getByIdUsuario);
-router.get('/video/:id', verifyToken, usuarioVideoController.getByIdVideo);
-router.get('/:idUsuario/:idVideo', verifyToken, usuarioVideoController.getByIdUsuarioIdVideo);
+router.get('/', verifyToken([0]), usuarioVideoController.get);
+router.get('/:id', verifyToken([0]), usuarioVideoController.getById);
+router.get('/usuario/:id', verifyToken([0]), usuarioVideoController.getByIdUsuario);
+router.get('/video/:id', verifyToken([0]), usuarioVideoController.getByIdVideo);
+router.get('/:idUsuario/:idVideo', verifyToken([0]), usuarioVideoController.getByIdUsuarioIdVideo);
 
-router.post("/", verifyAdministrador, usuarioVideoController.crear);
+router.post("/", verifyToken([0]), usuarioVideoController.crear);
 
-router.put("/:id", verifyAdministrador, usuarioVideoController.actualizar);
-router.put("/borrar/:id", verifyAdministrador, usuarioVideoController.borrar);
+router.put("/:id", verifyToken([0]), usuarioVideoController.actualizar);
+router.put("/borrar/:id", verifyToken([0]), usuarioVideoController.borrar);
 
 module.exports = router;

@@ -25,6 +25,7 @@ import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ConvertLineBreaksService } from '../../services/convert-line-breaks.service';
 
 @Component({
   selector: 'app-capacitacion-index',
@@ -70,7 +71,8 @@ export class CapacitacionIndexComponent {
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
     private httpClient:HttpClient,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public convertService: ConvertLineBreaksService
   ){
 
   }

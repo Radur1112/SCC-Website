@@ -11,8 +11,9 @@
   </div>
 </mat-card>
 
+<div class="second-pre-card-primary"></div>
+
 <div class="second-card-primary"></div>
-  
 <mat-card class="card-pre mx-auto"></mat-card>
 
 <div class="less-width mx-auto">
@@ -23,14 +24,18 @@
         <mat-card-title class="foro-titulo px-3 py-2">
           {{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a' }}
         </mat-card-title>
-        <div class="opciones-abs" *ngIf="isAdmin">
+        <div class="opciones-abs" *ngIf="foro.idUsuario == usuarioActual.id || isAdmin">
           <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">
             <mat-icon>more_vert</mat-icon>
           </button>
           <mat-menu #opciones="matMenu">
-            <button mat-menu-item (click)="historialForo(foro.id)">
+            <button mat-menu-item (click)="historialForo(foro.id)" *ngIf="isAdmin">
               <mat-icon>history</mat-icon>
               <span>Ver historial</span>
+            </button>
+            <button mat-menu-item (click)="openForoFormDialog(false, foro.id)">
+              <mat-icon>edit</mat-icon>
+              <span>Editar</span>
             </button>
             <button mat-menu-item (click)="borrarForo(foro)">
               <mat-icon>delete</mat-icon>
@@ -49,10 +54,10 @@
             </div>
           </div>
           <div class="col-sm-9"> 
-            <div class="text-justify my-3 ps-sm-0 ps-3 pe-3" [innerHTML]="convertLineBreaks(foro.descripcion)"></div>
+            <div class="text-justify my-3 ps-sm-0 ps-3 pe-3" [innerHTML]="convertService.convertLineBreaks(foro.descripcion)"></div>
             <br>
-            <ng-container *ngIf="foro.archivos && foro.archivos.length > 0">
-                <div class="archivo-container my-2 ps-sm-0 ps-3 pe-3" *ngFor="let archivo of foro.archivos">
+            <ng-container *ngIf="foroArchivos && foroArchivos.length > 0">
+                <div class="archivo-container my-2 ps-sm-0 ps-3 pe-3" *ngFor="let archivo of foroArchivos">
                   <a [href]="archivo.ubicacion" target="_blank" rel="noopener noreferrer" class="archivo content-container-center-row p-0" (click)="registrarAcceso(archivo.id)">
                     <mat-icon mat-list-icon class="primary-color">insert_drive_file</mat-icon>
                     <span class="archivo-text">{{ archivo.nombreArchivo }}</span>
@@ -76,7 +81,7 @@
         <div class="respuesta-borde">
           <h5 class="primary-color mt-4">Respuestas</h5>
           <mat-radio-group class="respuestas" [(ngModel)]="usuarioRespuesta">
-            @for (respuesta of foro.respuestas; track respuesta) {
+            @for (respuesta of foroRespuestas; track respuesta) {
               <mat-radio-button class="example-radio-button" [value]="respuesta">{{ respuesta.descripcion }}</mat-radio-button>
             }
           </mat-radio-group>
@@ -89,7 +94,7 @@
       <ng-container *ngIf="isAdmin">
         <h4 class="primary-color mt-5 mb-3">Gráfico de respuestas</h4>
         <div class="content-container-center primary-color mb-5">
-            <div class="progress-bar-container full-width mx-auto mb-3" *ngFor="let respuesta of foro.respuestas">
+            <div class="progress-bar-container full-width mx-auto mb-3" *ngFor="let respuesta of foroRespuestas">
               <mat-progress-bar class="progress-bar" mode="determinate" color="accent" [value]="respuesta.cantRespuestas * 100 / respuestas.length"></mat-progress-bar>
               <div class="respuesta-container">
                 <span class="respuesta-descripcion">{{ respuesta.descripcion }}</span>
@@ -155,8 +160,7 @@
                 </div>
               </div>
               <div class="col-sm-9"> 
-                <div class="text-justify my-3 ps-sm-0 ps-3 pe-3">
-                  {{ respuesta.descripcion }}
+                <div class="text-justify my-3 ps-sm-0 ps-3 pe-3" [innerHTML]="convertService.convertLineBreaks(respuesta.descripcion)">
                 </div>
               </div>
             </div>

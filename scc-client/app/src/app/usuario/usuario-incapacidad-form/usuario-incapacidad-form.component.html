@@ -2,11 +2,17 @@
   <a routerLink="/foro" class="go-back" matTooltip="Ir atras">
     <mat-icon class="light-color">arrow_back</mat-icon>
   </a>
-  <div class="mx-auto">
+  <div class="descargar mx-auto">
+    <button mat-flat-button class="primary-outline-inverted-button" [routerLink]="'/incapacidad/historial/' + usuarioActual.id">Ver historial</button>
+  </div>
+  <div class="mx-auto light-color">
     <mat-card-header class="content-container-center">
       <mat-card-title class="light-color">
         <h2>Justificación de incapacidades</h2>
       </mat-card-title>
+      <mat-card-content class="content-container-center my-5">
+        <h5 *ngIf="incapacidadesSolicitadas">Incapacidad solicitada: {{ incapacidadesSolicitadas == 1 ? incapacidadesSolicitadas + ' día' : incapacidadesSolicitadas + ' días' }}</h5>
+      </mat-card-content>
     </mat-card-header>
   </div>
 </mat-card>
@@ -37,20 +43,47 @@
             <mat-form-field>
               <mat-label>Fechas de incapacidad</mat-label>
               <mat-date-range-input [dateFilter]="dateFilter" [rangePicker]="picker" [min]="minDate" [max]="maxDate">
-                <input matStartDate placeholder="Fecha inicial" formControlName="fechaInicio" (focus)="picker.open()">
-                <input matEndDate placeholder="Fecha final" formControlName="fechaFinal" (focus)="picker.open()">
+                <input matStartDate placeholder="Fecha inicial" formControlName="fechaInicio" (dateChange)="validateLimit()" (focus)="picker.open()" readonly>
+                <input matEndDate placeholder="Fecha final" formControlName="fechaFinal" (dateChange)="validateLimit()" (focus)="picker.open()" readonly>
               </mat-date-range-input>
               <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-date-range-picker #picker>
-                <mat-date-range-picker-actions>
-                  <button mat-button matDateRangePickerCancel>Cancelar</button>
-                  <button mat-raised-button matDateRangePickerApply>Aceptar</button>
-                </mat-date-range-picker-actions>
-              </mat-date-range-picker>
+              <mat-date-range-picker #picker (closed)="onClosedDatePicker()"></mat-date-range-picker>
               <mat-error *ngIf="errorHandling('fechaInicio','required')">
                   La fecha es <strong>requerida</strong>
               </mat-error>
             </mat-form-field>
+          </div>
+
+          <div class="row my-3" *ngIf="incapacidadForm.get('fechaInicio').value && incapacidadForm.get('fechaFinal').value">
+            <div class="horas">
+              <div class="m-3">
+                <div>Horas disponibles: {{ horasDisponiblesInicio.join(', ') }}</div>
+                <div class="content-container-start-row my-1">
+                  <h6>{{ incapacidadForm.get('fechaInicio').value | date: 'dd/MM/yyyy' }} <strong>{{ previewHoraInicio }}</strong></h6>
+                </div>
+                <div class="content-container-start-row">
+                  <mat-form-field>
+                    <mat-label>Hora de inicio</mat-label>
+                    <input matInput type="time" formControlName="horaInicio" (blur)="verificarHora(true)">
+                  </mat-form-field>
+                </div>
+              </div>
+              <div class="m-3">
+                <div>Horas disponibles: {{ horasDisponiblesFinal.join(', ') }}</div>
+                <div class="content-container-start-row my-1">
+                  <h6>{{ incapacidadForm.get('fechaFinal').value | date: 'dd/MM/yyyy' }} <strong>{{ previewHoraFinal }}</strong></h6>
+                </div>
+                <div class="content-container-start-row">
+                  <mat-form-field>
+                    <mat-label>Hora finaliza</mat-label>
+                    <input matInput type="time" formControlName="horaFinal" (blur)="verificarHora(false)">
+                    <mat-error *ngIf="errorHandling('horaFinal','interval')">
+                        Las horas deben estar dentro del mismo intervalo de tiempo
+                    </mat-error>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="row">

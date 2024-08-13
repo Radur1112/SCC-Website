@@ -5,6 +5,7 @@ const xlsx = require('xlsx');
 const path = require('path');
 const exceljs = require('exceljs');
 const fs = require('fs');
+const { create_planilla_insert_usuario, update_planilla_after_anotacion } = require('../utils/triggers.js')
 
 var nombreTabla = 'usuario';
 var selectNoPassword = 'u.id, u.idTipoUsuario, u.idTipoContrato, u.identificacion, u.correo, u.nombre, u.salario, u.fechaIngreso, u.vacacion, u.idPuesto, u.telefono';
@@ -185,6 +186,145 @@ module.exports.getByNoIdModulo = async(req, res, next) => {
   }
 }
 
+module.exports.getAsesores = async(req, res, next) => {
+  try {
+    const data = await db.query(`
+      SELECT ${selectNoPassword}, 
+      tu.descripcion as tipoUsuarioDescripcion, 
+      tc.descripcion as tipoContratoDescripcion, 
+      p.descripcion as puestoDescripcion 
+      FROM ${nombreTabla} u 
+      INNER JOIN tipousuario tu ON u.idTipoUsuario = tu.id 
+      LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id 
+      LEFT JOIN puesto p ON u.idPuesto = p.id 
+      WHERE u.estado != 0 AND u.idTipoUsuario = 2`);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
+module.exports.getSupervisores = async(req, res, next) => {
+  try {
+    const data = await db.query(`
+      SELECT 
+        u.id AS id, u.identificacion AS identificacion, u.nombre AS nombre, u.correo AS correo,
+        p.descripcion AS puestoDescripcion, 
+        (
+          SELECT 
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'usuarioId', su.id,
+                'usuarioIdentificacion', su.identificacion,
+                'usuarioNombre', su.nombre,
+                'usuarioCorreo', su.correo,
+                'usuarioPuestoDescripcion', p2.descripcion
+              )
+            )
+          FROM usuario su
+          INNER JOIN usuariosupervisor us ON su.id = us.idUsuario
+          INNER JOIN puesto p2 ON p2.id = su.idPuesto
+          WHERE us.idSupervisor = u.id AND su.estado != 0
+        ) AS supervisados,
+        (
+          SELECT 
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'usuarioId', uno.id,
+                'usuarioIdentificacion', uno.identificacion,
+                'usuarioNombre', uno.nombre,
+                'usuarioCorreo', uno.correo,
+                'usuarioPuestoDescripcion', p3.descripcion
+              )
+            )
+          FROM usuario uno
+          INNER JOIN puesto p3 ON p3.id = uno.idPuesto
+          WHERE uno.id NOT IN (
+            SELECT idUsuario FROM usuariosupervisor WHERE idSupervisor = u.id
+          ) AND uno.estado != 0 AND uno.idTipoUsuario = 2
+        ) AS noSupervisados
+      FROM ${nombreTabla} u
+      INNER JOIN puesto p ON p.id = u.idPuesto
+      WHERE u.estado != 0 AND u.idTipoUsuario = 3
+      GROUP BY u.id;`);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
+/*module.exports.getPlanilla = async(req, res, next) => {
+  try {
+    const data = await db.query(`
+      SELECT ${selectNoPassword}, 
+      p.descripcion as puestoDescripcion,
+      pl.fechaInicio as planillaFechaInicio, pl.fechaFinal as planillaFechaFinal, pl.salarioBruto as planillaSalarioBruto, pl.salarioNeto as planillaSalarioNeto, 
+      a.descripcion as aumentoDescripcion, a.monto as aumentoMonto, 
+      ta.descripcion as tipoAumentoDescripcion, 
+      d.descripcion as deduccionDescripcion, d.monto as deduccionMonto, 
+      td.descripcion as tipoDeduccionDescripcion 
+      FROM ${nombreTabla} u 
+      INNER JOIN puesto p ON p.id = u.idPuesto 
+      INNER JOIN planilla pl ON pl.idUsuario = u.id 
+      LEFT JOIN aumento a ON a.idPlanilla = pl.id 
+      LEFT JOIN tipoaumento ta ON ta.id = a.idTipoAumento 
+      LEFT JOIN deduccion d ON d.idPlanilla = pl.id 
+      LEFT JOIN tipodeduccion td ON td.id = a.idTipoDeduccion 
+      WHERE u.estado != 0`);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}*/
+
 module.exports.login = async (req, res, next) => {
     try {
       let usuarioReq = req.body;
@@ -298,6 +438,10 @@ module.exports.registrar = async (req, res, next) => {
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [usuario]);
     if (data) {
+      if (usuario.idPuesto != 1 && usuario.idPuesto != 2) {
+        create_planilla_insert_usuario(data[0].insertId);
+      }
+      
       res.status(201).json({
           status: true,
           message: "Usuario creado",
@@ -376,6 +520,10 @@ module.exports.actualizar = async (req, res, next) => {
     
     
     if (data) {
+      const [planilla] = await db.query(`SELECT * FROM planilla WHERE idUsuario = ${id} AND estado = 1 ORDER BY fechaFinal LIMIT 1`);
+      if (planilla.length > 0) {
+        update_planilla_after_anotacion(planilla[0].id)
+      }
       res.status(201).json({
           status: true,
           message: "Usuario actualizado"
@@ -428,7 +576,7 @@ function validarUsuario(usuarioData) {
   const MAX_NOMBRE_LENGTH = 250;
   const MAX_TELEFONO_LENGTH = 20; 
 
-  const MIN_SALARIO = 100;
+  const MIN_SALARIO = 0;
   const MAX_SALARIO = 999999999;
   const MIN_ID = 0;
   const MAX_ID = 99;
@@ -483,10 +631,6 @@ function validarUsuario(usuarioData) {
 
   if (!usuarioData.fechaIngreso || !isValidDate(usuarioData.fechaIngreso)) {
     throw new Error('fechaIngreso debe ser una fecha válida');
-  }
-
-  if (usuarioData.vacacion !== null && (isNaN(usuarioData.vacacion) || usuarioData.vacacion < MIN_ID || usuarioData.vacacion > MAX_ID)) {
-    throw new Error('vacacion debe ser un número válido dentro del límite establecido');
   }
 }
 
@@ -562,13 +706,17 @@ async function validarDatos(data) {
   const tipoContratos = await getMap('tipocontrato');
   const puestos = await getMap('puesto');
 
-  const minSalario = 100;
+  const [rows1] = await db.query('SELECT * FROM tipousuario');
+  const [rows2] = await db.query('SELECT * FROM tipocontrato');
+  const [rows3] = await db.query('SELECT * FROM puesto');
+  const tus = rows1.length ? rows1 : null;
+  const tcs = rows2.length ? rows2 : null;
+  const ps = rows3.length ? rows3 : null;
+
+  const minSalario = 0;
   const maxSalario = 999999999;
 
-  const minVacaciones = 0;
-  const maxVacaciones = 99;
-
-  data.forEach((row, rowIndex) => {
+  data.forEach(async (row, rowIndex) => {
     for (let nombreColumnaExcel in row) {
       const nombreValidado = validarNombre(nombreColumnaExcel);
 
@@ -589,22 +737,8 @@ async function validarDatos(data) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
                 errors[rowIndex + 1]['tipoUsuario'] = `El tipo de usuario es inválido.`;
               } else {
-                switch (idTipoUsuario) {
-                  case 1:
-                    tipoUsuario = 'Administrador';
-                    break;
-                  case 2:
-                    tipoUsuario = 'Usuario';
-                    break;
-                  case 3:
-                    tipoUsuario = 'Supervisor';
-                    break;
-                  case 4:
-                    tipoUsuario = 'Capacitador';
-                    break;
-                  default:
-                    break;
-                }
+                tipoUsuario = tus.find(tu => tu.id == idTipoUsuario)?.descripcion;
+                
                 row[nombreColumnaExcel] = tipoUsuario;
               }
             }
@@ -621,18 +755,13 @@ async function validarDatos(data) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
                 errors[rowIndex + 1]['tipoContrato'] = `El tipo de contrato es inválido.`;
               } else {
+                tipoContrato = tcs.find(tc => tc.id == idTipoContrato)?.descripcion;
                 switch (idTipoContrato) {
                   case 1:
                     isAsalariado = true;
-                    tipoContrato = 'Asalariado';
-                    break;
-                  case 2:
-                    isAsalariado = false;
-                    tipoContrato = 'Servicios Profesionales';
                     break;
                   default:
                     isAsalariado = false;
-                    break;
                 }
                 row[nombreColumnaExcel] = tipoContrato;
               }
@@ -681,14 +810,8 @@ async function validarDatos(data) {
                 if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
                 errors[rowIndex + 1]['puesto'] = `El puesto es inválido.`;
               } else {
-                switch (idPuesto) {
-                  case 1:
-                    puesto = 'TI';
-                    break;
-                  default:
-                    puesto = 'No definido';
-                    break;
-                }
+                puesto = ps.find(p => p.id == idPuesto)?.descripcion;
+
                 row[nombreColumnaExcel] = puesto;
               }
             }
@@ -730,24 +853,11 @@ async function validarDatos(data) {
             }
             break;
           case 'vacacion':
-            if (isNaN(row[nombreColumnaExcel])) {
-              if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-              errors[rowIndex + 1]['vacacion'] = `La cantidad de vacaciones es inválida. Debe ser un número válido`;
-            } else {
-              const vacaciones = parseFloat(row[nombreColumnaExcel]);
-              if (vacaciones < minVacaciones || vacaciones > maxVacaciones) {
-                if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
-                errors[rowIndex + 1]['vacacion'] = `La cantidad de vacaciones está fuera de los límites establecidos. Debe estar entre ${minVacaciones} y ${maxVacaciones}.`;
-              }
-            }
+            const vacaciones = row[nombreColumnaExcel];
             break;
         }
       }
       fila[nombreValidado] = row[nombreColumnaExcel];
-    }
-    
-    if (!fila['tipoUsuario']) {
-      fila['tipoUsuario'] = 'Usuario';
     }
 
     if (!fila['identificacion']) {
@@ -799,13 +909,33 @@ async function validarDatos(data) {
       fila['fechaIngreso'] = fechaHoy();
     }
 
-    if (isAsalariado) {
-      if (!fila['vacacion']) {
-        fila['vacacion'] = 0;
-      }
-    } else {
-      delete fila['vacacion'];
+    if (!fila['vacacion']) {
+      fila['vacacion'] = 'Sin vacaciones';
     }
+
+    if (!fila['tipoUsuario']) {
+      switch(fila['puesto']) {
+        case 'TI':
+          fila['tipoUsuario'] = 'Administrador';
+          break;
+        case 'Gerente':
+          fila['tipoUsuario'] = 'Administrador';
+          break;
+        case 'Supervisor':
+          fila['tipoUsuario'] = 'Supervisor';
+          break;
+        case 'Asesor':
+          fila['tipoUsuario'] = 'Asesor';
+          break;
+        case 'Contabilidad':
+          fila['tipoUsuario'] = 'Supervisor';
+          break;
+        case 'Rango Medio':
+          fila['tipoUsuario'] = 'Supervisor';
+          break;
+      }
+    }
+    console.log(fila)
 
     datos.push(fila)
     fila = {};
@@ -950,6 +1080,9 @@ module.exports.registrarMultiples = async (req, res, next) => {
 
       // Insert into database
       const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [usuario]);
+      if (usuario.idPuesto != 1 && usuario.idPuesto != 2) {
+        create_planilla_insert_usuario(data[0].insertId);
+      }
       return data[0];
     });
 

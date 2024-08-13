@@ -2,7 +2,7 @@
   <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
     <mat-icon class="light-color">arrow_back</mat-icon>
   </a>
-  <div class="descargar mx-auto mb-5 px-3">
+  <div class="descargar mx-auto mb-5 px-3" *ngIf="isPlanillero">
     <button mat-flat-button color="accent" class="secondary m-2" (click)="completarPlanillas()">Completar planillas</button>
   </div>
   <div class="less-width mx-auto">
@@ -41,12 +41,14 @@
   </div>
 </mat-card>
 
+<div class="second-half-pre-card-primary"></div>
+
 <div class="second-card-primary"></div>
 
 <mat-card class="card-pre mx-auto"></mat-card>
 
 <div class="mx-auto mb-5 px-3">
-  <button mat-flat-button color="primary" class="primary m-2" (click)="crearPlanillas()">Completar planillas</button>
+  <button mat-flat-button color="primary" class="primary m-2" (click)="crearPlanillas()" *ngIf="isPlanillero">Crear planillas</button>
 </div>
 
 <div class="table-container almost-width mx-auto">
@@ -94,5 +96,5 @@
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
           
-  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
 </div>

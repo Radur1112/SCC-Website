@@ -47,6 +47,7 @@ export class PlanillaAdminIndexComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   usuarioActual: any;
+  isPlanillero: any;
   
   displayedColumns: string[] = ['identificacion', 'nombre', 'correo', 'puesto', 'tipoContrato', 'acciones'];
   dataUsuario = new Array();
@@ -78,15 +79,12 @@ export class PlanillaAdminIndexComponent {
     private confirmationService: ConfirmationService,
     private notificacion: NotificacionService,
     private dialog: MatDialog,
-    private paginators: MatPaginatorIntl,
     private router:Router,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
     @Inject(MAT_DATE_LOCALE) private _locale: string,
     private _adapter: DateAdapter<any>
   ){
-    paginators.itemsPerPageLabel = 'Items por página'; 
-
     this._locale = 'cr';
     this._adapter.setLocale(this._locale);
 
@@ -101,6 +99,7 @@ export class PlanillaAdminIndexComponent {
     this.authService.usuarioActual.subscribe((x) => {
       if (x && Object.keys(x).length !== 0) {
         this.usuarioActual = x.usuario;
+        this.isPlanillero = this.usuarioActual.idTipoUsuario == 5 || this.usuarioActual.idTipoUsuario == 1;
       }
     });
 
@@ -123,6 +122,7 @@ export class PlanillaAdminIndexComponent {
         this.notificacion.mensaje('Planilla', 'planillas creadas correctamente', TipoMessage.success);
         this.getFechaActual();
         this.getFechas();
+        this.getUsuarios();
       }
     });
   }
@@ -137,6 +137,7 @@ export class PlanillaAdminIndexComponent {
               this.notificacion.mensaje('Planilla', 'planillas completadas y creadas correctamente', TipoMessage.success);
               this.getFechaActual();
               this.getFechas();
+              this.getUsuarios();
             }
           });
         }
@@ -144,7 +145,11 @@ export class PlanillaAdminIndexComponent {
   }
 
   getUsuarios() {
-    this.gService.get(`usuario`)
+    let query = `planilla/usuarios`;
+    if (this.usuarioActual.idTipoUsuario == 3) {
+      query = `planilla/supervisor/${this.usuarioActual.id}`
+    }
+    this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);

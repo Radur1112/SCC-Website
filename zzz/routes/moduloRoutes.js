@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken, verifyAdministrador, verifyUsuario } = require('../utils/verifyToken')
+const { verifyToken } = require('../utils/verifyToken')
 
 const moduloController = require("../controllers/moduloController");
 
-router.get('/', verifyToken, moduloController.get);
-router.get('/:id', verifyToken, moduloController.getById);
+router.get('/', verifyToken([0]), moduloController.get);
+router.get('/:id', verifyToken([0]), moduloController.getById);
 
-router.post("/", verifyAdministrador, moduloController.crear);
+router.post("/", verifyToken([1, 4]), moduloController.crear);
 
-router.put("/:id", verifyAdministrador, moduloController.actualizar);
-router.put("/borrar/:id", verifyAdministrador, moduloController.borrar);
+router.put("/:id", verifyToken([1, 4]), moduloController.actualizar);
+router.put("/borrar/:id", verifyToken([1, 4]), moduloController.borrar);
 
 module.exports = router;

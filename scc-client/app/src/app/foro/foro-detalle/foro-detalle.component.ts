@@ -19,6 +19,8 @@ import { ConfirmationService } from '../../services/confirmation.service';
 import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { ForoFormDialogComponent } from '../foro-form-dialog/foro-form-dialog.component';
+import { ConvertLineBreaksService } from '../../services/convert-line-breaks.service';
 
 @Component({
   selector: 'app-foro-detalle',
@@ -39,6 +41,9 @@ export class ForoDetalleComponent {
   filtroRespuestas: any = [];
   respuestas: any = [];
 
+  foroArchivos: any = [];
+  foroRespuestas: any = [];
+
   respuestaForm: FormGroup;
 
   usuarioRespuesta: any;
@@ -51,7 +56,9 @@ export class ForoDetalleComponent {
     private router: Router,
     private notificacion: NotificacionService,
     private fb: FormBuilder,
-    private datePipe: DatePipe
+    private dialog: MatDialog,
+    private datePipe: DatePipe,
+    public convertService: ConvertLineBreaksService,
   ) {
   }
 
@@ -84,6 +91,11 @@ export class ForoDetalleComponent {
             ...archivo,
             nombreArchivo: archivo.ubicacion.substring(archivo.ubicacion.lastIndexOf('/') + 1)
           }));
+          this.foroArchivos = this.foro.archivos;
+        }
+
+        if (this.foro.respuestas) {
+          this.foroRespuestas = this.foro.respuestas;
         }
         console.log(this.foro)
         this.registrarAcceso();
@@ -129,10 +141,6 @@ export class ForoDetalleComponent {
   public errorHandling = (control: string, error: string) => {
     return this.respuestaForm.controls[control].hasError(error);
   };
-
-  convertLineBreaks(descripcion: string): string {
-    return descripcion.replace(/\n/g, '<br>');
-  }
 
   busqueda(event: Event) {
     const filtro = (event.target as HTMLInputElement).value;
@@ -216,6 +224,80 @@ export class ForoDetalleComponent {
         this.respuestaForm.reset();
         this.getForo();
         this.notificacion.mensaje('Respuesta', 'Foro respondido correctamente', TipoMessage.success);
+      }
+    });
+  }
+  
+
+  openForoFormDialog(crear: boolean, foroId: any) {
+    let width = '800px';
+    let data = { 
+      crear: crear,
+      foroId: foroId
+    };
+    
+    const dialogRef = this.dialog.open(ForoFormDialogComponent, {
+      data,
+      width
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        if (result.id) {
+          this.actualizarForo(result);
+        }
+      }
+    });
+  }
+  actualizarForo(foro: any) {
+    this.gService.put(`foro`, foro)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        console.log(foro)
+        const archivoCreatePromise = foro.archivos && foro.archivos.length > 0 ? this.crearArchivos(foro.id, foro.archivos) : Promise.resolve();
+        const archivoUpdatePromise = foro.archivosBorrar && foro.archivosBorrar.length > 0 ? this.actualizarArchivos(foro.id, foro.archivosBorrar) : Promise.resolve();
+        const respuestaPromise = foro.respuestasBorrarIds || foro.respuestasNuevas ? this.actualizarRespuestas(foro.id, {respuestasBorrarIds: foro.respuestasBorrarIds, respuestasNuevas: foro.respuestasNuevas}) : Promise.resolve();
+      
+        Promise.all([archivoCreatePromise, archivoUpdatePromise, respuestaPromise])
+          .then(() => {
+            this.notificacion.mensaje('Foro', 'Foro editado correctamente', TipoMessage.success);
+          })
+          .catch(error => {
+            console.error("Error al crear archivos or respuestas:", error);
+            this.notificacion.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
+          });
+      }
+    });
+  }
+
+  crearArchivos(idForo: any, archivos: any) {
+    const formData = new FormData();
+    archivos.forEach((file, index) => {
+      formData.append(`archivo`, file, file.name);
+    });
+
+    this.gService.post(`foro/archivos/${idForo}`, formData)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.getForo();
+      }
+    });
+  }
+
+  actualizarArchivos(idForo: any, data: any) {
+    this.gService.put2(`foro/archivos/${idForo}`, data)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.getForo();
+      }
+    });
+  }
+
+  actualizarRespuestas(idForo: any, data: any) {
+    this.gService.put2(`foro/respuestas/${idForo}`, data)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.getForo();
       }
     });
   }

@@ -31,7 +31,7 @@
               <mat-icon class="primary-color">account_circle</mat-icon>
             </button>
             <mat-menu #menu="matMenu">
-              <button mat-menu-item *ngIf="isAdmin" [matMenuTriggerFor]="menuAdmin">
+              <button mat-menu-item *ngIf="isCapacitador" [matMenuTriggerFor]="menuAdmin">
                 <mat-icon class="me-1">settings</mat-icon>
                 <span>Administrador</span>
               </button>
@@ -39,7 +39,7 @@
                 <mat-icon class="me-1">sick</mat-icon>
                 <span>Incapacidades</span>
               </button>
-              <button mat-menu-item [matMenuTriggerFor]="menuVacacion">
+              <button mat-menu-item *ngIf="isSupervisor || isVacaciones" [matMenuTriggerFor]="menuVacacion">
                 <mat-icon class="me-1">beach_access</mat-icon>
                 <span>Vacaciones</span>
               </button>
@@ -66,7 +66,7 @@
             <button mat-menu-item *ngIf="isAdmin" routerLink="/usuario" (click)="collapseNavbar()">
               <span>Usuarios</span>
             </button>
-            <button mat-menu-item *ngIf="isAdmin" routerLink="/capacitacion/admin"  (click)="collapseNavbar()">
+            <button mat-menu-item *ngIf="isCapacitador" routerLink="/capacitacion/admin"  (click)="collapseNavbar()">
               <span>Capacitaciones</span>
             </button>
           </mat-menu>
@@ -78,28 +78,34 @@
             <button mat-menu-item *ngIf="isSupervisor" routerLink="/incapacidad/justificantes"  (click)="collapseNavbar()">
               <span>Manejar justificantes</span>
             </button>
+            <button mat-menu-item *ngIf="isSupervisor" routerLink="/incapacidad/historial"  (click)="collapseNavbar()">
+              <span>Historial de justificantes</span>
+            </button>
           </mat-menu>
 
           <mat-menu #menuVacacion="matMenu">
-            <button mat-menu-item routerLink="/vacacion" (click)="collapseNavbar()">
+            <button mat-menu-item *ngIf="isVacaciones" routerLink="/vacacion" (click)="collapseNavbar()">
               <span>Crear solicitud</span>
             </button>
             <button mat-menu-item *ngIf="isSupervisor" routerLink="/vacacion/solicitudes"  (click)="collapseNavbar()">
               <span>Manejar solicitudes</span>
             </button>
+            <button mat-menu-item *ngIf="isSupervisor" routerLink="/vacacion/historial"  (click)="collapseNavbar()">
+              <span>Historial de solicitudes</span>
+            </button>
           </mat-menu>
 
           <mat-menu #menuPlanilla="matMenu">
-            <button mat-menu-item *ngIf="isAdmin" routerLink="/planilla"  (click)="collapseNavbar()">
+            <button mat-menu-item *ngIf="isSupervisor || isPlanillero" routerLink="/planilla"  (click)="collapseNavbar()">
               <span>Manejar planillas</span>
             </button>
-            <button mat-menu-item *ngIf="isAdmin" routerLink="/planilla/historial"  (click)="collapseNavbar()">
+            <button mat-menu-item *ngIf="isPlanillero" routerLink="/planilla/historial"  (click)="collapseNavbar()">
               <span>Ver historial</span>
             </button>
-            <button mat-menu-item *ngIf="isSupervisor" routerLink="/planilla/supervisor"  (click)="collapseNavbar()">
+            <button mat-menu-item *ngIf="isSupervisor || isPlanillero" routerLink="/planilla/supervisor"  (click)="collapseNavbar()">
               <span>Crear anotaciones</span>
             </button>
-            <button mat-menu-item *ngIf="isSupervisor" routerLink="/planilla/anotaciones"  (click)="collapseNavbar()">
+            <button mat-menu-item *ngIf="isSupervisor || isPlanillero" routerLink="/planilla/anotaciones"  (click)="collapseNavbar()">
               <span>Manejar anotaciones</span>
             </button>
             <button mat-menu-item (click)="collapseNavbar(); redireccionar('comprobante')">

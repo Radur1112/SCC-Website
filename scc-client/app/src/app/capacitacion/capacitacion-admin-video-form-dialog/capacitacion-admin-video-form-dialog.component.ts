@@ -97,7 +97,10 @@ export class CapacitacionAdminVideoFormDialogComponent {
               nivel: mv.nivel,
               fechaLimite: resVideo.fechaLimite,
               requerido: resVideo.requerido
-            })
+            });
+
+            this.onYoutubeLinkChange();
+            this.videoForm.get('link').disable();
           }
         });
       }
@@ -195,6 +198,7 @@ export class CapacitacionAdminVideoFormDialogComponent {
     if (this.videoForm.invalid) {
       return; 
     }
+    this.videoForm.get('link').enable();
 
     const fechaLimite = this.videoForm.get('fechaLimite');
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, AfterViewInit, SimpleChanges } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, AfterViewInit, SimpleChanges, Output, EventEmitter } from '@angular/core';
 import { GenericService } from '../../services/generic.service';
 import { Subject, takeUntil } from 'rxjs';
 import { format, toZonedTime } from 'date-fns-tz';
@@ -16,6 +16,8 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
   
   @Input() videoUrl: string;
   @Input() usuarioVideo: any;
+  @Output() progresoChange = new EventEmitter<number>();
+  
   player: YT.Player;
   videoId: string;
   checkInterval: any;
@@ -27,8 +29,9 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
   previousPercentage: any = 0;
   penalization: any = 0;
   watchedTime: any = 0;
-  checkpoints: number[] = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+  checkpoints: number[] = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95];
   completedCheckpoints: number[] = [];
+  completado: boolean = false;
 
   constructor(
     private gService: GenericService,
@@ -49,7 +52,7 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
   ngOnDestroy(): void {
     this.stopTracking();
 
-    this.saveProgreso();
+    this.guardarProgreso();
   }
 
   setupComponent(): void {
@@ -134,43 +137,42 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
     const duration = this.player.getDuration();
     const currentTime = this.player.getCurrentTime();
     const currentPercentage = currentTime * 100 / duration;
-    const interval = currentTime - this.previousTime;
+    const interval = currentTime - (this.previousTime || 0);
 
-    if ( Math.abs(interval) > 1.25) {
-      if (currentTime > this.previousTime) {
-        this.penalization += Math.abs(interval) - 1;
-      } else {
-        this.penalization -= Math.abs(interval) + 1;
-      }
-    }
-    if (interval) {
-      this.watchedTime += interval;
-
-      if (this.watchedTime < 0) {
-        this.watchedTime = 0;
-      }
+    if (Math.abs(interval) > 1.25) {
+      this.penalization += currentTime > this.previousTime ? Math.abs(interval) - 1 : -Math.abs(interval) - 1;
+      this.penalization = Math.max(-1, this.penalization);
     }
 
-    for (let checkpoint of this.checkpoints) {
-      if (!this.completedCheckpoints.includes(checkpoint) && this.previousPercentage <= checkpoint && currentPercentage >= checkpoint) {
-        let allPrecedingCompleted = true;
+    this.watchedTime = Math.max(0, this.watchedTime + interval);
 
-        for (let preceding of this.checkpoints.slice(0, this.checkpoints.indexOf(checkpoint))) {
-          if (!this.completedCheckpoints.includes(preceding)) {
-            allPrecedingCompleted = false;
-            break;
-          }
-        }
+    this.checkAndCompleteCheckpoints(currentPercentage);
+    
+    this.previousPercentage = currentPercentage;
+    this.previousTime = currentTime;
 
-        if (allPrecedingCompleted) {
+    this.progresoChange.emit(this.saveProgreso());
+  }
+
+  private checkAndCompleteCheckpoints(currentPercentage: number): void {
+    for (const checkpoint of this.checkpoints) {
+      if (!this.completedCheckpoints.includes(checkpoint) &&
+      this.previousPercentage <= checkpoint &&
+      currentPercentage >= checkpoint) {
+        const allPrecedingCompleted = this.checkpoints
+          .slice(0, this.checkpoints.indexOf(checkpoint))
+          .every(preceding => this.completedCheckpoints.includes(preceding));
+
+          const verifiquinCheckpoints = this.checkpoints
+            .slice(this.checkpoints.indexOf(checkpoint))
+            .filter(preceding => preceding < currentPercentage);
+  
+        if (allPrecedingCompleted && verifiquinCheckpoints.length < 2) {
           this.completedCheckpoints.push(checkpoint);
           break;
         }
       }
-    };
-
-    this.previousPercentage = currentPercentage;
-    this.previousTime = currentTime;
+    }
   }
 
   private stopTracking(): void {
@@ -179,28 +181,61 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
     }
   }
 
-  saveProgreso() {
-    if (!this.usuarioVideo.fechaCompletado && this.usuarioVideo.progreso < 100 && this.watchedTime > 0) {
-      let preProgreso = ((this.watchedTime - this.penalization) * 100 / this.player.getDuration()) + this.initialProgress;
-      let progreso: number;
-
-      for (let checkpoint of this.completedCheckpoints) {
-        if (preProgreso > checkpoint) {
-          continue;
-        } else {
-          progreso = preProgreso;
-          break;
-        }
-      };
-
-      if (progreso === undefined) {
-        progreso = preProgreso > 95 ? 100 : preProgreso;
-        if (this.completedCheckpoints.length > 0 && progreso - 10 > this.completedCheckpoints[this.completedCheckpoints.length - 1]) {
-          progreso = this.completedCheckpoints[this.completedCheckpoints.length - 1];
+  saveProgreso(): number {
+    if (this.usuarioVideo.fechaCompletado || this.usuarioVideo.progreso >= 100 || this.watchedTime <= 0) {
+      return this.usuarioVideo.progreso || 0;
+    }
+  
+    const duration = this.player.getDuration();
+    const rawProgreso = ((this.watchedTime - this.penalization) * 100 / duration) + this.initialProgress;
+  
+    // Determine the progress based on completed checkpoints
+    let progreso = rawProgreso;
+  
+    for (const checkpoint of this.completedCheckpoints) {
+      if (rawProgreso <= checkpoint) {
+        break;
+      }
+      progreso = rawProgreso;
+    }
+  
+    // Final adjustment for progreso
+    if (progreso === rawProgreso) {
+      if (rawProgreso > 95 || this.completado) {
+        this.completado = true;
+        progreso = 100;
+      } else if (this.completedCheckpoints.length > 0) {
+        const lastCheckpoint = this.completedCheckpoints[this.completedCheckpoints.length - 1];
+        if (rawProgreso - 6 > lastCheckpoint || rawProgreso < lastCheckpoint) {
+          progreso = lastCheckpoint;
         }
       }
+    }
   
+    return progreso;
+  }
 
+  guardarProgreso() {
+    let progreso = this.saveProgreso();
+    const uv = {
+      id: this.usuarioVideo.id,
+      idUsuario: this.usuarioVideo.idUsuario, 
+      idVideo: this.usuarioVideo.idVideo, 
+      progreso: progreso, 
+      fechaEmpezado: this.usuarioVideo.fechaEmpezado ? this.formatoFecha(this.usuarioVideo.fechaEmpezado) : this.getCurrentDateInUTC6(), 
+      fechaCompletado: this.usuarioVideo.fechaCompletado ? this.formatoFecha(this.usuarioVideo.fechaCompletado) : progreso > 99 ? this.getCurrentDateInUTC6() : null
+    }
+    
+    this.gService.put(`usuarioVideo`, uv)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+      }
+    });
+  }
+  
+  guardarProgresoPromise(): Promise<any> {
+    return new Promise((resolve, reject) => {
+      let progreso = this.saveProgreso();
       const uv = {
         id: this.usuarioVideo.id,
         idUsuario: this.usuarioVideo.idUsuario, 
@@ -211,11 +246,16 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
       }
       
       this.gService.put(`usuarioVideo`, uv)
-      .pipe(takeUntil(this.destroy$)).subscribe({
-        next: (res) => {
-        }
-      });
-    }
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (res) => {
+            resolve(res);  // Resolve the promise when the request is successful
+          },
+          error: (err) => {
+            reject(err);   // Reject the promise if there's an error
+          }
+        });
+    });
   }
 
   getCurrentDateInUTC6(): string {

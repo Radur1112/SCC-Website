@@ -2,6 +2,10 @@
     <input type="file" #fileInput id="subir-archivo" name="subir-archivo"  ng2FileSelect [uploader]="uploader" multiple/>
     <label id="subir-archivo-label" for="subir-archivo">Seleccionar archivos</label>
     <ul class="archivo-container">
+      <li class="my-1" *ngFor="let item of existingFiles">
+        {{ item?.nombreArchivo }}
+        <button mat-stroked-button type="button" color="warn" (click)="removeExistingFile(item.id)">Remover</button>
+      </li>
       <li class="my-1" *ngFor="let item of uploader.queue">
         {{ item?.file?.name }}
         <button mat-stroked-button type="button" color="warn" (click)="removeFile(item)">Remover</button>

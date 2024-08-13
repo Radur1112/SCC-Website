@@ -34,6 +34,8 @@
   </div>
 </mat-card>
 
+<div class="second-pre-card-primary" *ngIf="!esCrear"></div>
+
 <div class="second-card-primary"></div>
 
 <form [formGroup]="usuarioForm" class="content-container-center my-3"  (ngSubmit)="esCrear ? registrarUsuario(): actualizarUsuario()">
@@ -144,7 +146,7 @@
             <div class="col-md row my-3">
               <mat-form-field>
                 <mat-label>Tipo de contrato</mat-label>
-                <mat-select formControlName="idTipoContrato" (selectionChange)="onTipoContratoChange()">
+                <mat-select formControlName="idTipoContrato">
                   <mat-option *ngFor="let tipoContrato of tipoContratos" [value]="tipoContrato.id">
                     {{ tipoContrato.descripcion }}
                   </mat-option>
@@ -158,7 +160,7 @@
             <div class="col-md row my-3">
               <mat-form-field>
                 <mat-label>Cantidad inicial de vacaciones</mat-label>
-                <input matInput type="text" formControlName="vacacion" />
+                <input matInput type="text" formControlName="vacacion" (change)="onVacacioChange()" />
                 <mat-error *ngIf="errorHandling('vacacion','required')">
                     La cantidad de vacaciones es <strong>requerida</strong>
                 </mat-error>

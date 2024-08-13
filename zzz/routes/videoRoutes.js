@@ -1,15 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken, verifyAdministrador, verifyUsuario } = require('../utils/verifyToken')
+const { verifyToken } = require('../utils/verifyToken')
 
 const videoController = require("../controllers/videoController");
 
-router.get('/', verifyToken, videoController.get);
-router.get('/:id', verifyToken, videoController.getById);
+router.get('/', verifyToken([0]), videoController.get);
+router.get('/:id', verifyToken([0]), videoController.getById);
 
-router.post("/", verifyAdministrador, videoController.crear);
+router.post("/", verifyToken([1, 4]), videoController.crear);
 
-router.put("/:id", verifyAdministrador, videoController.actualizar);
-router.put("/borrar/:id", verifyAdministrador, videoController.borrar);
+router.put("/:id", verifyToken([1, 4]), videoController.actualizar);
+router.put("/borrar/:id", verifyToken([1, 4]), videoController.borrar);
 
 module.exports = router;

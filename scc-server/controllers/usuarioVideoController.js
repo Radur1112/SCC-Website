@@ -1,5 +1,7 @@
 const db = require('../utils/db.js');
 
+const { update_usuario_modulo_progreso } = require('../utils/triggers.js');
+
 var nombreTabla = 'usuariovideo';
 
 module.exports.get = async(req, res, next) => {
@@ -212,6 +214,8 @@ module.exports.crear = async (req, res, next) => {
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
     if (data) {
+      update_usuario_modulo_progreso(crearDatos.idUsuario, null, crearDatos.idVideo);
+
       res.status(201).json({
           status: true,
           message: `${nombreTabla} creado`,
@@ -254,6 +258,8 @@ module.exports.actualizar = async (req, res, next) => {
 
     const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);
     if (data) {
+      update_usuario_modulo_progreso(actualizarDatos.idUsuario, null, actualizarDatos.idVideo);
+
       res.status(201).json({
           status: true,
           message: `${nombreTabla} actualizado`
@@ -285,6 +291,7 @@ module.exports.borrar = async (req, res, next) => {
       }
   
       await db.query(`DELETE FROM ${nombreTabla} WHERE id = ?`, [id]);
+
       res.status(201).json({
           status: true,
           message: `${nombreTabla} borrado`

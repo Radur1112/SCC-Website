@@ -179,7 +179,7 @@ module.exports.getAllByIdUsuario = async(req, res, next) => {
       FROM ${nombreTabla} um
       INNER JOIN modulo m ON um.idModulo = m.id AND m.estado != 0 
       LEFT JOIN (
-        SELECT mv.nivel, mv.idModulo, 
+        SELECT mv.nivel, mv.idModulo,
         JSON_ARRAYAGG(
           JSON_OBJECT(
             'videoId', v.id , 'videoTitulo', v.titulo, 'videoDescripcion', v.descripcion, 'videoLink', v.link, 'videoFechaLimite', v.fechaLimite, 'videoRequerido', v.requerido, 'videoProgreso', uv.progreso

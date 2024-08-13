@@ -71,7 +71,6 @@ export class PlanillaSupervisorIndexComponent {
     this.authService.usuarioActual.subscribe((x) => {
       if (x && Object.keys(x).length !== 0) {
         this.usuarioActual = x.usuario;
-
         this.getUsuarios();
       }
     });
@@ -83,9 +82,9 @@ export class PlanillaSupervisorIndexComponent {
   }
 
   getUsuarios() {
-    let query = `usuario`;
+    let query = `planilla/usuarios`;
     if (this.usuarioActual.idTipoUsuario == 3) {
-      query = `usuariosupervisor/supervisor/${this.usuarioActual.id}`
+      query = `planilla/supervisor/${this.usuarioActual.id}`
     }
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({

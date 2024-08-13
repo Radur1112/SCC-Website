@@ -20,6 +20,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ForoFormDialogComponent } from '../foro-form-dialog/foro-form-dialog.component';
 import { MatMenuModule } from '@angular/material/menu';
 import { ConfirmationService } from '../../services/confirmation.service';
+import { ConvertLineBreaksService } from '../../services/convert-line-breaks.service';
 
 @Component({
   selector: 'app-foro-index',
@@ -60,6 +61,7 @@ export class ForoIndexComponent {
     private dialog: MatDialog,
     @Inject(MAT_DATE_LOCALE) private _locale: string,
     private _adapter: DateAdapter<any>,
+    public convertService: ConvertLineBreaksService
   ) {
     this._locale = 'cr';
     this._adapter.setLocale(this._locale);
@@ -130,10 +132,11 @@ export class ForoIndexComponent {
     return fecha >= inicio && fecha <= fin;
   }
 
-  openForoFormDialog(crear: any) {
+  openForoFormDialog(crear: boolean, foroId?: any) {
     let width = '800px';
     let data = { 
       crear: crear,
+      foroId: foroId
     };
     
     const dialogRef = this.dialog.open(ForoFormDialogComponent, {
@@ -143,7 +146,11 @@ export class ForoIndexComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.crearForo(result);
+        if (!result.id) {
+          this.crearForo(result);
+        } else {
+          this.actualizarForo(result);
+        }
       }
     });
   }
@@ -152,8 +159,9 @@ export class ForoIndexComponent {
     this.gService.post(`foro`, foro)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        const archivoPromise = foro.archivos.length > 0 ? this.crearArchivos(foro, res.data.insertId) : Promise.resolve();
-        const respuestaPromise = foro.respuestas.length > 0 ? this.crearRespuestas({ idForo: res.data.insertId, respuestas: foro.respuestas }) : Promise.resolve();
+        console.log(foro)
+        const archivoPromise = foro.archivos && foro.archivos.length > 0 ? this.crearArchivos(res.data.insertId, foro.archivos) : Promise.resolve();
+        const respuestaPromise = foro.respuestas && foro.respuestas.length > 0 ? this.crearRespuestas(res.data.insertId, foro.respuestas) : Promise.resolve();
       
         Promise.all([archivoPromise, respuestaPromise])
           .then(() => {
@@ -162,30 +170,68 @@ export class ForoIndexComponent {
           })
           .catch(error => {
             this.getForos();
-            console.error("Error creating archivos or respuestas:", error);
+            console.error("Error al crear archivos or respuestas:", error);
             this.notificacion.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
           });
       }
     });
   }
 
-  crearArchivos(foro: any, idForo: any) {
+  crearArchivos(idForo: any, archivos: any) {
     const formData = new FormData();
-    formData.append('idForo', idForo,);
+    archivos.forEach((file, index) => {
+      formData.append(`archivo`, file, file.name);
+    });
 
-      foro.archivos.forEach((file, index) => {
-        formData.append(`archivo`, file, file.name);
-      });
-
-    this.gService.post(`foro/archivos`, formData)
+    this.gService.post(`foro/archivos/${idForo}`, formData)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
       }
     });
   }
 
-  crearRespuestas(data: any) {
-    this.gService.post(`foro/respuestas`, data)
+  crearRespuestas(idForo: any, data: any) {
+    this.gService.post(`foro/respuestas/${idForo}`, data)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+      }
+    });
+  }
+
+
+  actualizarForo(foro: any) {
+    this.gService.put(`foro`, foro)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        console.log(foro)
+        const archivoCreatePromise = foro.archivos && foro.archivos.length > 0 ? this.crearArchivos(foro.id, foro.archivos) : Promise.resolve();
+        const archivoUpdatePromise = foro.archivosBorrar && foro.archivosBorrar.length > 0 ? this.actualizarArchivos(foro.id, foro.archivosBorrar) : Promise.resolve();
+        const respuestaPromise = foro.respuestasBorrarIds || foro.respuestasNuevas ? this.actualizarRespuestas(foro.id, {respuestasBorrarIds: foro.respuestasBorrarIds, respuestasNuevas: foro.respuestasNuevas}) : Promise.resolve();
+      
+        Promise.all([archivoCreatePromise, archivoUpdatePromise, respuestaPromise])
+          .then(() => {
+            this.getForos();
+            this.notificacion.mensaje('Foro', 'Foro editado correctamente', TipoMessage.success);
+          })
+          .catch(error => {
+            this.getForos();
+            console.error("Error al crear archivos or respuestas:", error);
+            this.notificacion.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
+          });
+      }
+    });
+  }
+
+  actualizarArchivos(idForo: any, data: any) {
+    this.gService.put2(`foro/archivos/${idForo}`, data)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+      }
+    });
+  }
+
+  actualizarRespuestas(idForo: any, data: any) {
+    this.gService.put2(`foro/respuestas/${idForo}`, data)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
       }

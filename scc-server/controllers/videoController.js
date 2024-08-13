@@ -1,5 +1,7 @@
 const db = require('../utils/db.js');
 
+const { update_usuario_modulo_progreso } = require('../utils/triggers.js');
+
 var nombreTabla = 'video';
 
 module.exports.get = async(req, res, next) => {
@@ -117,6 +119,8 @@ module.exports.actualizar = async (req, res, next) => {
 
     const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);
     if (data) {
+      update_usuario_modulo_progreso(null, null, id);
+      
       res.status(201).json({
           status: true,
           message: `${nombreTabla} actualizado`
