@@ -13,7 +13,7 @@ import { MatIcon } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
@@ -74,7 +74,7 @@ export class UsuarioSupervisorDialogComponent {
   
   constructor(private gService:GenericService,
     private confirmationService: ConfirmationService,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private router:Router,
     @Inject(MAT_DIALOG_DATA) public data: any,
     public dialogRef: MatDialogRef<UsuarioSupervisorDialogComponent>,
@@ -141,7 +141,7 @@ export class UsuarioSupervisorDialogComponent {
     this.gService.post(`usuarioSupervisor/multiple`, datos)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Usuario', `Usuarios asignados al supervisor '${this.supervisor.nombre}' correctamente`, TipoMessage.success);
+        this.alerta.mensaje('Usuario', `Usuarios asignados al supervisor '${this.supervisor.nombre}' correctamente`, TipoMessage.success);
         this.dialogRef.close(true);
       }
     });
@@ -160,7 +160,7 @@ export class UsuarioSupervisorDialogComponent {
     this.gService.post(`usuarioSupervisor/borrar/multiple`, datos)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Usuario', `Usuarios desasignados del supervisor '${this.supervisor.nombre}' correctamente`, TipoMessage.success);
+        this.alerta.mensaje('Usuario', `Usuarios desasignados del supervisor '${this.supervisor.nombre}' correctamente`, TipoMessage.success);
         this.dialogRef.close(true);
       }
     });

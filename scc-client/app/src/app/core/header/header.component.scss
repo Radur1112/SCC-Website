@@ -21,26 +21,100 @@ img {
     margin-left: 0;
 }
 
-.iconoUsuario {
-   width: 50px !important;
-   height: 50px !important;
-   padding: 0px !important;
-   display: inline-flex !important;
-   align-items: center;
-   justify-content: center;
+.icono-usuario, .icono-notificacion {
+  width: 50px !important;
+  height: 50px !important;
+  padding: 0px !important;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: auto;
 
-   mat-icon {
-      width: 40px;
-      height: 40px;
-      font-size: 40px;
-      transition: all 0.15s;
-   }
+  mat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 40px;
+    transition: all 0.15s;
+  }
 }
 
-.iconoUsuario:hover {
-    mat-icon {
-        color: $secondary-color;
-    }
+.icono-usuario:hover, .icono-notificacion:hover {
+  mat-icon {
+    color: $secondary-color;
+  }
+}
+
+.icono-notificacion {
+  position: relative;
+  width: 40px !important;
+  height: 40px !important;
+
+  mat-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 30px;
+  }
+}
+
+::ng-deep {  
+  .mat-mdc-menu-panel {  
+    max-width: unset !important;  
+  }  
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -10px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+
+
+.notificacion-menu {
+  display: flex;
+  width: 100%;
+  max-height: 500px;
+  overflow-y: auto;
+}
+.notificacion-menu:hover {
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+
+.notificacion-link {
+  position: relative;
+  z-index: 1;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.notificacion-delete {
+  flex-grow: 1;
+  text-align: end;
+}
+
+.accepted {
+  background-color: #e0f7fa;
+  border-left: 5px solid #00796b;
+}
+
+.rejected {
+  background-color: #ffebee;
+  border-left: 5px solid #c62828;
+}
+
+.unread {
+  font-weight: bold;
+  background-color: #ffffff;
+}
+
+.mat-list-item:not(.unread) {
+  font-weight: normal;
 }
 
 @media screen and (min-width: 991px) and (max-width: 1200px) {

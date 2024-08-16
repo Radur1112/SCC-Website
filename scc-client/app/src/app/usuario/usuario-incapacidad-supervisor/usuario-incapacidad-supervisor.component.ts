@@ -12,7 +12,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -51,7 +51,7 @@ export class UsuarioIncapacidadSupervisorComponent {
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     private router:Router,
     private route:ActivatedRoute,
@@ -96,7 +96,7 @@ export class UsuarioIncapacidadSupervisorComponent {
     this.gService.get(`incapacidad/confirmar/${id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Justificación', 'Justificación confirmada correctamente', TipoMessage.success);
+        this.alerta.mensaje('Justificación', 'Justificación confirmada correctamente', TipoMessage.success);
         this.getIncapacidades();
       }
     });
@@ -106,7 +106,7 @@ export class UsuarioIncapacidadSupervisorComponent {
     this.gService.get(`incapacidad/rechazar/${id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Justificación', 'Justificación rechazada correctamente', TipoMessage.success);
+        this.alerta.mensaje('Justificación', 'Justificación rechazada correctamente', TipoMessage.success);
         this.getIncapacidades();
       }
     });

@@ -7,7 +7,7 @@ const moment = require('moment');
 
 const { enviarCorreoComprobante } = require('../utils/emailService');
 
-const { create_pagos_insert_planilla, create_planilla_update_planilla } = require('../utils/triggers.js')
+const { create_pagos_insert_planilla, create_planilla_update_planilla, update_planilla_after_anotacion, insert_notificacion } = require('../utils/triggers.js')
 
 var nombreTabla = 'planilla';
 
@@ -23,9 +23,9 @@ module.exports.getByIdUsuario = async(req, res, next) => {
 
     const data = await db.query(`
         SELECT 
-        pl.id, pl.fechaInicio, pl.fechaFinal, 
+        pl.id, pl.fechaInicio, pl.fechaFinal, pl.salarioBase,
         pl.salarioBruto, pl.salarioNeto, (pl.salarioBruto - pl.salarioNeto) AS totalDeducciones, (pl.salarioBruto - SUM(otpa.monto)) AS baseFacturacion,
-        u.nombre AS usuarioNombre, u.salario AS salarioBase, u.vacacion AS usuarioVacacion, u.idTipoContrato AS usuarioIdTipoContrato, 
+        u.nombre AS usuarioNombre, u.vacacion AS usuarioVacacion, u.idTipoContrato AS usuarioIdTipoContrato, 
         (
           SELECT 
             JSON_ARRAYAGG(
@@ -75,7 +75,7 @@ module.exports.getByIdUsuario = async(req, res, next) => {
         INNER JOIN usuario u ON u.id = ? AND u.estado != 0
         LEFT JOIN otropago otpa ON otpa.idPlanilla = pl.id
         WHERE pl.estado = 1 AND pl.idUsuario = ?
-        GROUP BY pl.id, pl.fechaInicio, pl.fechaFinal, u.salario
+        GROUP BY pl.id, pl.fechaInicio, pl.fechaFinal, pl.salarioBase
         ORDER BY pl.fechaFinal DESC
         LIMIT 1;`, [id, id]);
     if(data) {
@@ -294,7 +294,7 @@ module.exports.getFechas = async(req, res, next) => {
 module.exports.getHistorialAnotaciones = async(req, res, next) => {
   try {
     const data = await db.query(`
-      SELECT 
+      SELECT p.salarioBase,
           'Aumento' AS tipo, a.id, a.fecha, a.monto,  a.descripcion, a.idTipoAumento AS idTipo,
           u.id AS usuarioId, u.nombre AS usuarioNombre, u.salario AS usuarioSalario,
           ta.descripcion AS tipoDescripcion, ta.fijo, ta.valorHoras,
@@ -308,7 +308,7 @@ module.exports.getHistorialAnotaciones = async(req, res, next) => {
 
       UNION ALL
 
-      SELECT 
+      SELECT p.salarioBase,
         'Deduccion' AS tipo, d.id, d.fecha, d.monto,  d.descripcion, d.idTipoDeduccion AS idTipo,
           u.id AS usuarioId, u.nombre AS usuarioNombre, u.salario AS usuarioSalario,
           td.descripcion AS tipoDescripcion, td.fijo, td.valorHoras,
@@ -322,7 +322,7 @@ module.exports.getHistorialAnotaciones = async(req, res, next) => {
 
       UNION ALL
 
-      SELECT 
+      SELECT p.salarioBase,
           'Otro Pago' AS tipo, op.id, op.fecha, op.monto, op.descripcion, op.idTipoOtroPago AS idTipo,
           u.id AS usuarioId, u.nombre AS usuarioNombre,  u.salario AS usuarioSalario,
           top.descripcion AS tipoDescripcion, top.fijo, top.valorHoras,
@@ -369,7 +369,7 @@ module.exports.getHistorialAnotacionesBySupervisor = async(req, res, next) => {
     }
 
     const data = await db.query(`
-      SELECT 
+      SELECT p.salarioBase,
           'Aumento' AS tipo, a.id, a.fecha, a.monto,  a.descripcion, a.idTipoAumento AS idTipo,
           u.id AS usuarioId, u.nombre AS usuarioNombre, u.salario AS usuarioSalario,
           ta.descripcion AS tipoDescripcion, ta.fijo, ta.valorHoras,
@@ -384,7 +384,7 @@ module.exports.getHistorialAnotacionesBySupervisor = async(req, res, next) => {
 
       UNION ALL
 
-      SELECT 
+      SELECT p.salarioBase,
         'Deduccion' AS tipo, d.id, d.fecha, d.monto,  d.descripcion, d.idTipoDeduccion AS idTipo,
           u.id AS usuarioId, u.nombre AS usuarioNombre, u.salario AS usuarioSalario,
           td.descripcion AS tipoDescripcion, td.fijo, td.valorHoras,
@@ -399,7 +399,7 @@ module.exports.getHistorialAnotacionesBySupervisor = async(req, res, next) => {
 
       UNION ALL
 
-      SELECT 
+      SELECT p.salarioBase,
           'Otro Pago' AS tipo, op.id, op.fecha, op.monto, op.descripcion, op.idTipoOtroPago AS idTipo,
           u.id AS usuarioId, u.nombre AS usuarioNombre,  u.salario AS usuarioSalario,
           top.descripcion AS tipoDescripcion, top.fijo, top.valorHoras,
@@ -450,7 +450,7 @@ module.exports.getComprobantesByIdUsuario = async(req, res, next) => {
       SELECT cp.*, p.*, u.nombre AS usuarioNombre
       FROM comprobanteplanilla cp
       INNER JOIN planilla p ON p.id = cp.idPlanilla AND p.estado != 0
-      INNER JOIN usuario u ON u.id = p.idUsuario AND p.estado != 0
+      INNER JOIN usuario u ON u.id = p.idUsuario AND u.estado != 0
       WHERE p.idUsuario = ?
       ORDER BY p.fechaInicio DESC`, [id]);
       
@@ -512,7 +512,8 @@ module.exports.getUsuarios = async(req, res, next) => {
       FROM usuario u 
       INNER JOIN puesto p ON p.id = u.idPuesto
       LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id 
-      INNER JOIN planilla pl ON pl.idUsuario = u.id AND pl.estado = 1`);
+      INNER JOIN planilla pl ON pl.idUsuario = u.id AND pl.estado = 1
+      WHERE u.estado != 0`);
 
     if(data) {
       res.status(200).send({
@@ -587,7 +588,8 @@ module.exports.crear = async (req, res, next) => {
     let crearDatos = {
       idUsuario: datos.idUsuario,
       fechaInicio: datos.fechaInicio ?? 'CURDATE()',
-      fechaFinal: datos.fechaFinal ?? 'DATE_ADD(CURDATE(), INTERVAL 15 DAY)'
+      fechaFinal: datos.fechaFinal ?? 'DATE_ADD(CURDATE(), INTERVAL 15 DAY)',
+      salarioBase: datos.salarioBase
     }
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
@@ -615,9 +617,9 @@ module.exports.crear = async (req, res, next) => {
 module.exports.crearTodos = async (req, res, next) => {
   try {
     const [usuarios] = await db.query(`
-      SELECT u.id
+      SELECT u.id, u.salario
       FROM usuario u 
-      LEFT JOIN planilla p ON p.idUsuario = u.id AND p.estado != 0
+      LEFT JOIN planilla p ON p.idUsuario = u.id AND p.estado = 1
       WHERE u.estado != 0 AND u.idPuesto != 1 AND u.idPuesto != 2 AND p.id IS NULL`);
 
     const fechaInicio = 'CURDATE()';
@@ -625,8 +627,8 @@ module.exports.crearTodos = async (req, res, next) => {
 
     const planillasPromises = usuarios.map(async (usuario) => {
       const query = `
-        INSERT INTO ${nombreTabla} (idUsuario, fechaInicio, fechaFinal)
-        VALUES (?, ${fechaInicio}, ${fechaFinal})
+        INSERT INTO ${nombreTabla} (idUsuario, fechaInicio, fechaFinal, salarioBase)
+        VALUES (?, ${fechaInicio}, ${fechaFinal}, ${parseFloat(usuario.salario) / 2})
       `;
 
       const [data] = await db.query(query, [usuario.id]);
@@ -702,6 +704,44 @@ module.exports.actualizar = async (req, res, next) => {
   }
 };
 
+module.exports.actualizarSalarioBase = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+
+    const datos = req.body;
+
+    const salarioBase = datos.salarioBase;
+
+    const data = await db.query(`UPDATE ${nombreTabla} SET salarioBase = ? WHERE id = ?`, [salarioBase, id]);
+    if (data) {
+      update_planilla_after_anotacion(id);
+
+      res.status(201).json({
+          status: true,
+          message: `${nombreTabla} actualizado`
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'Error en UPDATE',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `Error en actualizar ${nombreTabla}`,
+      error: error
+    });
+  }
+};
+
 module.exports.actualizarFechas = async (req, res, next) => {
   try {
     const datos = req.body;
@@ -739,10 +779,10 @@ module.exports.completarTodos = async (req, res, next) => {
     const [planillas] = await db.query(`
         SELECT 
         pl.id, pl.fechaInicio, pl.fechaFinal, pl.estado,
-        pl.salarioBruto, pl.salarioNeto, 
+        pl.salarioBase, pl.salarioBruto, pl.salarioNeto, 
         (pl.salarioBruto - pl.salarioNeto) AS totalDeducciones, 
         (pl.salarioBruto - SUM(otpa.monto)) AS baseFacturacion,
-        u.id AS usuarioId, u.identificacion AS usuarioIdentificacion, u.nombre AS usuarioNombre, u.salario AS salarioBase, u.vacacion AS usuarioVacacion, 
+        u.id AS usuarioId, u.identificacion AS usuarioIdentificacion, u.nombre AS usuarioNombre, u.vacacion AS usuarioVacacion, 
         u.correo AS usuarioCorreo, 
         u.idTipoContrato AS usuarioIdTipoContrato, tc.descripcion AS usuarioTipoContratoDescripcion, pu.descripcion AS usuarioPuestoDescripcion,
         (
@@ -814,7 +854,7 @@ module.exports.completarTodos = async (req, res, next) => {
         INNER JOIN puesto pu ON pu.id = u.idPuesto
         LEFT JOIN otropago otpa ON otpa.idPlanilla = pl.id
         WHERE pl.estado = 1 
-        GROUP BY pl.id, pl.fechaInicio, pl.fechaFinal, u.salario
+        GROUP BY pl.id, pl.fechaInicio, pl.fechaFinal, pl.salarioBase
         ORDER BY pl.fechaFinal DESC`);
 
     const planillasPromises = planillas.map(async (planilla) => {
@@ -852,615 +892,623 @@ module.exports.completarTodos = async (req, res, next) => {
 };
 
 async function crearComprobantes(req, planillas) {
-  planillas.forEach(async planilla => {
-    const [tipoAumentos] = await db.query('SELECT * FROM tipoaumento WHERE sp = ?', [planilla.usuarioIdTipoContrato - 1]);
-    const [tipoDeducciones] = await db.query('SELECT * FROM tipodeduccion WHERE sp = ?', [planilla.usuarioIdTipoContrato - 1]);
-    const [tipoOtrosPagos] = await db.query('SELECT * FROM tipootropago WHERE sp = ?', [planilla.usuarioIdTipoContrato - 1]);
+  for (const planilla of planillas) {
+    try {
+      const [tipoAumentos] = await db.query('SELECT * FROM tipoaumento WHERE sp = ?', [planilla.usuarioIdTipoContrato - 1]);
+      const [tipoDeducciones] = await db.query('SELECT * FROM tipodeduccion WHERE sp = ?', [planilla.usuarioIdTipoContrato - 1]);
+      const [tipoOtrosPagos] = await db.query('SELECT * FROM tipootropago WHERE sp = ?', [planilla.usuarioIdTipoContrato - 1]);
 
-    let rowAumento = 0;
-    let rowDeduccion = 0;
-    let rowOtroPago = 0;
+      let rowAumento = 0;
+      let rowDeduccion = 0;
+      let rowOtroPago = 0;
 
-    const nombreComprobante = planilla.usuarioIdTipoContrato == 1 ? 'Asalariado' : 'SP';
+      const nombreComprobante = planilla.usuarioIdTipoContrato == 1 ? 'Asalariado' : 'SP';
 
-    const workbook = new exceljs.Workbook();
-    const worksheet = workbook.addWorksheet(nombreComprobante);
+      const workbook = new exceljs.Workbook();
+      const worksheet = workbook.addWorksheet(nombreComprobante);
 
+      
+      let startRow = 1;
+      let endRow = 99; 
+      let startCol = 1;
+      let endCol = 30; 
     
-    let startRow = 1;
-    let endRow = 99; 
-    let startCol = 1;
-    let endCol = 30; 
-  
-    for (let row = startRow; row <= endRow; row++) {
-      for (let col = startCol; col <= endCol; col++) {
-        const cell = worksheet.getCell(row, col);
-        cell.font = { name: 'Gadugi', size: 13 };
-        cell.fill = {
+      for (let row = startRow; row <= endRow; row++) {
+        for (let col = startCol; col <= endCol; col++) {
+          const cell = worksheet.getCell(row, col);
+          cell.font = { name: 'Gadugi', size: 13 };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFFFFFF' }
+          };
+        }
+      }
+
+
+
+      if (planilla.usuarioIdTipoContrato == 1) {
+        worksheet.getColumn('B').width = 29;
+        worksheet.getColumn('C').width = 29;
+        worksheet.getColumn('D').width = 5;
+        worksheet.getColumn('E').width = 29;
+        worksheet.getColumn('F').width = 29;
+    
+    
+        worksheet.mergeCells('B2:F5');
+        const logoPath = path.resolve(__dirname, '../utils/logoExcelSinFondo.png');
+        const logoImage = workbook.addImage({
+          filename: logoPath,
+          extension: 'png',
+        });
+        worksheet.addImage(logoImage, {
+          tl: { col: 2, row: 1 },
+          ext: { width: 441, height: 88 }
+        });
+    
+        worksheet.getCell('B2').border = {
+          top: { style: 'medium', color: { argb: 'A6A6A6'}},
+          left: { style: 'medium', color: { argb: 'A6A6A6'}},
+          bottom: { style:'medium', color: { argb: 'A6A6A6'}},
+          right: { style: 'medium', color: { argb: 'A6A6A6'}},
+        };
+    
+    
+        // Merge cells for headers
+        worksheet.mergeCells('B6:F6');
+        worksheet.getCell('B6').value = planilla.usuarioNombre;
+        worksheet.getCell('B6').alignment = { vertical: 'middle', horizontal: 'center' };
+        worksheet.getCell('B6').font = { bold: true, size: 20, color: { argb: 'FFFFFF' }, name: 'Gadugi' };
+        worksheet.getCell('B6').fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: 'FFFFFFFF' }
+          fgColor: { argb: '0B3040' },
         };
-      }
-    }
-
-
-
-    if (planilla.usuarioIdTipoContrato == 1) {
-      worksheet.getColumn('B').width = 29;
-      worksheet.getColumn('C').width = 29;
-      worksheet.getColumn('D').width = 5;
-      worksheet.getColumn('E').width = 29;
-      worksheet.getColumn('F').width = 29;
-  
-  
-      worksheet.mergeCells('B2:F5');
-      const logoPath = path.resolve(__dirname, '../utils/logoExcelSinFondo.png');
-      const logoImage = workbook.addImage({
-        filename: logoPath,
-        extension: 'png',
-      });
-      worksheet.addImage(logoImage, {
-        tl: { col: 2, row: 1 },
-        ext: { width: 441, height: 88 }
-      });
-  
-      worksheet.getCell('B2').border = {
-        top: { style: 'medium', color: { argb: 'A6A6A6'}},
-        left: { style: 'medium', color: { argb: 'A6A6A6'}},
-        bottom: { style:'medium', color: { argb: 'A6A6A6'}},
-        right: { style: 'medium', color: { argb: 'A6A6A6'}},
-      };
-  
-  
-      // Merge cells for headers
-      worksheet.mergeCells('B6:F6');
-      worksheet.getCell('B6').value = planilla.usuarioNombre;
-      worksheet.getCell('B6').alignment = { vertical: 'middle', horizontal: 'center' };
-      worksheet.getCell('B6').font = { bold: true, size: 20, color: { argb: 'FFFFFF' }, name: 'Gadugi' };
-      worksheet.getCell('B6').fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '0B3040' },
-      };
-      worksheet.getCell('B6').border = {
-        top: { style: 'medium', color: { argb: 'A6A6A6'}},
-        left: { style: 'medium', color: { argb: 'A6A6A6'}},
-        bottom: { style:'medium', color: { argb: 'A6A6A6'}},
-        right: { style: 'medium', color: { argb: 'A6A6A6'}},
-      };
-      
-  
-  
-      // Adding the main content
-      worksheet.getCell('B8').value = 'Salario Base';
-      worksheet.getCell('C8').value = formatearNumero(planilla.salarioBase);
-      worksheet.getCell('B8').fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DAE9F8' },
-      };
-      worksheet.getCell('C8').fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DAE9F8' },
-      };
-      worksheet.getCell(`C8`).alignment = {
-        horizontal: 'right',
-      };
-  
-      worksheet.getCell('E8').value = 'Menos:';
-      worksheet.getCell('E8').font = { bold: true, name: 'Gadugi', size: 13 };
-      worksheet.getCell('E8').fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DAE9F8' },
-      };
-      worksheet.getCell('F8').fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DAE9F8' },
-      };
-      
-  
-      const salto = 9;
-  
-      tipoAumentos.forEach((tipo, index) => {
-        rowAumento = index + salto;
-  
-        let tipoValue = planilla.aumentos ? planilla.aumentos.find(aumento => aumento.tipoAumentoDescripcion == tipo.descripcion) || null : null;
-  
-        worksheet.getCell(`B${rowAumento}`).value = tipo.descripcion;
-        worksheet.getCell(`C${rowAumento}`).value = formatearNumero(tipoValue ? tipoValue.totalAumentoMonto : '0.00');
-        worksheet.getCell(`B${rowAumento}`).fill = {
+        worksheet.getCell('B6').border = {
+          top: { style: 'medium', color: { argb: 'A6A6A6'}},
+          left: { style: 'medium', color: { argb: 'A6A6A6'}},
+          bottom: { style:'medium', color: { argb: 'A6A6A6'}},
+          right: { style: 'medium', color: { argb: 'A6A6A6'}},
+        };
+        
+    
+    
+        // Adding the main content
+        worksheet.getCell('B8').value = 'Salario Base';
+        worksheet.getCell('C8').value = formatearNumero(planilla.salarioBase);
+        worksheet.getCell('B8').fill = {
           type: 'pattern',
           pattern: 'solid',
           fgColor: { argb: 'DAE9F8' },
+        };
+        worksheet.getCell('C8').fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'DAE9F8' },
+        };
+        worksheet.getCell(`C8`).alignment = {
+          horizontal: 'right',
+        };
+    
+        worksheet.getCell('E8').value = 'Menos:';
+        worksheet.getCell('E8').font = { bold: true, name: 'Gadugi', size: 13 };
+        worksheet.getCell('E8').fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'DAE9F8' },
+        };
+        worksheet.getCell('F8').fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'DAE9F8' },
+        };
+        
+    
+        const salto = 9;
+    
+        tipoAumentos.forEach((tipo, index) => {
+          rowAumento = index + salto;
+    
+          let tipoValue = planilla.aumentos ? planilla.aumentos.find(aumento => aumento.tipoAumentoDescripcion == tipo.descripcion) || null : null;
+    
+          worksheet.getCell(`B${rowAumento}`).value = tipo.descripcion;
+          worksheet.getCell(`C${rowAumento}`).value = formatearNumero(tipoValue ? tipoValue.totalAumentoMonto : '0.00');
+          worksheet.getCell(`B${rowAumento}`).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'DAE9F8' },
+          };
+          worksheet.getCell(`C${rowAumento}`).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'DAE9F8' },
+          };
+          worksheet.getCell(`C${rowAumento}`).alignment = {
+            horizontal: 'right',
+          };
+        });
+    
+        tipoDeducciones.forEach((tipo, index) => {
+          rowDeduccion = index + salto;
+    
+          let tipoValue = planilla.deducciones ? planilla.deducciones.find(deduccion => deduccion.tipoDeduccionDescripcion == tipo.descripcion) || null : null;
+    
+          worksheet.getCell(`E${rowDeduccion}`).value = tipo.descripcion;
+          worksheet.getCell(`F${rowDeduccion}`).value = formatearNumero(tipoValue ? tipoValue.totalDeduccionMonto : '0.00');
+          worksheet.getCell(`E${rowDeduccion}`).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'DAE9F8' },
+          };
+          worksheet.getCell(`F${rowDeduccion}`).fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'DAE9F8' },
+          };
+          worksheet.getCell(`F${rowDeduccion}`).alignment = {
+            horizontal: 'right',
+          };
+        });
+    
+        let nextRow = Math.max(rowAumento, rowDeduccion - 1);
+    
+    
+        worksheet.getCell(`B${++nextRow}`).value = 'SALARIO BRUTO';
+        worksheet.getCell(`C${nextRow}`).value = formatearNumero(planilla.salarioBruto);
+        worksheet.getCell(`B${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13 };
+        worksheet.getCell(`C${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13 };
+        worksheet.getCell(`B${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'DAE9F8' },
+        };
+        worksheet.getCell(`C${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'DAE9F8' },
+        };
+        worksheet.getCell(`C${nextRow}`).alignment = {
+          horizontal: 'right',
+        };
+    
+        worksheet.getCell(`B${++nextRow}`).value = 'SALARIO NETO';
+        worksheet.getCell(`C${nextRow}`).value = formatearNumero(planilla.salarioNeto);
+        worksheet.getCell(`B${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`C${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`B${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0B3040' },
+        };
+        worksheet.getCell(`C${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0B3040' },
+        };
+        worksheet.getCell(`C${nextRow}`).alignment = {
+          horizontal: 'right',
+        };
+    
+        worksheet.getCell(`E${nextRow}`).value = 'TOTAL DEDUCCIONES';
+        worksheet.getCell(`F${nextRow}`).value = formatearNumero(planilla.totalDeducciones);
+        worksheet.getCell(`E${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`F${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`E${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0B3040' },
+        };
+        worksheet.getCell(`F${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0B3040' },
+        };
+        worksheet.getCell(`F${nextRow++}`).alignment = {
+          horizontal: 'right',
+        };
+        
+        startRow = salto - 1;
+        endRow = nextRow - 1;
+        startCol = 'B';
+        endCol = 'C';
+        for (let row = startRow; row <= endRow; row++) {
+          for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
+            const cellAddress = `${String.fromCharCode(colCode)}${row}`;
+            const cell = worksheet.getCell(cellAddress);
+        
+            // Determine border styles based on cell position
+            const isTopEdge = row === startRow;
+            const isBottomEdge = row === endRow;
+            const isLeftEdge = colCode === startCol.charCodeAt(0);
+            const isRightEdge = colCode === endCol.charCodeAt(0);
+        
+            cell.border = {
+              top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+            };
+          }
+        } 
+        
+        startRow = salto - 1;
+        endRow = nextRow - 1;
+        startCol = 'E';
+        endCol = 'F';
+        for (let row = startRow; row <= endRow; row++) {
+          for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
+            const cellAddress = `${String.fromCharCode(colCode)}${row}`;
+            const cell = worksheet.getCell(cellAddress);
+        
+            // Determine border styles based on cell position
+            const isTopEdge = row === startRow;
+            const isBottomEdge = row === endRow;
+            const isLeftEdge = colCode === startCol.charCodeAt(0);
+            const isRightEdge = colCode === endCol.charCodeAt(0);
+        
+            cell.border = {
+              top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+            };
+          }
+        } 
+
+        let showOtrosPagos = '';
+        if (planilla.otrosPagos) {
+          showOtrosPagos = planilla.otrosPagos
+          .map(op => op.tipoOtroPagoDescripcion)
+          .join(', ');  
+        }
+        worksheet.getCell(`B${++nextRow}`).value = 'Otros Pagos:';
+        worksheet.getCell(`C${nextRow}`).value = showOtrosPagos
+        worksheet.getCell(`C${nextRow}`).alignment = {
+          horizontal: 'right',
+        };
+    
+        worksheet.getCell(`E${nextRow}`).value = 'Vacaciones';
+        worksheet.getCell(`F${nextRow}`).value = formatearNumero(planilla.usuarioVacacion);
+        worksheet.getCell(`F${nextRow}`).alignment = {
+          horizontal: 'right',
+        };
+    
+        worksheet.getCell(`B${++nextRow}`).value = 'Total Deposito';
+        worksheet.getCell(`C${nextRow}`).value = formatearNumero(planilla.salarioNeto);
+        worksheet.getCell(`B${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`C${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`B${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '215C98' },
+        };
+        worksheet.getCell(`C${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '215C98' },
+        };
+        worksheet.getCell(`D${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '215C98' },
+        };
+        worksheet.getCell(`C${nextRow}`).alignment = {
+          horizontal: 'right',
+        };
+    
+        worksheet.getCell(`E${nextRow}`).value = 'Fecha:';
+        worksheet.getCell(`F${nextRow}`).value = moment(new Date(planilla.fechaInicio)).format('DD/MM/YYYY') + ' - ' + moment(new Date(planilla.fechaFinal)).format('DD/MM/YYYY');
+        worksheet.getCell(`E${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`F${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`E${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '215C98' },
+        };
+        worksheet.getCell(`F${nextRow}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '215C98' },
+        };
+        worksheet.getCell(`F${nextRow}`).alignment = {
+          horizontal: 'right',
+        };
+    
+        startRow = nextRow - 1;
+        endRow = nextRow;
+        startCol = 'B';
+        endCol = 'F';
+        for (let row = startRow; row <= endRow; row++) {
+          for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
+            const cellAddress = `${String.fromCharCode(colCode)}${row}`;
+            const cell = worksheet.getCell(cellAddress);
+        
+            // Determine border styles based on cell position
+            const isTopEdge = row === startRow;
+            const isBottomEdge = row === endRow;
+            const isLeftEdge = colCode === startCol.charCodeAt(0);
+            const isRightEdge = colCode === endCol.charCodeAt(0);
+        
+            cell.border = {
+              top: { style: (isTopEdge ? 'medium' : 'none'), color: { argb: 'A6A6A6'}},
+              left: { style: (isLeftEdge ? 'medium' : 'none'), color: { argb: 'A6A6A6'}},
+              bottom: { style: (isBottomEdge ? 'medium' : 'none'), color: { argb: 'A6A6A6'}},
+              right: { style: (isRightEdge ? 'medium' : 'none'), color: { argb: 'A6A6A6'}},
+            };
+          }
+        } 
+      } else {
+        worksheet.getColumn('B').width = 45.75;
+        worksheet.getColumn('C').width = 45.75;
+    
+    
+        worksheet.mergeCells('B2:C5');
+        const logoPath = path.resolve(__dirname, '../utils/logoExcel2SinFondo.png');
+        const logoImage = workbook.addImage({
+          filename: logoPath,
+          extension: 'png',
+        });
+        worksheet.addImage(logoImage, {
+          tl: { col: 1, row: 1 },
+          ext: { width: 640, height: 88 }
+        });
+    
+        worksheet.getCell('B2').border = {
+          top: { style: 'medium', color: { argb: 'A6A6A6'}},
+          left: { style: 'medium', color: { argb: 'A6A6A6'}},
+          bottom: { style:'medium', color: { argb: 'A6A6A6'}},
+          right: { style: 'medium', color: { argb: 'A6A6A6'}},
+        };
+    
+    
+        // Merge cells for headers
+        worksheet.mergeCells('B6:C6');
+        worksheet.getCell('B6').value = planilla.usuarioNombre;
+        worksheet.getCell('B6').alignment = { vertical: 'middle', horizontal: 'center' };
+        worksheet.getCell('B6').font = { bold: true, size: 20, color: { argb: 'FFFFFF' }, name: 'Gadugi' };
+        worksheet.getCell('B6').fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '0B3040' },
+        };
+        worksheet.getCell('B6').border = {
+          top: { style: 'medium', color: { argb: 'A6A6A6'}},
+          left: { style: 'medium', color: { argb: 'A6A6A6'}},
+          bottom: { style:'medium', color: { argb: 'A6A6A6'}},
+          right: { style: 'medium', color: { argb: 'A6A6A6'}},
+        };
+        
+    
+    
+        // Adding the main content
+        worksheet.getCell('B8').value = 'FECHA';
+        worksheet.getCell('B8').font = { bold: true, size: 13, color: { argb: '000000' }, name: 'Gadugi' };
+        worksheet.getCell('C8').value = moment(new Date(planilla.fechaInicio)).format('DD/MM/YYYY') + ' - ' + moment(new Date(planilla.fechaFinal)).format('DD/MM/YYYY');
+        worksheet.getCell('B8').fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'DAE9F8' },
+        };
+        worksheet.getCell('C8').fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'DAE9F8' },
+        };
+        worksheet.getCell(`C8`).alignment = {
+          horizontal: 'right',
+        };
+        worksheet.getCell('B8').border = {
+          top: { style: 'medium', color: { argb: 'A6A6A6'}},
+          left: { style: 'medium', color: { argb: 'A6A6A6'}},
+          bottom: { style:'medium', color: { argb: 'A6A6A6'}},
+        };
+        worksheet.getCell('C8').border = {
+          top: { style: 'medium', color: { argb: 'A6A6A6'}},
+          bottom: { style:'medium', color: { argb: 'A6A6A6'}},
+          right: { style: 'medium', color: { argb: 'A6A6A6'}},
+        };
+        
+    
+        const salto = 10;
+    
+        tipoAumentos.forEach((tipo, index) => {
+          rowAumento = index + salto;
+    
+          let tipoValue = planilla.aumentos ? planilla.aumentos.find(aumento => aumento.tipoAumentoDescripcion == tipo.descripcion) || null : null;
+    
+          worksheet.getCell(`B${rowAumento}`).value = tipo.descripcion;
+          worksheet.getCell(`C${rowAumento}`).value = formatearNumero(tipoValue ? tipoValue.totalAumentoMonto : '0.00');
+          worksheet.getCell(`C${rowAumento}`).alignment = {
+            horizontal: 'right',
+          };
+        });
+    
+        startRow = salto;
+        endRow = rowAumento;
+        startCol = 'B';
+        endCol = 'C';
+        for (let row = startRow; row <= endRow; row++) {
+          for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
+            const cellAddress = `${String.fromCharCode(colCode)}${row}`;
+            const cell = worksheet.getCell(cellAddress);
+        
+            // Determine border styles based on cell position
+            const isTopEdge = row === startRow;
+            const isBottomEdge = row === endRow;
+            const isLeftEdge = colCode === startCol.charCodeAt(0);
+            const isRightEdge = colCode === endCol.charCodeAt(0);
+        
+            cell.border = {
+              top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+            };
+          }
+        } 
+
+        
+        worksheet.getCell(`B${++rowAumento}`).value = 'BASE FACTURACION';
+        worksheet.getCell(`C${rowAumento}`).value = formatearNumero(planilla.baseFacturacion ?? 0.00);
+        worksheet.getCell(`B${rowAumento}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`C${rowAumento}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`B${rowAumento}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '215C98' },
         };
         worksheet.getCell(`C${rowAumento}`).fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: 'DAE9F8' },
+          fgColor: { argb: '215C98' },
         };
         worksheet.getCell(`C${rowAumento}`).alignment = {
           horizontal: 'right',
         };
-      });
-  
-      tipoDeducciones.forEach((tipo, index) => {
-        rowDeduccion = index + salto;
-  
-        let tipoValue = planilla.deducciones ? planilla.deducciones.find(deduccion => deduccion.tipoDeduccionDescripcion == tipo.descripcion) || null : null;
-  
-        worksheet.getCell(`E${rowDeduccion}`).value = tipo.descripcion;
-        worksheet.getCell(`F${rowDeduccion}`).value = formatearNumero(tipoValue ? tipoValue.totalDeduccionMonto : '0.00');
-        worksheet.getCell(`E${rowDeduccion}`).fill = {
+
+    
+        tipoOtrosPagos.forEach((tipo, index) => {
+          rowOtroPago = index + rowAumento + 1;
+    
+          let tipoValue = planilla.otrosPagos ? planilla.otrosPagos.find(otroPago => otroPago.tipoOtroPagoDescripcion == tipo.descripcion) || null : null;
+    
+          worksheet.getCell(`B${rowOtroPago}`).value = tipo.descripcion;
+          worksheet.getCell(`C${rowOtroPago}`).value = formatearNumero(tipoValue ? tipoValue.totalOtroPagoMonto : '0.00');
+          worksheet.getCell(`C${rowOtroPago}`).alignment = {
+            horizontal: 'right',
+          };
+        });
+    
+        startRow = rowAumento + 1;
+        endRow = rowOtroPago;
+        startCol = 'B';
+        endCol = 'C';
+        for (let row = startRow; row <= endRow; row++) {
+          for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
+            const cellAddress = `${String.fromCharCode(colCode)}${row}`;
+            const cell = worksheet.getCell(cellAddress);
+        
+            // Determine border styles based on cell position
+            const isTopEdge = row === startRow;
+            const isBottomEdge = row === endRow;
+            const isLeftEdge = colCode === startCol.charCodeAt(0);
+            const isRightEdge = colCode === endCol.charCodeAt(0);
+        
+            cell.border = {
+              top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+            };
+          }
+        } 
+
+        
+        worksheet.getCell(`B${++rowOtroPago}`).value = 'SUBTOTAL';
+        worksheet.getCell(`C${rowOtroPago}`).value = formatearNumero(planilla.salarioBruto);
+        worksheet.getCell(`B${rowOtroPago}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`C${rowOtroPago}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`B${rowOtroPago}`).fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: 'DAE9F8' },
+          fgColor: { argb: '215C98' },
         };
-        worksheet.getCell(`F${rowDeduccion}`).fill = {
+        worksheet.getCell(`C${rowOtroPago}`).fill = {
           type: 'pattern',
           pattern: 'solid',
-          fgColor: { argb: 'DAE9F8' },
+          fgColor: { argb: '215C98' },
         };
-        worksheet.getCell(`F${rowDeduccion}`).alignment = {
-          horizontal: 'right',
-        };
-      });
-  
-      let nextRow = Math.max(rowAumento, rowDeduccion - 1);
-  
-  
-      worksheet.getCell(`B${++nextRow}`).value = 'SALARIO BRUTO';
-      worksheet.getCell(`C${nextRow}`).value = formatearNumero(planilla.salarioBruto);
-      worksheet.getCell(`B${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13 };
-      worksheet.getCell(`C${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13 };
-      worksheet.getCell(`B${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DAE9F8' },
-      };
-      worksheet.getCell(`C${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DAE9F8' },
-      };
-      worksheet.getCell(`C${nextRow}`).alignment = {
-        horizontal: 'right',
-      };
-  
-      worksheet.getCell(`B${++nextRow}`).value = 'SALARIO NETO';
-      worksheet.getCell(`C${nextRow}`).value = formatearNumero(planilla.salarioNeto);
-      worksheet.getCell(`B${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`C${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`B${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '0B3040' },
-      };
-      worksheet.getCell(`C${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '0B3040' },
-      };
-      worksheet.getCell(`C${nextRow}`).alignment = {
-        horizontal: 'right',
-      };
-  
-      worksheet.getCell(`E${nextRow}`).value = 'TOTAL DEDUCCIONES';
-      worksheet.getCell(`F${nextRow}`).value = formatearNumero(planilla.totalDeducciones);
-      worksheet.getCell(`E${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`F${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`E${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '0B3040' },
-      };
-      worksheet.getCell(`F${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '0B3040' },
-      };
-      worksheet.getCell(`F${nextRow++}`).alignment = {
-        horizontal: 'right',
-      };
-      
-      startRow = salto - 1;
-      endRow = nextRow - 1;
-      startCol = 'B';
-      endCol = 'C';
-      for (let row = startRow; row <= endRow; row++) {
-        for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
-          const cellAddress = `${String.fromCharCode(colCode)}${row}`;
-          const cell = worksheet.getCell(cellAddress);
-      
-          // Determine border styles based on cell position
-          const isTopEdge = row === startRow;
-          const isBottomEdge = row === endRow;
-          const isLeftEdge = colCode === startCol.charCodeAt(0);
-          const isRightEdge = colCode === endCol.charCodeAt(0);
-      
-          cell.border = {
-            top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-          };
-        }
-      } 
-      
-      startRow = salto - 1;
-      endRow = nextRow - 1;
-      startCol = 'E';
-      endCol = 'F';
-      for (let row = startRow; row <= endRow; row++) {
-        for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
-          const cellAddress = `${String.fromCharCode(colCode)}${row}`;
-          const cell = worksheet.getCell(cellAddress);
-      
-          // Determine border styles based on cell position
-          const isTopEdge = row === startRow;
-          const isBottomEdge = row === endRow;
-          const isLeftEdge = colCode === startCol.charCodeAt(0);
-          const isRightEdge = colCode === endCol.charCodeAt(0);
-      
-          cell.border = {
-            top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-          };
-        }
-      } 
-
-      let showOtrosPagos = '';
-      if (planilla.otrosPagos) {
-        showOtrosPagos = planilla.otrosPagos
-        .map(op => op.tipoOtroPagoDescripcion)
-        .join(', ');  
-      }
-      worksheet.getCell(`B${++nextRow}`).value = 'Otros Pagos:';
-      worksheet.getCell(`C${nextRow}`).value = showOtrosPagos
-      worksheet.getCell(`C${nextRow}`).alignment = {
-        horizontal: 'right',
-      };
-  
-      worksheet.getCell(`E${nextRow}`).value = 'Vacaciones';
-      worksheet.getCell(`F${nextRow}`).value = formatearNumero(planilla.usuarioVacacion);
-      worksheet.getCell(`F${nextRow}`).alignment = {
-        horizontal: 'right',
-      };
-  
-      worksheet.getCell(`B${++nextRow}`).value = 'Total Deposito';
-      worksheet.getCell(`C${nextRow}`).value = formatearNumero(planilla.salarioNeto);
-      worksheet.getCell(`B${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`C${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`B${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`C${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`D${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`C${nextRow}`).alignment = {
-        horizontal: 'right',
-      };
-  
-      worksheet.getCell(`E${nextRow}`).value = 'Fecha:';
-      worksheet.getCell(`F${nextRow}`).value = moment(new Date(planilla.fechaInicio)).format('DD/MM/YYYY') + ' - ' + moment(new Date(planilla.fechaFinal)).format('DD/MM/YYYY');
-      worksheet.getCell(`E${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`F${nextRow}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`E${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`F${nextRow}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`F${nextRow}`).alignment = {
-        horizontal: 'right',
-      };
-  
-      startRow = nextRow - 1;
-      endRow = nextRow;
-      startCol = 'B';
-      endCol = 'F';
-      for (let row = startRow; row <= endRow; row++) {
-        for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
-          const cellAddress = `${String.fromCharCode(colCode)}${row}`;
-          const cell = worksheet.getCell(cellAddress);
-      
-          // Determine border styles based on cell position
-          const isTopEdge = row === startRow;
-          const isBottomEdge = row === endRow;
-          const isLeftEdge = colCode === startCol.charCodeAt(0);
-          const isRightEdge = colCode === endCol.charCodeAt(0);
-      
-          cell.border = {
-            top: { style: (isTopEdge ? 'medium' : 'none'), color: { argb: 'A6A6A6'}},
-            left: { style: (isLeftEdge ? 'medium' : 'none'), color: { argb: 'A6A6A6'}},
-            bottom: { style: (isBottomEdge ? 'medium' : 'none'), color: { argb: 'A6A6A6'}},
-            right: { style: (isRightEdge ? 'medium' : 'none'), color: { argb: 'A6A6A6'}},
-          };
-        }
-      } 
-    } else {
-      worksheet.getColumn('B').width = 45.75;
-      worksheet.getColumn('C').width = 45.75;
-  
-  
-      worksheet.mergeCells('B2:C5');
-      const logoPath = path.resolve(__dirname, '../utils/logoExcel2SinFondo.png');
-      const logoImage = workbook.addImage({
-        filename: logoPath,
-        extension: 'png',
-      });
-      worksheet.addImage(logoImage, {
-        tl: { col: 1, row: 1 },
-        ext: { width: 640, height: 88 }
-      });
-  
-      worksheet.getCell('B2').border = {
-        top: { style: 'medium', color: { argb: 'A6A6A6'}},
-        left: { style: 'medium', color: { argb: 'A6A6A6'}},
-        bottom: { style:'medium', color: { argb: 'A6A6A6'}},
-        right: { style: 'medium', color: { argb: 'A6A6A6'}},
-      };
-  
-  
-      // Merge cells for headers
-      worksheet.mergeCells('B6:C6');
-      worksheet.getCell('B6').value = planilla.usuarioNombre;
-      worksheet.getCell('B6').alignment = { vertical: 'middle', horizontal: 'center' };
-      worksheet.getCell('B6').font = { bold: true, size: 20, color: { argb: 'FFFFFF' }, name: 'Gadugi' };
-      worksheet.getCell('B6').fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '0B3040' },
-      };
-      worksheet.getCell('B6').border = {
-        top: { style: 'medium', color: { argb: 'A6A6A6'}},
-        left: { style: 'medium', color: { argb: 'A6A6A6'}},
-        bottom: { style:'medium', color: { argb: 'A6A6A6'}},
-        right: { style: 'medium', color: { argb: 'A6A6A6'}},
-      };
-      
-  
-  
-      // Adding the main content
-      worksheet.getCell('B8').value = 'FECHA';
-      worksheet.getCell('B8').font = { bold: true, size: 13, color: { argb: '000000' }, name: 'Gadugi' };
-      worksheet.getCell('C8').value = moment(new Date(planilla.fechaInicio)).format('DD/MM/YYYY') + ' - ' + moment(new Date(planilla.fechaFinal)).format('DD/MM/YYYY');
-      worksheet.getCell('B8').fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DAE9F8' },
-      };
-      worksheet.getCell('C8').fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'DAE9F8' },
-      };
-      worksheet.getCell(`C8`).alignment = {
-        horizontal: 'right',
-      };
-      worksheet.getCell('B8').border = {
-        top: { style: 'medium', color: { argb: 'A6A6A6'}},
-        left: { style: 'medium', color: { argb: 'A6A6A6'}},
-        bottom: { style:'medium', color: { argb: 'A6A6A6'}},
-      };
-      worksheet.getCell('C8').border = {
-        top: { style: 'medium', color: { argb: 'A6A6A6'}},
-        bottom: { style:'medium', color: { argb: 'A6A6A6'}},
-        right: { style: 'medium', color: { argb: 'A6A6A6'}},
-      };
-      
-  
-      const salto = 10;
-  
-      tipoAumentos.forEach((tipo, index) => {
-        rowAumento = index + salto;
-  
-        let tipoValue = planilla.aumentos ? planilla.aumentos.find(aumento => aumento.tipoAumentoDescripcion == tipo.descripcion) || null : null;
-  
-        worksheet.getCell(`B${rowAumento}`).value = tipo.descripcion;
-        worksheet.getCell(`C${rowAumento}`).value = formatearNumero(tipoValue ? tipoValue.totalAumentoMonto : '0.00');
-        worksheet.getCell(`C${rowAumento}`).alignment = {
-          horizontal: 'right',
-        };
-      });
-  
-      startRow = salto;
-      endRow = rowAumento;
-      startCol = 'B';
-       endCol = 'C';
-      for (let row = startRow; row <= endRow; row++) {
-        for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
-          const cellAddress = `${String.fromCharCode(colCode)}${row}`;
-          const cell = worksheet.getCell(cellAddress);
-      
-          // Determine border styles based on cell position
-          const isTopEdge = row === startRow;
-          const isBottomEdge = row === endRow;
-          const isLeftEdge = colCode === startCol.charCodeAt(0);
-          const isRightEdge = colCode === endCol.charCodeAt(0);
-      
-          cell.border = {
-            top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-          };
-        }
-      } 
-
-      
-      worksheet.getCell(`B${++rowAumento}`).value = 'BASE FACTURACION';
-      worksheet.getCell(`C${rowAumento}`).value = formatearNumero(planilla.baseFacturacion ?? 0.00);
-      worksheet.getCell(`B${rowAumento}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`C${rowAumento}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`B${rowAumento}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`C${rowAumento}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`C${rowAumento}`).alignment = {
-        horizontal: 'right',
-      };
-
-  
-      tipoOtrosPagos.forEach((tipo, index) => {
-        rowOtroPago = index + rowAumento + 1;
-  
-        let tipoValue = planilla.otrosPagos ? planilla.otrosPagos.find(otroPago => otroPago.tipoOtroPagoDescripcion == tipo.descripcion) || null : null;
-  
-        worksheet.getCell(`B${rowOtroPago}`).value = tipo.descripcion;
-        worksheet.getCell(`C${rowOtroPago}`).value = formatearNumero(tipoValue ? tipoValue.totalOtroPagoMonto : '0.00');
         worksheet.getCell(`C${rowOtroPago}`).alignment = {
           horizontal: 'right',
         };
-      });
-  
-      startRow = rowAumento + 1;
-      endRow = rowOtroPago;
-      startCol = 'B';
-       endCol = 'C';
-      for (let row = startRow; row <= endRow; row++) {
-        for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
-          const cellAddress = `${String.fromCharCode(colCode)}${row}`;
-          const cell = worksheet.getCell(cellAddress);
-      
-          // Determine border styles based on cell position
-          const isTopEdge = row === startRow;
-          const isBottomEdge = row === endRow;
-          const isLeftEdge = colCode === startCol.charCodeAt(0);
-          const isRightEdge = colCode === endCol.charCodeAt(0);
-      
-          cell.border = {
-            top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+
+
+    
+        tipoDeducciones.forEach((tipo, index) => {
+          rowDeduccion = index + rowOtroPago + 1;
+    
+          let tipoValue = planilla.deducciones ? planilla.deducciones.find(deduccion => deduccion.tipoDeduccionDescripcion == tipo.descripcion) || null : null;
+    
+          worksheet.getCell(`B${rowDeduccion}`).value = tipo.descripcion;
+          worksheet.getCell(`C${rowDeduccion}`).value = formatearNumero(tipoValue ? tipoValue.totalDeduccionMonto : '0.00');
+          worksheet.getCell(`C${rowDeduccion}`).alignment = {
+            horizontal: 'right',
           };
-        }
-      } 
+        });
+    
+        startRow = rowOtroPago + 1;
+        endRow = rowDeduccion;
+        startCol = 'B';
+        endCol = 'C';
+        for (let row = startRow; row <= endRow; row++) {
+          for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
+            const cellAddress = `${String.fromCharCode(colCode)}${row}`;
+            const cell = worksheet.getCell(cellAddress);
+        
+            
+            const isTopEdge = row === startRow;
+            const isBottomEdge = row === endRow;
+            const isLeftEdge = colCode === startCol.charCodeAt(0);
+            const isRightEdge = colCode === endCol.charCodeAt(0);
+        
+            cell.border = {
+              top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+              right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
+            };
+          }
+        } 
 
-      
-      worksheet.getCell(`B${++rowOtroPago}`).value = 'SUBTOTAL';
-      worksheet.getCell(`C${rowOtroPago}`).value = formatearNumero(planilla.salarioBruto);
-      worksheet.getCell(`B${rowOtroPago}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`C${rowOtroPago}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`B${rowOtroPago}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`C${rowOtroPago}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '215C98' },
-      };
-      worksheet.getCell(`C${rowOtroPago}`).alignment = {
-        horizontal: 'right',
-      };
-
-
-  
-      tipoDeducciones.forEach((tipo, index) => {
-        rowDeduccion = index + rowOtroPago + 1;
-  
-        let tipoValue = planilla.deducciones ? planilla.deducciones.find(deduccion => deduccion.tipoDeduccionDescripcion == tipo.descripcion) || null : null;
-  
-        worksheet.getCell(`B${rowDeduccion}`).value = tipo.descripcion;
-        worksheet.getCell(`C${rowDeduccion}`).value = formatearNumero(tipoValue ? tipoValue.totalDeduccionMonto : '0.00');
+    
+        worksheet.getCell(`B${++rowDeduccion}`).value = 'TOTAL DESEMBOLSO';
+        worksheet.getCell(`C${rowDeduccion}`).value = formatearNumero(planilla.salarioNeto);
+        worksheet.getCell(`B${rowDeduccion}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`C${rowDeduccion}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
+        worksheet.getCell(`B${rowDeduccion}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '153D64' },
+        };
+        worksheet.getCell(`C${rowDeduccion}`).fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '153D64' },
+        };
         worksheet.getCell(`C${rowDeduccion}`).alignment = {
           horizontal: 'right',
         };
+      }
+
+      const fechas = moment(new Date(planilla.fechaInicio)).format('YYYY-MM-DD') + '_' + moment(new Date(planilla.fechaFinal)).format('YYYY-MM-DD');
+
+      const relativePath = `/uploads/planilla/${fechas}/comprobantes`;
+      const file = `comprobante_${formatearNombre(planilla.usuarioNombre)}_${moment().format('YYYYMMDD')}.xlsx`;
+      const dirPath = path.join('.', relativePath);
+      const filePath = path.resolve(dirPath, file);
+      
+      if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+      }
+      await workbook.xlsx.writeFile(filePath)
+      .then(() => {
+        enviarCorreoComprobante(planilla, filePath);
+        guardarUbicacionComprobante(req, relativePath, file, planilla.id);
+        enviarNotificacion(planilla.usuarioId)
+      })
+      .catch((error) => {
+        console.error(`Error saving workbook: ${error.message}`);
       });
-  
-      startRow = rowOtroPago + 1;
-      endRow = rowDeduccion;
-      startCol = 'B';
-       endCol = 'C';
-      for (let row = startRow; row <= endRow; row++) {
-        for (let colCode = startCol.charCodeAt(0); colCode <= endCol.charCodeAt(0); colCode++) {
-          const cellAddress = `${String.fromCharCode(colCode)}${row}`;
-          const cell = worksheet.getCell(cellAddress);
-      
-          
-          const isTopEdge = row === startRow;
-          const isBottomEdge = row === endRow;
-          const isLeftEdge = colCode === startCol.charCodeAt(0);
-          const isRightEdge = colCode === endCol.charCodeAt(0);
-      
-          cell.border = {
-            top: { style: (isTopEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            left: { style: (isLeftEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            bottom: { style: (isBottomEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-            right: { style: (isRightEdge ? 'thin' : 'none'), color: { argb: 'A6A6A6'}},
-          };
-        }
-      } 
 
-  
-      worksheet.getCell(`B${++rowDeduccion}`).value = 'TOTAL DESEMBOLSO';
-      worksheet.getCell(`C${rowDeduccion}`).value = formatearNumero(planilla.salarioNeto);
-      worksheet.getCell(`B${rowDeduccion}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`C${rowDeduccion}`).font = { bold: true, name: 'Gadugi', size: 13, color: { argb: 'FFFFFF' } };
-      worksheet.getCell(`B${rowDeduccion}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '153D64' },
-      };
-      worksheet.getCell(`C${rowDeduccion}`).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: '153D64' },
-      };
-      worksheet.getCell(`C${rowDeduccion}`).alignment = {
-        horizontal: 'right',
-      };
+      await sleep(1000);
+    } catch (error) {
+      console.error(`Error processing planilla: ${error.message}`);
     }
-
-    const fechas = moment(new Date(planilla.fechaInicio)).format('YYYY-MM-DD') + '_' + moment(new Date(planilla.fechaFinal)).format('YYYY-MM-DD');
-
-    const relativePath = `/uploads/planilla/${fechas}/comprobantes`;
-    const file = `comprobante_${formatearNombre(planilla.usuarioNombre)}_${moment().format('YYYYMMDD')}.xlsx`;
-    const dirPath = path.join('.', relativePath);
-    const filePath = path.resolve(dirPath, file);
-    
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
-    }
-    await workbook.xlsx.writeFile(filePath)
-    .then(() => {
-      enviarCorreoComprobante(planilla, filePath);
-      guardarUbicacionComprobante(req, relativePath, file, planilla.id);
-    })
-    .catch((error) => {
-      console.error(`Error saving workbook: ${error.message}`);
-    });
-  });
+  }
 }
 
 function formatearNumero(valor) {
+  if (!valor) return '0.00';
   let formateado = parseFloat(valor.toString().replace(/[^\d.-]/g, ''));
   
   if (isNaN(formateado)) {
@@ -1506,6 +1554,10 @@ async function guardarUbicacionComprobante(req, ubicacion, archivo, idPlanilla) 
   } catch (error) {
     console.log(error)
   }
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function crearRespaldo(req, planillas) {
@@ -1651,4 +1703,16 @@ async function guardarUbicacionPlanilla(req, ubicacion, archivo, fechaInicio, fe
   } catch (error) {
     console.log(error)
   }
+}
+
+async function enviarNotificacion(idUsuario) {
+  let datos = {
+    idUsuario: idUsuario,
+    titulo: 'Comprobante creado',
+    descripcion: 'El comprobante de esta quincena ha sido completado',
+    destino: `/comprobante/${idUsuario}`,
+    color: 1
+  };
+
+  insert_notificacion(datos);
 }

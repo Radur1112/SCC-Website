@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatSelectModule } from '@angular/material/select';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
@@ -57,7 +57,7 @@ export class ForoIndexComponent {
     private confirmationService: ConfirmationService,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     @Inject(MAT_DATE_LOCALE) private _locale: string,
     private _adapter: DateAdapter<any>,
@@ -166,12 +166,12 @@ export class ForoIndexComponent {
         Promise.all([archivoPromise, respuestaPromise])
           .then(() => {
             this.getForos();
-            this.notificacion.mensaje('Foro', 'Foro creado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Foro', 'Foro creado correctamente', TipoMessage.success);
           })
           .catch(error => {
             this.getForos();
             console.error("Error al crear archivos or respuestas:", error);
-            this.notificacion.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
+            this.alerta.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
           });
       }
     });
@@ -211,12 +211,12 @@ export class ForoIndexComponent {
         Promise.all([archivoCreatePromise, archivoUpdatePromise, respuestaPromise])
           .then(() => {
             this.getForos();
-            this.notificacion.mensaje('Foro', 'Foro editado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Foro', 'Foro editado correctamente', TipoMessage.success);
           })
           .catch(error => {
             this.getForos();
             console.error("Error al crear archivos or respuestas:", error);
-            this.notificacion.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
+            this.alerta.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
           });
       }
     });
@@ -254,7 +254,7 @@ export class ForoIndexComponent {
         this.gService.put(`foro/borrar`, foro)
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
-            this.notificacion.mensaje('Foro', 'Foro eliminado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Foro', 'Foro eliminado correctamente', TipoMessage.success);
             this.getForos();
           },
           error:(err) => {

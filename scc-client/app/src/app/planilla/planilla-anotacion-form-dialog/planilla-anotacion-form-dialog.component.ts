@@ -11,7 +11,7 @@ import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
@@ -43,7 +43,7 @@ export class PlanillaAnotacionFormDialogComponent {
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<PlanillaAnotacionFormDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
@@ -93,7 +93,7 @@ export class PlanillaAnotacionFormDialogComponent {
     this.gService.put(`${transformarTipo(this.anotacion.tipo)}`, data)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Anotacion', 'Anotacion modificada correctamente', TipoMessage.success);
+        this.alerta.mensaje('Anotacion', 'Anotacion modificada correctamente', TipoMessage.success);
         this.dialogRef.close(true);
       }
     });

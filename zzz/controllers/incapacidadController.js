@@ -1,4 +1,9 @@
 const db = require('../utils/db.js');
+const { format } = require('date-fns');
+const { es } = require('date-fns/locale');
+
+const { enviarCorreoAviso } = require('../utils/emailService');
+const { insert_notificacion } = require('../utils/triggers.js')
 
 var nombreTabla = 'incapacidad';
 
@@ -363,6 +368,7 @@ module.exports.confirmarIncapacidad = async (req, res, next) => {
 
     const data = await db.query(`UPDATE ${nombreTabla} SET estado = 1 WHERE id = ?`, [id]);
     if (data) {
+      enviarNotificacion(true, id);
       res.status(201).json({
           status: true,
           message: `${nombreTabla} actualizado`
@@ -395,6 +401,7 @@ module.exports.rechazarIncapacidad = async (req, res, next) => {
 
     const data = await db.query(`UPDATE ${nombreTabla} SET estado = 0 WHERE id = ?`, [id]);
     if (data) {
+      enviarNotificacion(false, id);
       res.status(201).json({
           status: true,
           message: `${nombreTabla} actualizado`
@@ -414,6 +421,42 @@ module.exports.rechazarIncapacidad = async (req, res, next) => {
     });
   }
 };
+
+async function enviarNotificacion(aceptado, id) {
+  const [data] = await db.query(`SELECT i.*, u.correo AS usuarioCorreo FROM ${nombreTabla} i INNER JOIN usuario u ON u.id = i.idUsuario WHERE i.id = ?`, [id]);
+  const incapacidad = data[0];
+
+  let fechaInicio = format(incapacidad.fechaInicio, "d 'de' MMMM, yyyy - hh:mm aa", { locale: es });
+  let fechaFinal = format(incapacidad.fechaFinal, "d 'de' MMMM, yyyy - hh:mm aa", { locale: es });
+  
+  let datos;
+  if (aceptado) {
+    datos = {
+      idUsuario: incapacidad.idUsuario,
+      titulo: 'Incapacidad aprobada',
+      descripcion: 'Su justificación de incapacidad ha sido aprobada',
+      destino: `/incapacidad/historial/${incapacidad.idUsuario}`,
+      asunto: 'Incapacidad aprobada',
+      color: 1,
+      html: `Su justificación de incapacidad del ${fechaInicio} al ${fechaFinal} ha sido aprobada`,
+      usuarioCorreo: incapacidad.usuarioCorreo
+    };
+  } else {
+    datos = {
+      idUsuario: incapacidad.idUsuario,
+      titulo: 'Incapacidad rechazada',
+      descripcion: 'Su justificación de incapacidad ha sido rechazada',
+      destino: `/incapacidad/historial/${incapacidad.idUsuario}`,
+      asunto: 'Incapacidad rechazada',
+      color: 3,
+      html: `Su justificación de incapacidad del ${fechaInicio} al ${fechaFinal} ha sido rechazada`,
+      usuarioCorreo: incapacidad.usuarioCorreo
+    };
+  }
+
+  enviarCorreoAviso(datos);
+  insert_notificacion(datos);
+}
 
 /* 
 module.exports.crearConArchivos = async (req, res, next) => {

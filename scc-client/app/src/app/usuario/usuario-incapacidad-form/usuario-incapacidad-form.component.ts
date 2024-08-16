@@ -16,7 +16,7 @@ import { GenericService } from '../../services/generic.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ForoSubirArchivoComponent } from "../../foro/foro-subir-archivo/foro-subir-archivo.component";
 
@@ -94,7 +94,7 @@ export class UsuarioIncapacidadFormComponent {
     private datePipe: DatePipe,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     @Inject(MAT_DATE_LOCALE) private _locale: string,
     private _adapter: DateAdapter<any>,
@@ -556,7 +556,7 @@ export class UsuarioIncapacidadFormComponent {
     this.gService.post(`incapacidad/archivos`, formData)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Justificación', 'Justificación enviada correctamente', TipoMessage.success);
+        this.alerta.mensaje('Justificación', 'Justificación enviada correctamente', TipoMessage.success);
         this.incapacidadForm.reset();
         this.incapacidadForm.get('horaInicio').setValue(this.horaEntrada)
         this.incapacidadForm.get('horaFinal').setValue(this.horaSalida)

@@ -27,7 +27,48 @@
             <button mat-button color="primary" routerLink="/login" routerLinkActive="active-outline-button" class="primary-outline-button" (click)="collapseNavbar()">Inicio de sesión</button>
           </div>
           <ng-template #loggedIn>
-            <button mat-icon-button class="iconoUsuario" [matMenuTriggerFor]="menu"  matTooltip="Menú de Usuario">
+            <button mat-icon-button class="icono-notificacion me-4" [matMenuTriggerFor]="notificacion"  matTooltip="Notificaciones" (click)="verNotificaciones()">
+              <mat-icon class="primary-color" *ngIf="notificacionesNoLeidas.length > 0">notifications_active</mat-icon>
+              <mat-icon class="primary-color" *ngIf="notificacionesNoLeidas.length == 0">notifications</mat-icon>
+              <span *ngIf="notificacionesNoLeidas.length > 0" class="badge">
+                {{ notificacionesNoLeidas.length }}
+              </span>
+            </button>
+            <mat-menu #notificacion="matMenu" class="notificacion-menu" style="cursor: pointer;">
+              <ng-container *ngIf="notificaciones.length > 0; else noNotificaciones">
+                <mat-list class="p-0">
+                  <div *ngFor="let notificacion of notificaciones">
+                    <div class="notificacion-menu"
+                    [ngClass]="{'accepted': notificacion.color === 1, 
+                                'rejected': notificacion.color === 3, 
+                                'unread': notificacion.leido === 0}">
+                      <a [href]="notificacion.destino" class="notificacion-link">
+                        <mat-list-item>
+                          <mat-icon matListItemIcon>notifications</mat-icon>
+                          <div matListItemTitle>{{ notificacion.titulo }}</div>
+                          <div matListItemLine>{{ notificacion.fechaCreado | date: 'd \'de\' MMMM, y - hh:mm aa' }}</div>
+                          {{ notificacion.descripcion }}
+                        </mat-list-item>
+                      </a>
+                      <div class="notificacion-delete">
+                        <button mat-icon-button>
+                          <mat-icon class="warn-color">delete</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                    <mat-divider *ngIf="notificaciones.length > 1"></mat-divider>
+                  </div>
+                </mat-list>
+              </ng-container>
+            
+              <ng-template #noNotificaciones>
+                <div class="p-3">
+                  <span class="primary-color">No hay notificaciones</span>
+                </div>
+              </ng-template>
+            </mat-menu>
+
+            <button mat-icon-button class="icono-usuario" [matMenuTriggerFor]="menu"  matTooltip="Menú de Usuario">
               <mat-icon class="primary-color">account_circle</mat-icon>
             </button>
             <mat-menu #menu="matMenu">

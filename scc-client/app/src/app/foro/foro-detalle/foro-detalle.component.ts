@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatSelectModule } from '@angular/material/select';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -54,7 +54,7 @@ export class ForoDetalleComponent {
     private confirmationService: ConfirmationService,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private fb: FormBuilder,
     private dialog: MatDialog,
     private datePipe: DatePipe,
@@ -145,7 +145,12 @@ export class ForoDetalleComponent {
   busqueda(event: Event) {
     const filtro = (event.target as HTMLInputElement).value;
     
-    this.filtroRespuestas = this.respuestas.filter(respuesta => respuesta.descripcion.includes(filtro) || this.datePipe.transform(respuesta.fecha, "EEEE d 'de' MMMM y, h:mm a").replace(/\u00A0/g, ' ').includes(filtro) || respuesta.usuarioNombre.includes(filtro));
+    this.filtroRespuestas = this.respuestas.filter(respuesta => 
+      respuesta.descripcion.includes(filtro) || 
+      this.datePipe.transform(respuesta.fechaCreado, "dd/MM/YYYY").replace(/\u00A0/g, ' ').includes(filtro) || 
+      this.datePipe.transform(respuesta.fechaCreado, "dd-MM-YYYY").replace(/\u00A0/g, ' ').includes(filtro) || 
+      this.datePipe.transform(respuesta.fechaCreado, "EEEE d 'de' MMMM y, h:mm a").replace(/\u00A0/g, ' ').includes(filtro) || 
+      respuesta.usuarioNombre.includes(filtro));
   }
 
   historialForo(id: any) {
@@ -159,7 +164,7 @@ export class ForoDetalleComponent {
         this.gService.put(`foro/borrar`, foro)
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
-            this.notificacion.mensaje('Foro', 'Foro eliminado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Foro', 'Foro eliminado correctamente', TipoMessage.success);
             this.router.navigate(['foro']);
           },
           error:(err) => {
@@ -177,7 +182,7 @@ export class ForoDetalleComponent {
           this.gService.put(`usuarioForoRespuesta/borrar`, respuesta)
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
-              this.notificacion.mensaje('Respuesta', 'Respuesta eliminada correctamente', TipoMessage.success);
+              this.alerta.mensaje('Respuesta', 'Respuesta eliminada correctamente', TipoMessage.success);
               this.getForo();
             },
             error:(err) => {
@@ -202,7 +207,7 @@ export class ForoDetalleComponent {
       next:(res) => {
         this.respuestaForm.reset();
         this.getForo();
-        this.notificacion.mensaje('Respuesta', 'Foro respondido correctamente', TipoMessage.success);
+        this.alerta.mensaje('Respuesta', 'Foro respondido correctamente', TipoMessage.success);
       }
     });
   }
@@ -223,7 +228,7 @@ export class ForoDetalleComponent {
       next:(res) => {
         this.respuestaForm.reset();
         this.getForo();
-        this.notificacion.mensaje('Respuesta', 'Foro respondido correctamente', TipoMessage.success);
+        this.alerta.mensaje('Respuesta', 'Foro respondido correctamente', TipoMessage.success);
       }
     });
   }
@@ -260,11 +265,11 @@ export class ForoDetalleComponent {
       
         Promise.all([archivoCreatePromise, archivoUpdatePromise, respuestaPromise])
           .then(() => {
-            this.notificacion.mensaje('Foro', 'Foro editado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Foro', 'Foro editado correctamente', TipoMessage.success);
           })
           .catch(error => {
             console.error("Error al crear archivos or respuestas:", error);
-            this.notificacion.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
+            this.alerta.mensaje('Foro', 'Error al crear archivos o respuestas', TipoMessage.error);
           });
       }
     });

@@ -10,7 +10,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatListModule } from '@angular/material/list';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { GenericService } from '../../services/generic.service';
 
 @Component({
@@ -27,7 +27,7 @@ export class ContactoComponent {
     private http: HttpClient,
     private fb: FormBuilder,
     private gService: GenericService,
-    private notificacion: NotificacionService
+    private alerta: AlertaService
   ) {
     this.reactiveForm();
   }
@@ -76,7 +76,7 @@ export class ContactoComponent {
     this.contactoForm.value.asunto = this.crearAsunto();
 
     this.gService.post(`contacto`, this.contactoForm.value).subscribe(response => {
-      this.notificacion.mensaje('Información', response.toString(), TipoMessage.success);
+      this.alerta.mensaje('Información', response.toString(), TipoMessage.success);
       this.contactoForm.reset();
     });
   }

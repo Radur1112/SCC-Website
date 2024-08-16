@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { FileUploader, FileUploadModule } from 'ng2-file-upload';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 
 interface ExistingFile {
   id: any;
@@ -28,7 +28,7 @@ export class ForoSubirArchivoComponent {
     queueLimit: 10, 
   });
 
-  constructor(private notificacion: NotificacionService) {
+  constructor(private alerta: AlertaService) {
     this.uploader.onAfterAddingFile = (file) => { 
       console.log(file)
       file.withCredentials = false; 
@@ -36,7 +36,7 @@ export class ForoSubirArchivoComponent {
       } else {
         if (this.uploader.queue.filter(q => q._file.name == file._file.name).length > 1 || this.existingFiles.find(e => e.nombreArchivo == file._file.name)) {
           this.uploader.removeFromQueue(file);
-          this.notificacion.mensaje('Archivos', 'Este archivo ya fue seleccionado', TipoMessage.warning);
+          this.alerta.mensaje('Archivos', 'Este archivo ya fue seleccionado', TipoMessage.warning);
         } else {
           this.emitFiles();
         }

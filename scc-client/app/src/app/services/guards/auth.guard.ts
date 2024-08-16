@@ -2,13 +2,10 @@ import { Injectable, inject } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable, Subject, elementAt, of, takeUntil } from 'rxjs';
 import { AuthService } from '../auth.service';
-import { GenericService } from '../generic.service';
-import { NotificacionService, TipoMessage } from '../notification.service';
 
 export const AuthGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService) as AuthService;
   const router = inject(Router) as Router;
-  const notificacion = inject(NotificacionService) as NotificacionService;
 
   const destroy$ = new Subject<boolean>();
 

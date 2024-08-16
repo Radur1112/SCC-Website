@@ -17,7 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import {MatTabsModule} from '@angular/material/tabs';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
@@ -106,7 +106,7 @@ export class CapacitacionAdminIndexComponent {
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private router:Router,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
@@ -234,7 +234,7 @@ export class CapacitacionAdminIndexComponent {
         this.selectedModulo = null;
         this.moduloVideos = null;
         this.getModulos(res.data.insertId);
-        this.notificacion.mensaje('Modulo', 'Modulo creado correctamente', TipoMessage.success);
+        this.alerta.mensaje('Modulo', 'Modulo creado correctamente', TipoMessage.success);
       }
     });
   }
@@ -246,7 +246,7 @@ export class CapacitacionAdminIndexComponent {
         this.selectedModulo = null;
         this.moduloVideos = null;
         this.getModulos(modulo.id);
-        this.notificacion.mensaje('Modulo', 'Modulo actualizado correctamente', TipoMessage.success);
+        this.alerta.mensaje('Modulo', 'Modulo actualizado correctamente', TipoMessage.success);
       }
     });
   }
@@ -261,7 +261,7 @@ export class CapacitacionAdminIndexComponent {
             this.selectedModulo = null;
             this.moduloVideos = null;
             this.getModulos();
-            this.notificacion.mensaje('Modulo', 'Modulo eliminado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Modulo', 'Modulo eliminado correctamente', TipoMessage.success);
           }
         });
       }
@@ -346,7 +346,7 @@ export class CapacitacionAdminIndexComponent {
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
             this.getModuloVideosByIdModulo();
-            this.notificacion.mensaje('Video', 'Video creado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Video', 'Video creado correctamente', TipoMessage.success);
           }
         });
       }
@@ -367,7 +367,7 @@ export class CapacitacionAdminIndexComponent {
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
             this.getModuloVideosByIdModulo();
-            this.notificacion.mensaje('Video', 'Video actualizado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Video', 'Video actualizado correctamente', TipoMessage.success);
           }
         });
       }
@@ -382,7 +382,7 @@ export class CapacitacionAdminIndexComponent {
         .pipe(takeUntil(this.destroy$)).subscribe({
           next:(res) => {
             this.getModuloVideosByIdModulo();
-            this.notificacion.mensaje('Video', 'Video eliminado correctamente', TipoMessage.success);
+            this.alerta.mensaje('Video', 'Video eliminado correctamente', TipoMessage.success);
           }
         });
       }
@@ -460,7 +460,7 @@ export class CapacitacionAdminIndexComponent {
     this.gService.post(`usuarioModulo/multiple`, datos)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Modulo', `Usuarios asignados al módulo '${this.selectedModulo.titulo}' correctamente`, TipoMessage.success);
+        this.alerta.mensaje('Modulo', `Usuarios asignados al módulo '${this.selectedModulo.titulo}' correctamente`, TipoMessage.success);
         this.getUsuariosByModulo();
       }
     });
@@ -476,7 +476,7 @@ export class CapacitacionAdminIndexComponent {
     this.gService.post(`usuarioModulo/borrar/multiple`, idUsuarios)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Modulo', `Usuarios desasignados del módulo '${this.selectedModulo.titulo}' correctamente`, TipoMessage.success);
+        this.alerta.mensaje('Modulo', `Usuarios desasignados del módulo '${this.selectedModulo.titulo}' correctamente`, TipoMessage.success);
         this.getUsuariosByModulo();
       }
     });

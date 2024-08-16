@@ -14,6 +14,8 @@ const app = express();
 const recultamientoRouter = require('./routes/recultamientoRoutes');
 const contactoRouter = require('./routes/contactoRoutes');
 
+const notificacionRouter = require('./routes/notificacionRoutes');
+
 const usuarioRouter = require("./routes/usuarioRoutes");
 const tipoUsuarioRouter = require('./routes/tipoUsuarioRoutes');
 const tipoContratoRouter = require('./routes/tipoContratoRoutes');
@@ -86,6 +88,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/reclutamiento/", recultamientoRouter);
 app.use("/contacto/", contactoRouter);
+
+app.use("/notificacion/", notificacionRouter);
 
 app.use("/usuario/", usuarioRouter);
 app.use("/tipoUsuario/", tipoUsuarioRouter);

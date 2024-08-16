@@ -17,7 +17,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDialog } from '@angular/material/dialog';
@@ -65,7 +65,7 @@ export class UsuarioIndexComponent {
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private router:Router,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,
@@ -132,7 +132,7 @@ export class UsuarioIndexComponent {
           this.gService.put(`usuario/borrar`, usuario)
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
-              this.notificacion.mensaje('Usuario', 'Usuario eliminado correctamente', TipoMessage.success);
+              this.alerta.mensaje('Usuario', 'Usuario eliminado correctamente', TipoMessage.success);
               this.getUsuarios();
             },
             error:(err) => {

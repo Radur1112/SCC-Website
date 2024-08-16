@@ -9,7 +9,7 @@
       <ng-container *ngIf="isAsalariado != 2">
         <div class="planilla-container">
           <div class="planilla-left">
-            <div class="planilla-item"><strong>Salario Base:</strong> <p class="m-0"><strong>{{ formatearNumero(planilla.salarioBase) }}</strong></p></div>
+            <div class="planilla-item"><strong>Salario Base:</strong> <p class="m-0 editable" contenteditable (blur)="confirmarTexto($event, null, true)"><strong>{{ formatearNumero(planilla.salarioBase) }}</strong></p></div>
             <ng-container *ngIf="aumentos">
               <div class="planilla-item" *ngFor="let tipo of aumentos">
                 <strong>{{ tipo.descripcion }} {{ tipo.fijo == 2 ? tipo.valor + '%' : tipo.fijo == 1 ? tipo.valor : '' }}:</strong>

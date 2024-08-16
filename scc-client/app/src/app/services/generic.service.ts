@@ -4,7 +4,7 @@ import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
-import { NotificacionService, TipoMessage } from './notification.service';
+import { AlertaService, TipoMessage } from './alerta.service';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +21,7 @@ export class GenericService {
   constructor(private http: HttpClient,
     private authService: AuthService,
     private router: Router,
-    private notificacion: NotificacionService
+    private alerta: AlertaService
   ) {
   }
  
@@ -83,23 +83,23 @@ export class GenericService {
     switch (error.status) {
       case 400:
         if (id === 'duplicado') {
-          this.notificacion.mensaje('Registro', message, TipoMessage.error);
+          this.alerta.mensaje('Registro', message, TipoMessage.error);
         }
         break;
       case 401:
         if (id === 'sesion') {
           this.authService.logout();
-          this.notificacion.mensaje('Usuario', message, TipoMessage.warning);
+          this.alerta.mensaje('Usuario', message, TipoMessage.warning);
           this.router.navigate(['/login']);
         }
         if (id === 'baneado') {
-          this.notificacion.mensaje('Reclutamiento', message, TipoMessage.error);
+          this.alerta.mensaje('Reclutamiento', message, TipoMessage.error);
         }
         if (id === 'planillaActivo') {
-          this.notificacion.mensaje('Planilla', message, TipoMessage.warning);
+          this.alerta.mensaje('Planilla', message, TipoMessage.warning);
         }
         if (id === 'completada') {
-          this.notificacion.mensaje('Planilla', message, TipoMessage.error);
+          this.alerta.mensaje('Planilla', message, TipoMessage.error);
         }
         break;
       case 403:
@@ -110,7 +110,7 @@ export class GenericService {
         break;
       default:
         if (error.error && error.error.message === 'Failed to fetch') {
-          this.notificacion.mensaje('Error', 'Error al obtener el archivo. Seleccionelo nuevamente.', TipoMessage.error);
+          this.alerta.mensaje('Error', 'Error al obtener el archivo. Seleccionelo nuevamente.', TipoMessage.error);
         }
         break;
     }

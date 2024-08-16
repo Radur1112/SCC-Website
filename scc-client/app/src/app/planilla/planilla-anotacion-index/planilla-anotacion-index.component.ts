@@ -12,7 +12,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatPaginator, MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -41,7 +41,7 @@ export class PlanillaAnotacionIndexComponent {
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private router:Router,
     private route:ActivatedRoute,
     private dialog: MatDialog
@@ -122,7 +122,7 @@ export class PlanillaAnotacionIndexComponent {
           this.gService.put(`${transformarTipo(anotacion.tipo)}/borrar`, anotacion)
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
-              this.notificacion.mensaje('Anotacion', 'Anotacion eliminada correctamente', TipoMessage.success);
+              this.alerta.mensaje('Anotacion', 'Anotacion eliminada correctamente', TipoMessage.success);
               this.getHistorial();
             },
             error:(err) => {

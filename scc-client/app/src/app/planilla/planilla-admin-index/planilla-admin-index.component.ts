@@ -12,7 +12,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIcon } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatPaginator, MatPaginatorIntl, MatPaginatorModule } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
@@ -77,7 +77,7 @@ export class PlanillaAdminIndexComponent {
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     private router:Router,
     private route:ActivatedRoute,
@@ -119,7 +119,7 @@ export class PlanillaAdminIndexComponent {
     this.gService.get(`planilla/crear`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Planilla', 'planillas creadas correctamente', TipoMessage.success);
+        this.alerta.mensaje('Planilla', 'planillas creadas correctamente', TipoMessage.success);
         this.getFechaActual();
         this.getFechas();
         this.getUsuarios();
@@ -134,7 +134,7 @@ export class PlanillaAdminIndexComponent {
           this.gService.get(`planilla/completar`)
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
-              this.notificacion.mensaje('Planilla', 'planillas completadas y creadas correctamente', TipoMessage.success);
+              this.alerta.mensaje('Planilla', 'planillas completadas y creadas correctamente', TipoMessage.success);
               this.getFechaActual();
               this.getFechas();
               this.getUsuarios();
@@ -203,7 +203,7 @@ export class PlanillaAdminIndexComponent {
       let fechaFinit = new Date(this.lastDate.getFullYear(), this.lastDate.getMonth(), this.lastDate.getDate() + 1);
 
       if (fechaInicio > fechaFinit) {
-        this.notificacion.mensaje('Planilla', 'Este cambio dejaria por fuera una día, asegurese de haber hecho el cambio correctamente', TipoMessage.warning);
+        this.alerta.mensaje('Planilla', 'Este cambio dejaria por fuera una día, asegurese de haber hecho el cambio correctamente', TipoMessage.warning);
       }
 
       const fechas = {
@@ -214,7 +214,7 @@ export class PlanillaAdminIndexComponent {
       this.gService.post(`planilla/fechas`, fechas)
       .pipe(takeUntil(this.destroy$)).subscribe({
         next:(res) => {
-          this.notificacion.mensaje('Planilla', 'Rango de fechas actualizado correctamente', TipoMessage.success);
+          this.alerta.mensaje('Planilla', 'Rango de fechas actualizado correctamente', TipoMessage.success);
         }
       });
     }
@@ -232,17 +232,18 @@ export class PlanillaAdminIndexComponent {
     this.gService.get(`planilla/usuario/${usuario.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.openPlanillaDialog(res, usuario.idTipoContrato);
+        this.openPlanillaDialog(res, usuario.idTipoContrato, usuario.id);
       }
     });
   }
 
-  openPlanillaDialog(res: any, isAsalariado?: any): void {
+  openPlanillaDialog(res: any, isAsalariado?: any, usuarioId?: any): void {
     let width = isAsalariado != 2 ? '1200px' : '600px';
     let data = { 
       idUsuarioActual: this.usuarioActual.id,
       planilla: res.data,
-      isAsalariado: isAsalariado
+      isAsalariado: isAsalariado,
+      usuarioId: usuarioId
     };
     
     const dialogRef = this.dialog.open(PlanillaDialogComponent, {
@@ -252,7 +253,7 @@ export class PlanillaAdminIndexComponent {
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-          this.notificacion.mensaje('Planilla', 'Planilla actualizada correctamente', TipoMessage.success);
+          this.alerta.mensaje('Planilla', 'Planilla actualizada correctamente', TipoMessage.success);
       }
     });
   }

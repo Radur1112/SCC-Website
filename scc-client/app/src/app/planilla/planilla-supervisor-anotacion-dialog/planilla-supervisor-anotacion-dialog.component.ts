@@ -11,7 +11,7 @@ import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSelectModule } from '@angular/material/select';
@@ -35,6 +35,8 @@ export class PlanillaSupervisorAnotacionDialogComponent {
   idUsuarioActual: any;
 
   tablaTipo: any;
+
+  horasQuincena: any = 30 * 8 / 2;
   
   @ViewChild('hora') inputElement!: ElementRef<HTMLInputElement>;
 
@@ -47,7 +49,7 @@ export class PlanillaSupervisorAnotacionDialogComponent {
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<PlanillaSupervisorAnotacionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
@@ -263,7 +265,7 @@ export class PlanillaSupervisorAnotacionDialogComponent {
       const [hours, minutes] = hora.value.split(':').map(Number);
       const horasTotales = hours + minutes / 60;
 
-      const salarioXhora = this.planilla.salarioBase / (30 * 8) * (tipo.value.valorHoras);
+      const salarioXhora = this.planilla.salarioBase / (this.horasQuincena) * (tipo.value.valorHoras);
 
       monto.setValue((horasTotales * salarioXhora).toFixed(2));
     }
@@ -283,7 +285,7 @@ export class PlanillaSupervisorAnotacionDialogComponent {
     this.gService.post(`${tabla}`, data)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Anotacion', 'Anotacion creada correctamente', TipoMessage.success);
+        this.alerta.mensaje('Anotacion', 'Anotacion creada correctamente', TipoMessage.success);
         this.dialogRef.close(true);
       }
     });

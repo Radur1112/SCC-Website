@@ -25,6 +25,7 @@ import { UsuarioVacacionSupervisorComponent } from './usuario/usuario-vacacion-s
 import { PlanillaAnotacionIndexComponent } from './planilla/planilla-anotacion-index/planilla-anotacion-index.component';
 import { UsuarioIncapacidadIndexComponent } from './usuario/usuario-incapacidad-index/usuario-incapacidad-index.component';
 import { UsuarioVacacionIndexComponent } from './usuario/usuario-vacacion-index/usuario-vacacion-index.component';
+import { HomeIndexComponent } from './home/home-index/home-index.component';
 
 export const routes: Routes = [
   { path: 'inicio', component: InicioComponent },
@@ -32,6 +33,12 @@ export const routes: Routes = [
   { path: 'sobre-nosotros', component: SobreNosotrosComponent },
   { path: 'reclutamiento', component: ReclutamientoComponent },
   { path: 'contacto', component: ContactoComponent },
+  
+  { path: 'bienvenida', component: HomeIndexComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos']
+    } 
+  },
   
   { path: 'login', component: UsuarioLoginComponent },
   { path: 'usuario', component: UsuarioIndexComponent, canActivate:[AuthGuard],

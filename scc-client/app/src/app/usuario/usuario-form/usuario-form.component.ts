@@ -17,7 +17,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { UsuarioRegistrarDialogComponent } from '../usuario-registrar-dialog/usuario-registrar-dialog.component';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 @Component({
@@ -56,7 +56,7 @@ export class UsuarioFormComponent {
     private datePipe: DatePipe,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     @Inject(MAT_DATE_LOCALE) private _locale: string,
     private _adapter: DateAdapter<any>,
@@ -124,7 +124,7 @@ export class UsuarioFormComponent {
       nombre: ['', [Validators.required, Validators.maxLength(100)]],
       salario: ['', [Validators.required, Validators.min(0), Validators.max(999999999), Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
       fechaIngreso:  [new Date(), Validators.required],
-      vacacion:  [null, [Validators.required, Validators.min(0), Validators.max(99999)]],
+      vacacion:  ['Vacaciones deshabilitadas', [Validators.required, Validators.min(0), Validators.max(99999)]],
       idTipoUsuario: ['', Validators.required],
       idTipoContrato: ['', Validators.required],
       idPuesto: ['', Validators.required],
@@ -216,7 +216,7 @@ export class UsuarioFormComponent {
   onVacacioChange() {
     const vacacion = this.usuarioForm.get('vacacion');
     if (vacacion.value == null || isNaN(Number(vacacion.value)) || vacacion.value == '') {
-      vacacion.setValue('Sin vacaciones');
+      vacacion.setValue('Vacaciones deshabilitadas');
     }
   }
 
@@ -234,7 +234,7 @@ export class UsuarioFormComponent {
     this.authService.registrarUsuario(this.usuarioForm.value)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Usuario', 'Usuario registrado correctamente', TipoMessage.success);
+        this.alerta.mensaje('Usuario', 'Usuario registrado correctamente', TipoMessage.success);
         this.usuarioForm.reset();
         this.router.navigate(['usuario']);
       },
@@ -258,7 +258,7 @@ export class UsuarioFormComponent {
     this.gService.put(`usuario`, this.usuarioForm.value)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Usuario', 'Usuario actualizado correctamente', TipoMessage.success);
+        this.alerta.mensaje('Usuario', 'Usuario actualizado correctamente', TipoMessage.success);
         this.usuarioForm.reset();
         this.router.navigate(['usuario']);
       },
@@ -311,7 +311,7 @@ export class UsuarioFormComponent {
           const nombreColumnas = Object.values(res.errors.nombreColumnaExcel);
           const errores = nombreColumnas.join(' <br> ');
 
-          this.notificacion.mensaje('Error de en los nombres de las columnas', errores, TipoMessage.error);
+          this.alerta.mensaje('Error de en los nombres de las columnas', errores, TipoMessage.error);
         } else {
           this.openUsuarioRegistrarDialog(res);
         }
@@ -392,7 +392,7 @@ export class UsuarioFormComponent {
     this.authService.registrarMultiplesUsuarios(usuarios)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Usuario', 'Todos los usuario fueron registrados correctamente', TipoMessage.success);
+        this.alerta.mensaje('Usuario', 'Todos los usuario fueron registrados correctamente', TipoMessage.success);
         this.router.navigate(['usuario']);
       },
       error:(err) => {

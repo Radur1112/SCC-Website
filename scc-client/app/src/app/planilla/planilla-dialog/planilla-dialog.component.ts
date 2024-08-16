@@ -5,7 +5,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { GenericService } from '../../services/generic.service';
 import { Subject, takeUntil } from 'rxjs';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 
 @Component({
   selector: 'app-planilla-dialog',
@@ -18,6 +18,7 @@ export class PlanillaDialogComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
   idUsuarioActual: any;
+  usuarioId: any;
   
   isAsalariado: any;
 
@@ -38,16 +39,19 @@ export class PlanillaDialogComponent {
   deduccionesInicial: any = [];
   otrosPagosInicial: any = [];
 
+  modificarSalario: any;
+
   noti: any = 0;
 
   constructor(
     private gService: GenericService,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     private dialogRef: MatDialogRef<PlanillaDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.idUsuarioActual = data.idUsuarioActual;
+    this.usuarioId = data.usuarioId;
     this.planilla = data.planilla;
     this.isAsalariado = data.isAsalariado;
     console.log(this.planilla)
@@ -159,11 +163,18 @@ export class PlanillaDialogComponent {
     return `${integerPart}.${decimalPart}`;
   }
 
-  confirmarTexto(event: any, field?: any) {
+  confirmarTexto(event: any, field?: any, salario?: boolean) {
     const value = event.target.innerText.trim();
     const formattedValue = this.formatearNumero(value.toString());
     
-    field.monto = formattedValue;
+    if (field) {
+      field.monto = formattedValue;
+    }
+
+    if (salario) {
+      this.modificarSalario = this.stringToFloat(formattedValue);
+      this.planilla.salarioBase = formattedValue;
+    }
 
     this.getSalarios();
   }
@@ -171,7 +182,7 @@ export class PlanillaDialogComponent {
   getSalarios() {
     this.aumentos = this.aumentos.map(item => {
       if (item.fijo === 2) {
-        const valor = parseFloat(this.planilla.salarioBase) * item.valor / 100;
+        const valor = this.stringToFloat(this.planilla.salarioBase) * item.valor / 100;
         item.monto = this.formatearNumero(valor.toString());
       }
       return item;
@@ -191,7 +202,7 @@ export class PlanillaDialogComponent {
     const otroPago = this.otrosPagos.reduce((sum, item) => sum + this.stringToFloat(item.monto), 0);
     
 
-    const salarioBruto =  this.planilla.usuarioIdTipoContrato != 2 ? parseFloat(this.planilla.salarioBase) + aumento : baseFacturacion + otroPago;
+    const salarioBruto =  this.planilla.usuarioIdTipoContrato != 2 ? this.stringToFloat(this.planilla.salarioBase) + aumento : baseFacturacion + otroPago;
     
 
     this.deducciones = this.deducciones.map(item => {
@@ -266,23 +277,38 @@ export class PlanillaDialogComponent {
         }
       }
     });
+    
+    if (this.modificarSalario) {
+      this.actualizarSalario();
+    }
 
     if (newAumentos.length > 0) {
       this.crearAumentos(newAumentos);
     }
     if (newDeducciones.length > 0) {
       this.crearDeducciones(newDeducciones);
-
     }
     if (newOtrosPagos.length > 0) {
       this.crearOtrosPagos(newOtrosPagos);
     }
 
     if (this.noti == 3) {
-      this.notificacion.mensaje('Planilla', 'Cambio realizado correctamente', TipoMessage.success);
+      this.alerta.mensaje('Planilla', 'Cambio realizado correctamente', TipoMessage.success);
     }
     
     this.dialogRef.close(true);
+  }
+
+  actualizarSalario() {
+    const datos = {
+      salarioBase: this.modificarSalario
+    }
+    this.gService.put2(`planilla/salario/${this.planilla.id}`, datos)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        
+      }
+    });
   }
 
   crearAumentos(crear: any) {

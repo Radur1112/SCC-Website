@@ -152,24 +152,12 @@ const enviarCorreoAviso = async (formData) => {
   // Optiones del correo
   const opcionesCorreo = {
     from: process.env.EMAIL_USER,
-    to: process.env.HR_EMAIL,
+    to: datos.usuarioCorreo,
     subject: datos.asunto,
-    html: formatearContenidoDeCorreoAviso(datos)
+    html: `<h4>${datos.html}<h4/>`
   };
 
   enviarCorreoElectronico(opcionesCorreo, null);
 };
 
-function formatearContenidoDeCorreoAviso(datos) {
-  let formateo = `
-  <p><strong>Identificación:</strong> ${datos.identificacion}</p>
-  <p><strong>Nombre:</strong> ${datos.nombre}</p>
-  <p><strong>Correo Electrónico:</strong> ${datos.correo}</p>
-  <p><strong>Teléfono:</strong> ${datos.telefono}</p>
-  <p><strong>Mensaje:</strong> ${datos.mensaje}</p>
-  `;
-
-  return formateo;
-}
-
-module.exports = { enviarCorreoReclutamiento, enviarCorreoContacto, enviarCorreoElectronico, enviarCorreoComprobante };
+module.exports = { enviarCorreoReclutamiento, enviarCorreoContacto, enviarCorreoElectronico, enviarCorreoComprobante, enviarCorreoAviso };

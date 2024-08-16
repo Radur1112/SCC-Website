@@ -16,7 +16,7 @@ import { GenericService } from '../../services/generic.service';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ForoSubirArchivoComponent } from "../../foro/foro-subir-archivo/foro-subir-archivo.component";
 
@@ -91,7 +91,7 @@ export class UsuarioVacacionFormComponent {
     private datePipe: DatePipe,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     @Inject(MAT_DATE_LOCALE) private _locale: string,
     private _adapter: DateAdapter<any>,
@@ -551,7 +551,7 @@ export class UsuarioVacacionFormComponent {
     this.gService.post(`vacacion`, data)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.notificacion.mensaje('Vacacion', 'Solicitud de vacaciones enviada correctamente', TipoMessage.success);
+        this.alerta.mensaje('Vacacion', 'Solicitud de vacaciones enviada correctamente', TipoMessage.success);
         this.getUsuario();
         this.vacacionForm.reset();
         this.vacacionForm.get('horaInicio').setValue(this.horaEntrada)

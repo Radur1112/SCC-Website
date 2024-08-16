@@ -10,7 +10,7 @@ export enum TipoMessage{
   providedIn: 'root',
 })
 
-export class NotificacionService {
+export class AlertaService {
   options: Partial<IndividualConfig>; // Use Partial to make all options optional
 
   constructor(private toastr: ToastrService) {

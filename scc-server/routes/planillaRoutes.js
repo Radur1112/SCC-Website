@@ -23,5 +23,6 @@ router.post('/', verifyToken([1, 5]), planillaController.crear);
 router.post('/fechas', verifyToken([1, 5]), planillaController.actualizarFechas);
 
 router.put('/:id', verifyToken([1, 5]), planillaController.actualizar);
+router.put('/salario/:id', verifyToken([1, 3, 5]), planillaController.actualizarSalarioBase);
 
 module.exports = router;

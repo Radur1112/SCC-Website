@@ -11,7 +11,7 @@ import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 
 @Component({
   selector: 'app-usuario-login',
@@ -37,7 +37,7 @@ export class UsuarioLoginComponent implements OnInit {
     private http: HttpClient,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService
+    private alerta: AlertaService
   ) {
     
     this.reactiveForm();
@@ -59,7 +59,7 @@ export class UsuarioLoginComponent implements OnInit {
    this.route.queryParams.subscribe((params)=>{
     auth=params['auth'] || '';
     if(auth){
-      //this.notificacion.mensaje('Usuario', 'Acceso denegado', TipoMessage.warning)
+      //this.alerta.mensaje('Usuario', 'Acceso denegado', TipoMessage.warning)
     }
    })
    
@@ -85,7 +85,7 @@ export class UsuarioLoginComponent implements OnInit {
       },
       error:(err) => {
         if (err.status == 401) {
-          this.notificacion.mensaje('Usuario', 'Credenciales Incorrectas', TipoMessage.error);
+          this.alerta.mensaje('Usuario', 'Credenciales Incorrectas', TipoMessage.error);
         }
       }
     });

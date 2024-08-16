@@ -12,7 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { ProvinciasService } from '../../services/provincias.service';
 import { Subject, takeUntil } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { GenericService } from '../../services/generic.service';
 import {MatRadioModule} from '@angular/material/radio';
 
@@ -44,7 +44,7 @@ export class ReclutamientoComponent {
     private datePipe: DatePipe,
     private gService: GenericService,
     private pServicio: ProvinciasService,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     @Inject(MAT_DATE_LOCALE) private _locale: string,
     private _adapter: DateAdapter<any>,
   ) {
@@ -195,7 +195,7 @@ export class ReclutamientoComponent {
     formData.append('comentario', this.reclutamientoForm.get('comentario').value);
 
     this.gService.post(`reclutamiento`, formData).subscribe(response => {
-      this.notificacion.mensaje('Información', response.toString(), TipoMessage.success);
+      this.alerta.mensaje('Información', response.toString(), TipoMessage.success);
       this.resetForm();
     });
   }

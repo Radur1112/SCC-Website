@@ -40,6 +40,7 @@ router.post("/registrar/verificar", upload.single('archivo'), usuarioController.
 router.post("/registrar/multiples", verifyToken([1]), usuarioController.registrarMultiples);
 
 router.put("/:id", verifyToken([1]), usuarioController.actualizar);
+router.put("/salario/:id", verifyToken([1, 3 ,5]), usuarioController.actualizarSalario);
 router.put("/borrar/:id", verifyToken([1]), usuarioController.borrar);
 
 module.exports = router;

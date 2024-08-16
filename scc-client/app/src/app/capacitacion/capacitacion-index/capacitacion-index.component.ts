@@ -15,7 +15,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ConfirmationService } from '../../services/confirmation.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
 import {MatTabsModule} from '@angular/material/tabs';
 import { MatSelect, MatSelectModule } from '@angular/material/select';
@@ -66,7 +65,6 @@ export class CapacitacionIndexComponent {
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
-    private notificacion: NotificacionService,
     private router:Router,
     private route:ActivatedRoute,
     private activeRouter: ActivatedRoute,

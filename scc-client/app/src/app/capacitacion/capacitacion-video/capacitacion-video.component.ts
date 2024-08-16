@@ -9,7 +9,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
-import { NotificacionService, TipoMessage } from '../../services/notification.service';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { Subject, takeUntil } from 'rxjs';
 import { DomSanitizer } from '@angular/platform-browser';
 import { CapacitacionVideoPlayerComponent } from "../capacitacion-video-player/capacitacion-video-player.component";
@@ -47,7 +47,7 @@ export class CapacitacionVideoComponent {
     private fb: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     private sanitizer: DomSanitizer,
     public convertService: ConvertLineBreaksService
   ) {
@@ -126,7 +126,7 @@ export class CapacitacionVideoComponent {
       await this.videoPlayer.guardarProgresoPromise();
       this.router.navigate(['capacitacion']);
     } catch (error) {
-      this.notificacion.mensaje('Video', 'Error al guardar el progreso', TipoMessage.error);
+      this.alerta.mensaje('Video', 'Error al guardar el progreso', TipoMessage.error);
       this.router.navigate(['capacitacion']);
     }
   }

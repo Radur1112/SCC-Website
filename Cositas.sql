@@ -1,5 +1,15 @@
 SELECT * FROM xd;
 
+DELETE FROM aumento WHERE idPlanilla > 141;
+DELETE FROM deduccion WHERE idPlanilla > 141;
+DELETE FROM otropago WHERE idPlanilla > 141;
+DELETE FROM planilla WHERE id > 141;
+
+UPDATE planilla pl INNER JOIN usuario u ON u.id = pl.idUsuario SET pl.estado = 1 WHERE u.estado != 0 AND pl.fechaInicio > '2024-11-20';
+
+DELETE FROM planillahistorial;
+DELETE FROM comprobanteplanilla;
+
 SELECT * FROM usuario;
 SELECT * FROM tipousuario;
 SELECT * FROM tipocontrato;
@@ -8,6 +18,7 @@ SELECT * FROM usuariosupervisor;
 SELECT * FROM incapacidad;
 SELECT * FROM incapacidadarchivo;
 SELECT * FROM vacacion;
+SELECT * FROM notificacion;
 
 UPDATE vacacion SET estado = 2 WHERE id > 0;
 UPDATE usuario SET vacacion = 2 WHERE id > 0;
@@ -18,6 +29,7 @@ SELECT * FROM modulovideo;
 SELECT * FROM usuariovideo;
 SELECT * FROM usuariomodulo;
 
+SELECT * FROM tipoforo;
 SELECT * FROM foro;
 SELECT * FROM foroarchivo;
 SELECT * FROM fororespuesta;

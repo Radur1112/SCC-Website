@@ -5,7 +5,7 @@ const xlsx = require('xlsx');
 const path = require('path');
 const exceljs = require('exceljs');
 const fs = require('fs');
-const { create_planilla_insert_usuario, update_planilla_after_anotacion } = require('../utils/triggers.js')
+const { create_planilla_insert_usuario } = require('../utils/triggers.js')
 
 var nombreTabla = 'usuario';
 var selectNoPassword = 'u.id, u.idTipoUsuario, u.idTipoContrato, u.identificacion, u.correo, u.nombre, u.salario, u.fechaIngreso, u.vacacion, u.idPuesto, u.telefono';
@@ -329,7 +329,7 @@ module.exports.login = async (req, res, next) => {
     try {
       let usuarioReq = req.body;
 
-      const data = await db.query(`SELECT * FROM ${nombreTabla} WHERE correo = ?`, [usuarioReq.correo]);
+      const data = await db.query(`SELECT * FROM ${nombreTabla} WHERE estado != 0 AND correo = ?`, [usuarioReq.correo]);
       if (data) {
         if (data[0].length === 0) {
           return res.status(401).json({
@@ -337,16 +337,7 @@ module.exports.login = async (req, res, next) => {
               message: "Usuario no registrado",
           });
         }
-  
         const usuario = data[0][0];
-  
-        // If usuario is inactive
-        if (usuario.estado === 0) {
-          return res.status(401).json({
-              success: false,
-              message: "Usuario denegado",
-          });
-        }
         
         // Compare passwords
         const compararPassword = await bcrypt.compare(usuarioReq.password, usuario.password);
@@ -421,7 +412,7 @@ module.exports.registrar = async (req, res, next) => {
       nombre: usuarioData.nombre,
       salario: usuarioData.salario,
       fechaIngreso: usuarioData.fechaIngreso,
-      vacacion: usuarioData.vacacion ?? null,
+      vacacion: verificarVacacion(usuarioData.vacacion ?? null),
       idPuesto: usuarioData.idPuesto,
       telefono: usuarioData.telefono
     }
@@ -492,7 +483,7 @@ module.exports.actualizar = async (req, res, next) => {
       nombre: usuarioData.nombre,
       salario: usuarioData.salario,
       fechaIngreso: usuarioData.fechaIngreso,
-      vacacion: usuarioData.vacacion ?? null,
+      vacacion: verificarVacacion(usuarioData.vacacion ?? null),
       idPuesto: usuarioData.idPuesto,
       telefono: usuarioData.telefono
     }
@@ -520,10 +511,45 @@ module.exports.actualizar = async (req, res, next) => {
     
     
     if (data) {
-      const [planilla] = await db.query(`SELECT * FROM planilla WHERE idUsuario = ${id} AND estado = 1 ORDER BY fechaFinal LIMIT 1`);
-      if (planilla.length > 0) {
-        update_planilla_after_anotacion(planilla[0].id)
-      }
+      res.status(201).json({
+          status: true,
+          message: "Usuario actualizado"
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'Error en UPDATE',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error en actualizar usuario',
+      error: error
+    });
+  }
+};
+
+module.exports.actualizarSalario = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+
+    const usuarioData = req.body;
+    
+    let usuario = {
+      salario: usuarioData.salario
+    }
+
+    let data = await db.query(`UPDATE ${nombreTabla} SET salario = ? WHERE id = ?`, [usuario.salario, id]);
+    
+    if (data) {
       res.status(201).json({
           status: true,
           message: "Usuario actualizado"
@@ -853,7 +879,6 @@ async function validarDatos(data) {
             }
             break;
           case 'vacacion':
-            const vacaciones = row[nombreColumnaExcel];
             break;
         }
       }
@@ -910,7 +935,7 @@ async function validarDatos(data) {
     }
 
     if (!fila['vacacion']) {
-      fila['vacacion'] = 'Sin vacaciones';
+      fila['vacacion'] = null;
     }
 
     if (!fila['tipoUsuario']) {
@@ -1063,7 +1088,7 @@ module.exports.registrarMultiples = async (req, res, next) => {
         nombre: usuarioData.nombre,
         salario: usuarioData.salario,
         fechaIngreso: usuarioData.fechaIngreso,
-        vacacion: usuarioData.vacacion ?? null,
+        vacacion: verificarVacacion(usuarioData.vacacion ?? null),
         idPuesto: usuarioData.idPuesto,
         telefono: usuarioData.telefono
       };
@@ -1189,5 +1214,13 @@ module.exports.exportUsuarios = async(req, res, next) => {
       message: 'Error al obtener datos',
       error: error
     })
+  }
+}
+
+function verificarVacacion(vacacion) {
+  if (!vacacion || isNaN(Number(vacacion)) || vacacion == '') {
+    return null;
+  } else {
+    return vacacion;
   }
 }

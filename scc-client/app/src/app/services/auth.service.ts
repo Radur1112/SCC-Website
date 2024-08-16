@@ -2,7 +2,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject, Observable, catchError, map } from 'rxjs';
-import { NotificacionService, TipoMessage } from './notification.service';
+import { AlertaService, TipoMessage } from './alerta.service';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -21,7 +21,7 @@ export class AuthService {
 
   constructor(private http: HttpClient,
     private router: Router,
-    private notificacion: NotificacionService,
+    private alerta: AlertaService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     let usuarioActual = null;
@@ -96,13 +96,13 @@ export class AuthService {
     switch (error.status) {
       case 400:
         if (id === 'duplicado') {
-          this.notificacion.mensaje('Registro', message, TipoMessage.error);
+          this.alerta.mensaje('Registro', message, TipoMessage.error);
         }
         break;
       case 401:
         if (id === 'sesion') {
           this.logout();
-          this.notificacion.mensaje('Usuario', message, TipoMessage.warning);
+          this.alerta.mensaje('Usuario', message, TipoMessage.warning);
           this.router.navigate(['/login']);
         }
         break;

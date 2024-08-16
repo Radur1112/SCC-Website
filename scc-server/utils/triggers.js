@@ -3,9 +3,10 @@ const moment = require('moment-timezone');
 
 const create_planilla_insert_usuario = async (idUsuario) => {
   try {
-    let fecha_inicio, fecha_final;
+    let fecha_inicio, fecha_final, salario_base;
 
     const [planilla] = await db.query(`SELECT fechaInicio, fechaFinal FROM planilla WHERE estado = 1 ORDER BY fechaInicio DESC LIMIT 1;`);
+    const [usuario] = await db.query(`SELECT salario FROM usuario WHERE estado != 0 AND id = ?`, [idUsuario]);
 
     if (planilla.length > 0) {
       fecha_inicio = moment(planilla[0].fechaInicio).tz('America/Costa_Rica').format('YYYY-MM-DD');
@@ -15,9 +16,11 @@ const create_planilla_insert_usuario = async (idUsuario) => {
       fecha_final = moment().tz('America/Costa_Rica').add(15, 'days').format('YYYY-MM-DD');
     }
 
+    salario_base = parseFloat(usuario[0].salario) / 2;
+
     const data = await db.query(`
-      INSERT INTO planilla (idUsuario, fechaInicio, fechaFinal) 
-      VALUES (?, ?, ?)`, [idUsuario, fecha_inicio, fecha_final]);
+      INSERT INTO planilla (idUsuario, fechaInicio, fechaFinal, salarioBase) 
+      VALUES (?, ?, ?, ?)`, [idUsuario, fecha_inicio, fecha_final, salario_base]);
 
     if (data) {
       create_pagos_insert_planilla(data[0].insertId)
@@ -32,7 +35,7 @@ const create_planilla_insert_usuario = async (idUsuario) => {
 const create_planilla_update_planilla = async (oldPlanilla, idNewPlanilla) => {
   try {
     const [newPlanilla] = await db.query(`
-      SELECT pl.* 
+      SELECT pl.*, u.salario AS usuarioSalario
       FROM planilla pl 
       INNER JOIN usuario u ON u.id = pl.idUsuario AND u.idPuesto != 1 AND u.idPuesto != 2 AND u.estado != 0
       WHERE pl.id = ${idNewPlanilla}`);
@@ -40,10 +43,11 @@ const create_planilla_update_planilla = async (oldPlanilla, idNewPlanilla) => {
     if (oldPlanilla.estado == 1 && newPlanilla[0].estado == 2) {
       const fecha_inicio = moment(newPlanilla[0].fechaFinal).tz('America/Costa_Rica').add(1, 'days').format('YYYY-MM-DD');
       const fecha_final = moment(newPlanilla[0].fechaFinal).tz('America/Costa_Rica').add(16, 'days').format('YYYY-MM-DD');
+      const salario_base = parseFloat(newPlanilla[0].usuarioSalario) / 2;
 
       const data = await db.query(`
-        INSERT INTO planilla (idUsuario, fechaInicio, fechaFinal) 
-        VALUES (?, ?, ?)`, [newPlanilla[0].idUsuario, fecha_inicio, fecha_final]);
+        INSERT INTO planilla (idUsuario, fechaInicio, fechaFinal, salarioBase) 
+        VALUES (?, ?, ?, ?)`, [newPlanilla[0].idUsuario, fecha_inicio, fecha_final, salario_base]);
   
       if (data) {
         create_pagos_insert_planilla(data[0].insertId)
@@ -62,9 +66,9 @@ const create_pagos_insert_planilla = async (idPlanilla) => {
 
     result = await db.query(`SELECT * FROM planilla WHERE id = ${idPlanilla}`);
     const planilla = result[0][0];
+    const salario_base = planilla.salarioBase;
 
     result = await db.query(`SELECT salario, idTipoContrato FROM usuario WHERE id = ${planilla.idUsuario}`);
-    const salario_base = result[0][0].salario;
     const idTipoContrato = result[0][0].idTipoContrato;
 
     const [tipoAumentos] = await db.query(`SELECT id, sp, fijo, valor FROM tipoaumento WHERE fijo > 0`);
@@ -116,10 +120,10 @@ const update_planilla_after_anotacion = async (idPlanilla) => {
 
     result = await db.query(`SELECT * FROM planilla WHERE id = ${idPlanilla}`);
     const planilla = result[0][0];
+    const salario_base = parseFloat(planilla.salarioBase);
 
     result = await db.query(`SELECT salario, idTipoContrato FROM usuario WHERE id = ${planilla.idUsuario}`);
     const idTipoContrato = result[0][0].idTipoContrato;
-    const salario_base = parseFloat(result[0][0].salario);
 
 
     result = await db.query(`
@@ -321,11 +325,36 @@ const update_usuario_modulo_progreso = async (idUsuario = null, idModulo = null,
   }
 };
 
+const insert_notificacion = async (datos) => {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    let createDatos = {
+      idUsuario: datos.idUsuario,
+      titulo: datos.titulo,
+      descripcion: datos.descripcion,
+      color: datos.color,
+      destino: datos.destino ?? null
+    };
+
+    await connection.query(`INSERT INTO notificacion SET ?`, createDatos);
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    console.log(error)
+  } finally {
+    connection.release();
+  }
+};
+
 module.exports = {
   create_planilla_insert_usuario,
   create_planilla_update_planilla,
   create_pagos_insert_planilla,
   update_planilla_after_anotacion,
   update_usuario_after_vacacion,
-  update_usuario_modulo_progreso
+  update_usuario_modulo_progreso,
+  insert_notificacion
 };
