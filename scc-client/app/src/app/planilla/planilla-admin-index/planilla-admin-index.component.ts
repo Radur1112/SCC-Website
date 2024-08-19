@@ -49,7 +49,7 @@ export class PlanillaAdminIndexComponent {
   usuarioActual: any;
   isPlanillero: any;
   
-  displayedColumns: string[] = ['identificacion', 'nombre', 'correo', 'puesto', 'tipoContrato', 'acciones'];
+  displayedColumns: string[] = ['identificacion', 'nombre', 'correo', 'puestoDescripcion', 'tipoContratoDescripcion', 'acciones'];
   dataUsuario = new Array();
   dataSource: MatTableDataSource<usuarioInterface>;
 
@@ -134,6 +134,7 @@ export class PlanillaAdminIndexComponent {
           this.gService.get(`planilla/completar`)
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
+              this.alerta.mensaje('Planilla', 'El envío del comprobante al correo electrónico podrá tardar varios minutos', TipoMessage.warning);
               this.alerta.mensaje('Planilla', 'planillas completadas y creadas correctamente', TipoMessage.success);
               this.getFechaActual();
               this.getFechas();
@@ -199,13 +200,6 @@ export class PlanillaAdminIndexComponent {
 
   actualizarFechas() {
     if (this.selectedFecha.value.fechaInicio && this.selectedFecha.value.fechaFinal){
-      let fechaInicio = new Date(this.selectedFecha.value.fechaInicio);
-      let fechaFinit = new Date(this.lastDate.getFullYear(), this.lastDate.getMonth(), this.lastDate.getDate() + 1);
-
-      if (fechaInicio > fechaFinit) {
-        this.alerta.mensaje('Planilla', 'Este cambio dejaria por fuera una día, asegurese de haber hecho el cambio correctamente', TipoMessage.warning);
-      }
-
       const fechas = {
         fechaInicio: this.formatearFecha(this.selectedFecha.value.fechaInicio),
         fechaFinal: this.formatearFecha(this.selectedFecha.value.fechaFinal)

@@ -1,8 +1,10 @@
-.card-planilla {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #f5f5f5;
+.planilla-card {
+  z-index: 2;
+}
+
+.descargar {
+  right: 30px;
+  top: 30px;
 }
 
 .planilla-container {
@@ -34,11 +36,6 @@
 .planilla-item p {
   text-align: end;
   flex: 1;
-}
-
-.editable {
-  border: 1px solid rgb(0, 0, 0, 0.6);
-  border-radius: 3px;
 }
 
 .planilla-total {

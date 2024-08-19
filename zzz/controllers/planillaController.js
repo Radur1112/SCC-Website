@@ -268,7 +268,11 @@ module.exports.getFechaActual = async(req, res, next) => {
 
 module.exports.getFechas = async(req, res, next) => {
   try {
-    const data = await db.query(`SELECT MIN(fechaInicio) AS fechaInicio, MAX(fechaFinal) AS fechaFinal FROM ${nombreTabla} WHERE estado = 2`);
+    const data = await db.query(`
+      SELECT MIN(pl.fechaInicio) AS fechaInicio, MAX(pl.fechaFinal) AS fechaFinal 
+      FROM ${nombreTabla} pl 
+      INNER JOIN usuario u ON u.id = pl.idUsuario 
+      WHERE u.estado != 0 AND pl.estado = 2`);
     if(data) {
       res.status(200).send({
         success: true,

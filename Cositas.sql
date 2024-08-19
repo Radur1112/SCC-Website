@@ -1,14 +1,14 @@
 SELECT * FROM xd;
 
-DELETE FROM aumento WHERE idPlanilla > 141;
-DELETE FROM deduccion WHERE idPlanilla > 141;
-DELETE FROM otropago WHERE idPlanilla > 141;
-DELETE FROM planilla WHERE id > 141;
+DELETE FROM aumento WHERE idPlanilla > 81;
+DELETE FROM deduccion WHERE idPlanilla > 81;
+DELETE FROM otropago WHERE idPlanilla > 81;
+DELETE FROM planilla WHERE id > 81;
 
-UPDATE planilla pl INNER JOIN usuario u ON u.id = pl.idUsuario SET pl.estado = 1 WHERE u.estado != 0 AND pl.fechaInicio > '2024-11-20';
+UPDATE planilla pl INNER JOIN usuario u ON u.id = pl.idUsuario SET pl.estado = 1 WHERE u.estado != 0 AND pl.fechaInicio < '2024-08-12';
 
-DELETE FROM planillahistorial;
-DELETE FROM comprobanteplanilla;
+DELETE FROM planillahistorial WHERE id = 1;
+DELETE ph FROM comprobanteplanilla ph INNER JOIN planilla pl ON pl.id = ph.idPlanilla WHERE pl.fechaInicio < '2024-08-12';
 
 SELECT * FROM usuario;
 SELECT * FROM tipousuario;
@@ -35,6 +35,8 @@ SELECT * FROM foroarchivo;
 SELECT * FROM fororespuesta;
 SELECT * FROM forohistorial;
 SELECT * FROM usuariofororespuesta;
+
+delete from deduccion where id > 15;
 
 SELECT * FROM planilla;
 SELECT * FROM aumento;
@@ -90,9 +92,48 @@ INSERT INTO puesto SET descripcion = 'Rango Medio';
 
 INSERT INTO sccdb.usuario (idtipousuario, idtipocontrato, idPuesto, identificacion, correo, password, nombre, telefono, salario, fechaingreso, vacacion)
 VALUES 
-(2, 1, 1, '12345678', '123@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', '123', '12345678', 160000.00, CURDATE(), 0);
+(2, 1, 1, '12345678', 'user1@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User1', '1234567801', 160000.00, CURDATE(), 0),
+(2, 1, 1, '22345678', 'user2@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User2', '1234567802', 160000.00, CURDATE(), 0),
+(2, 1, 1, '32345678', 'user3@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User3', '1234567803', 160000.00, CURDATE(), 0),
+(2, 1, 1, '42345678', 'user4@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User4', '1234567804', 160000.00, CURDATE(), 0),
+(2, 1, 1, '52345678', 'user5@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User5', '1234567805', 160000.00, CURDATE(), 0),
+(2, 1, 1, '62345678', 'user6@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User6', '1234567806', 160000.00, CURDATE(), 0),
+(2, 1, 1, '72345678', 'user7@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User7', '1234567807', 160000.00, CURDATE(), 0),
+(2, 1, 1, '82345678', 'user8@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User8', '1234567808', 160000.00, CURDATE(), 0),
+(2, 1, 1, '92345678', 'user9@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User9', '1234567809', 160000.00, CURDATE(), 0),
+(2, 1, 1, '10345678', 'user10@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User10', '1234567810', 160000.00, CURDATE(), 0),
+(2, 1, 1, '11345678', 'user11@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User11', '1234567811', 160000.00, CURDATE(), 0),
+(2, 1, 1, '12345678', 'user12@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User12', '1234567812', 160000.00, CURDATE(), 0),
+(2, 1, 1, '13345678', 'user13@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User13', '1234567813', 160000.00, CURDATE(), 0),
+(2, 1, 1, '14345678', 'user14@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User14', '1234567814', 160000.00, CURDATE(), 0),
+(2, 1, 1, '15345678', 'user15@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User15', '1234567815', 160000.00, CURDATE(), 0),
+(2, 1, 1, '16345678', 'user16@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User16', '1234567816', 160000.00, CURDATE(), 0),
+(2, 1, 1, '17345678', 'user17@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User17', '1234567817', 160000.00, CURDATE(), 0),
+(2, 1, 1, '18345678', 'user18@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User18', '1234567818', 160000.00, CURDATE(), 0),
+(2, 1, 1, '19345678', 'user19@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User19', '1234567819', 160000.00, CURDATE(), 0),
+(2, 1, 1, '20345678', 'user20@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User20', '1234567820', 160000.00, CURDATE(), 0),
+(2, 1, 1, '21345678', 'user21@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User21', '1234567821', 160000.00, CURDATE(), 0),
+(2, 1, 1, '22345678', 'user22@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User22', '1234567822', 160000.00, CURDATE(), 0),
+(2, 1, 1, '23345678', 'user23@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User23', '1234567823', 160000.00, CURDATE(), 0),
+(2, 1, 1, '24345678', 'user24@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User24', '1234567824', 160000.00, CURDATE(), 0),
+(2, 1, 1, '25345678', 'user25@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User25', '1234567825', 160000.00, CURDATE(), 0),
+(2, 1, 1, '26345678', 'user26@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User26', '1234567826', 160000.00, CURDATE(), 0),
+(2, 1, 1, '27345678', 'user27@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User27', '1234567827', 160000.00, CURDATE(), 0),
+(2, 1, 1, '28345678', 'user28@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User28', '1234567828', 160000.00, CURDATE(), 0),
+(2, 1, 1, '29345678', 'user29@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User29', '1234567829', 160000.00, CURDATE(), 0),
+(2, 1, 1, '30345678', 'user30@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User30', '1234567830', 160000.00, CURDATE(), 0),
+(2, 1, 1, '31345678', 'user31@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User31', '1234567831', 160000.00, CURDATE(), 0),
+(2, 1, 1, '32345678', 'user32@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User32', '1234567832', 160000.00, CURDATE(), 0),
+(2, 1, 1, '33345678', 'user33@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User33', '1234567833', 160000.00, CURDATE(), 0),
+(2, 1, 1, '34345678', 'user34@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User34', '1234567834', 160000.00, CURDATE(), 0),
+(2, 1, 1, '35345678', 'user35@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User35', '1234567835', 160000.00, CURDATE(), 0),
+(2, 1, 1, '36345678', 'user36@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User36', '1234567836', 160000.00, CURDATE(), 0),
+(2, 1, 1, '37345678', 'user37@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User37', '1234567837', 160000.00, CURDATE(), 0),
+(2, 1, 1, '38345678', 'user38@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User38', '1234567838', 160000.00, CURDATE(), 0),
+(2, 1, 1, '39345678', 'user39@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User39', '1234567839', 160000.00, CURDATE(), 0),
+(2, 1, 1, '40345678', 'user40@example.com', '$2b$10$5B748kZtTRzOf5bhSU7I2erX/.LNiAuyn/M9IXPKuj6YTERMbxvTO', 'User40', '1234567840', 160000.00, CURDATE(), 0);
 
-UPDATE usuario SET vacacion = 1 WHERE id > 0;
+UPDATE usuario SET estado = 0 WHERE id > 20;
 UPDATE tipoaumento SET valor = NULL WHERE id = 5;
 UPDATE puesto SET descripcion = 'Desarrollador' WHERE id = 1;
 UPDATE usuario SET idPuesto = idPuesto + 1 WHERE idPuesto > 2;

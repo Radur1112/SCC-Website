@@ -34,15 +34,15 @@
                 {{ notificacionesNoLeidas.length }}
               </span>
             </button>
-            <mat-menu #notificacion="matMenu" class="notificacion-menu" style="cursor: pointer;">
+            <mat-menu #notificacion="matMenu" style="cursor: pointer;">
               <ng-container *ngIf="notificaciones.length > 0; else noNotificaciones">
-                <mat-list class="p-0">
+                <mat-list class="menu-n p-0">
                   <div *ngFor="let notificacion of notificaciones">
                     <div class="notificacion-menu"
                     [ngClass]="{'accepted': notificacion.color === 1, 
                                 'rejected': notificacion.color === 3, 
                                 'unread': notificacion.leido === 0}">
-                      <a [href]="notificacion.destino" class="notificacion-link">
+                      <a [href]="notificacion.destino" class="notificacion-link" matTooltip="Ver historial">
                         <mat-list-item>
                           <mat-icon matListItemIcon>notifications</mat-icon>
                           <div matListItemTitle>{{ notificacion.titulo }}</div>
@@ -51,7 +51,7 @@
                         </mat-list-item>
                       </a>
                       <div class="notificacion-delete">
-                        <button mat-icon-button>
+                        <button mat-icon-button (click)="deleteNotificacion(notificacion.id)" matTooltip="Borrar notificación">
                           <mat-icon class="warn-color">delete</mat-icon>
                         </button>
                       </div>
@@ -68,7 +68,7 @@
               </ng-template>
             </mat-menu>
 
-            <button mat-icon-button class="icono-usuario" [matMenuTriggerFor]="menu"  matTooltip="Menú de Usuario">
+            <button mat-icon-button class="icono-usuario" [matMenuTriggerFor]="menu" matTooltip="Menú de Usuario">
               <mat-icon class="primary-color">account_circle</mat-icon>
             </button>
             <mat-menu #menu="matMenu">

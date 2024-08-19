@@ -43,10 +43,10 @@
       <ng-container matColumnDef="acciones">
         <th mat-header-cell *matHeaderCellDef>Acciones</th>
         <td mat-cell *matCellDef="let row">
-          <a mat-fab extended [href]="row.ubicacion" target="_blank" rel="noopener noreferrer" color="primary" class="boton-accion" matTooltip="Descargar comprobante" aria-label="Descargar comprobante">
-            <mat-icon class="mat-18">download</mat-icon>
-            Descargar comprobante
-          </a>
+          <button mat-fab extended color="primary" class="boton-accion" matTooltip="Mostrar comprobante" aria-label="Mostrar comprobante" (click)="mostrarComprobante(row.id)">
+            <mat-icon class="mat-18">preview</mat-icon>
+            Mostrar comprobante
+          </button>
         </td>
       </ng-container> 
   

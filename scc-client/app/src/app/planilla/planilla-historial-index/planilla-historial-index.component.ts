@@ -18,6 +18,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { PlanillaAnotacionFormDialogComponent } from '../planilla-anotacion-form-dialog/planilla-anotacion-form-dialog.component';
+import moment from 'moment';
 
 @Component({
   selector: 'app-planilla-historial-index',
@@ -46,18 +47,62 @@ export class PlanillaHistorialIndexComponent {
   ){
     
       
-    this.getHistorial();
+    this.getFechaActual();
   }
 
-  getHistorial() {
+  getFechaActual() {
+    this.gService.get(`planilla/fechaActual`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        if (res.data) {
+          this.getHistorial(res.data.fechaInicio, res.data.fechaFinal);
+        }
+      }
+    });
+  }
+
+  getHistorial(fechaInicio: any, fechaFinal: any) {
     this.gService.get(`planilla/historial`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res.data)
-        this.dataSource = new MatTableDataSource(res.data);
+        let prePlanilla = [{id: 0, fechaInicio: fechaInicio, fechaFinal: fechaFinal, ubicacion: null}, ...res.data];
+        console.log(prePlanilla)
+        this.dataSource = new MatTableDataSource(prePlanilla);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
       }
     });
+  }
+
+  descargarResumen(planilla: any) {
+    if (planilla.ubicacion) {
+      window.open(planilla.ubicacion, '_blank');
+    } else {
+      this.gService.exportarExcel(`planilla/actual/exportar`).subscribe(blob => {
+
+        const nombre = `resumen_planilla__${moment(new Date(planilla.fechaInicio)).format('YYYYMMDD')}_${moment(new Date(planilla.fechaFinal)).format('YYYYMMDD')}.xlsx`;
+
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.download = nombre;
+        link.click();
+      });
+    }
+  }
+
+  formatearNombre(nombre: string) {
+    const especiales = {
+      'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u',
+      'ü': 'u', 'ñ': 'n'
+    };
+  
+    let corregido = nombre.toLowerCase().replace(/\s+/g, '');
+    corregido = corregido.replace(/[áéíóúÁÉÍÓÚüÜñÑ]/g, letra => especiales[letra] || letra);
+  
+    return corregido;
+  }
+
+  irAnotaciones(planilla: any) {
+    this.router.navigate(['planilla/anotaciones/', planilla.fechaInicio, planilla.fechaFinal]);
   }
 }

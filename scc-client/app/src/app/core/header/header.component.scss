@@ -73,6 +73,10 @@ img {
   font-size: 12px;
 }
 
+.menu-n {
+  max-height: 500px;
+  overflow-y: auto;
+}
 
 .notificacion-menu {
   display: flex;

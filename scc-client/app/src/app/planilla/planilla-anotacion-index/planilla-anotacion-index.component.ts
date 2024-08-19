@@ -37,6 +37,10 @@ export class PlanillaAnotacionIndexComponent {
   @ViewChild(MatSort) sort: MatSort;
 
   usuarioActual: any;
+  fechaInicio: Date;
+  fechaFinal: Date;
+
+  historial: boolean = false;
   
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -50,13 +54,25 @@ export class PlanillaAnotacionIndexComponent {
   }
 
   ngOnInit(): void {
-    this.authService.usuarioActual.subscribe((x) => {
-      if (x && Object.keys(x).length !== 0) {
-        this.usuarioActual = x.usuario;
-      }
-    });
+    this.route.paramMap.subscribe(params => {
+      const preFechaI = params.get('fechaInicio');
+      const preFechaF = params.get('fechaFinal');
 
-    this.getHistorial();
+      if (preFechaI && preFechaF) {
+        this.fechaInicio = new Date(preFechaI);
+        this.fechaFinal = new Date(preFechaF);
+
+        this.historial = true;
+      }
+
+      this.authService.usuarioActual.subscribe((x) => {
+        if (x && Object.keys(x).length !== 0) {
+          this.usuarioActual = x.usuario;
+        }
+      });
+  
+      this.getHistorial();
+    });
   }
 
   busqueda(event: Event) {
@@ -65,19 +81,45 @@ export class PlanillaAnotacionIndexComponent {
   }
 
   getHistorial() {
-    let query = `planilla/anotaciones`;
-    if (this.usuarioActual.idTipoUsuario == 3) {
-      query = `planilla/historial/supervisor/${this.usuarioActual.id}`
-    }
-    this.gService.get(query)
-    .pipe(takeUntil(this.destroy$)).subscribe({
-      next:(res) => {
-        console.log(res.data)
-        this.dataSource = new MatTableDataSource(res.data);
-        this.dataSource.paginator = this.paginator;
-        this.dataSource.sort = this.sort;
+    if (!this.historial) {
+      let query = `planilla/anotaciones`;
+      if (this.usuarioActual.idTipoUsuario == 3) {
+        query = `planilla/historial/supervisor/${this.usuarioActual.id}`
       }
-    });
+      this.gService.get(query)
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next:(res) => {
+          console.log(res.data)
+          this.dataSource = new MatTableDataSource(res.data);
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        }
+      });
+    } else {
+      let datos = {
+        fechaInicio: this.formatearFecha(this.fechaInicio),
+        fechaFinal: this.formatearFecha(this.fechaFinal)
+      }
+      console.log(datos)
+      this.gService.post(`planilla/anotaciones/fechas`, datos)
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next:(res) => {
+          console.log(res.data)
+          this.dataSource = new MatTableDataSource(res.data);
+          this.dataSource.paginator = this.paginator;
+          this.dataSource.sort = this.sort;
+        }
+      });
+      
+    }
+  }
+
+  formatearFecha(fecha: Date): string {
+    const year = fecha.getFullYear();
+    const month = String(fecha.getMonth() + 1).padStart(2, '0');
+    const day = String(fecha.getDate()).padStart(2, '0');
+    
+    return `${year}-${month}-${day}`;
   }
 
   formatearNumero(valor: string) {

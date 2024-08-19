@@ -1156,7 +1156,8 @@ module.exports.exportUsuarios = async(req, res, next) => {
       FROM ${nombreTabla} u
       INNER JOIN tipousuario tu ON u.idTipoUsuario = tu.id 
       LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id
-      LEFT JOIN puesto p ON u.idPuesto = p.id`);
+      LEFT JOIN puesto p ON u.idPuesto = p.id
+      WHERE u.estado != 0`);
     if(data) {
       let workbook = new exceljs.Workbook();
       let worksheet = workbook.addWorksheet('Usuarios');
@@ -1174,7 +1175,7 @@ module.exports.exportUsuarios = async(req, res, next) => {
 
       data[0].forEach(usuario => {
         const headers = ['Nombre', 'Cedula', 'Tipo de Usuario', 'Puesto', 'Correo', 'Salario', 'Tipo de Contrato', 'Vacaciones', 'Telefono', 'Fecha de Ingreso'];
-        const row = worksheet.addRow([usuario.nombre, usuario.identificacion, usuario.tipoUsuarioDescripcion, usuario.puestoDescripcion, usuario.correo, usuario.salario, usuario.tipoContratoDescripcion, usuario.vacacion, usuario.telefono, usuario.fechaIngreso]);
+        const row = worksheet.addRow([usuario.nombre, usuario.identificacion, usuario.tipoUsuarioDescripcion, usuario.puestoDescripcion, usuario.correo, usuario.salario.toString().replace('.', ','), usuario.tipoContratoDescripcion, usuario.vacacion, usuario.telefono, usuario.fechaIngreso]);
         
         row.eachCell((cell, colNumber) => {
           if (cell.value && cell.value.toString().length > columnWidths[colNumber - 1]) {

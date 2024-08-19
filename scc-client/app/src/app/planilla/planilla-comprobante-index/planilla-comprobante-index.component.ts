@@ -23,6 +23,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
+import { PlanillaComprobanteDialogComponent } from '../planilla-comprobante-dialog/planilla-comprobante-dialog.component';
 
 export interface comproabanteInterface {
   id: any;
@@ -87,7 +88,7 @@ export class PlanillaComprobanteIndexComponent {
   }
 
   getComprobantes() {
-    this.gService.get(`planilla/comprobante/${this.usuarioId}`)
+    this.gService.get(`planilla/comprobantes/${this.usuarioId}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.usuarioNombre = res.data[0].usuarioNombre;
@@ -112,5 +113,34 @@ export class PlanillaComprobanteIndexComponent {
     integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
 
     return `${integerPart},${decimalPart}`;
+  }
+
+  mostrarComprobante(idPlanilla: any) {
+    this.gService.get(`planilla/comprobante/preview/${idPlanilla}`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        const comprobante = res.data;
+        this.openComprobanteDialog(comprobante);
+      }
+    });
+  }
+
+  openComprobanteDialog(comprobante: any): void {
+    let width = comprobante.usuarioIdTipoContrato != 2 ? '1200px' : '600px';
+    let data = { 
+      comprobante: comprobante,
+      isAsalariado: comprobante.usuarioIdTipoContrato
+    };
+    
+    const dialogRef = this.dialog.open(PlanillaComprobanteDialogComponent, {
+      data,
+      width
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        
+      }
+    });
   }
 }

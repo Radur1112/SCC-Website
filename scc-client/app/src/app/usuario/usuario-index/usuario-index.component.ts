@@ -144,7 +144,7 @@ export class UsuarioIndexComponent {
   }
 
   descargarUsuarios() {
-    this.gService.exportarUsuarios().subscribe(blob => {
+    this.gService.exportarExcel(`usuario/exportarUsuarios`).subscribe(blob => {
       const currentDate = new Date();
       const year = currentDate.getFullYear();
       const month = ('0' + (currentDate.getMonth() + 1)).slice(-2);

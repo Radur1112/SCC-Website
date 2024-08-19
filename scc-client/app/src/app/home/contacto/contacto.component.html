@@ -110,7 +110,7 @@
 </mat-card>
 
 <form [formGroup]="contactoForm" class="mb-5" (ngSubmit)="enviarMensaje()">
-  <mat-card class="card-form background-primary"> 
+  <mat-card class="card-form background-primary mx-auto"> 
     <div class="row almost-width">
       <mat-card-header>
         <mat-card-title>
@@ -184,35 +184,31 @@
         
       
           <div class="row">
-            <div class="col-md row my-3">
-              <mat-form-field>
-                <mat-label>Asunto:</mat-label>
-                <mat-select formControlName="asunto">
-                  <mat-option value="consulta">Consulta General</mat-option>
-                  <mat-option value="servicios">Información sobre Servicios</mat-option>
-                  <mat-option value="reclamo">Queja o Reclamo</mat-option>
-                  <mat-option value="otro">Otro</mat-option>
-                </mat-select>
-                <mat-error *ngIf="errorHandling('asunto','required')">
-                    El asunto del mensaje es <strong>requerido</strong>
-                </mat-error>
-              </mat-form-field>
-            </div>
+            <mat-form-field>
+              <mat-label>Asunto:</mat-label>
+              <mat-select formControlName="asunto">
+                <mat-option value="consulta">Consulta General</mat-option>
+                <mat-option value="servicios">Información sobre Servicios</mat-option>
+                <mat-option value="reclamo">Queja o Reclamo</mat-option>
+                <mat-option value="otro">Otro</mat-option>
+              </mat-select>
+              <mat-error *ngIf="errorHandling('asunto','required')">
+                  El asunto del mensaje es <strong>requerido</strong>
+              </mat-error>
+            </mat-form-field>
           </div>
         
           <div class="row">
-            <div class="col row my-3">
-              <mat-form-field>
-                <mat-label>Mensaje</mat-label>
-                <textarea matInput formControlName="mensaje"></textarea>
-              </mat-form-field>
-              <mat-error *ngIf="errorHandling('mensaje','required')">
-                  El mensaje es <strong>requerido</strong>
-              </mat-error>
-              <mat-error *ngIf="errorHandling('mensaje','maxlength')">
-                  El mensaje debe tener como máximo <strong>3000 carácteres</strong>
-              </mat-error>
-            </div>
+            <mat-form-field>
+              <mat-label>Mensaje</mat-label>
+              <textarea matInput formControlName="mensaje"></textarea>
+            </mat-form-field>
+            <mat-error *ngIf="errorHandling('mensaje','required')">
+                El mensaje es <strong>requerido</strong>
+            </mat-error>
+            <mat-error *ngIf="errorHandling('mensaje','maxlength')">
+                El mensaje debe tener como máximo <strong>3000 carácteres</strong>
+            </mat-error>
           </div>
         </mat-card-content>
       

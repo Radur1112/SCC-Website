@@ -116,4 +116,13 @@ export class HeaderComponent {
   redireccionar(route: any) {
     this.router.navigate([route, this.usuarioActual.id]);
   }
+
+  deleteNotificacion(id: any) {
+    this.gService.put2(`notificacion/borrar/${id}`, [])
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.getNotificaciones();
+      }
+    });
+  }
 }

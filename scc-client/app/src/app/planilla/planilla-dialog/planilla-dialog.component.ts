@@ -148,6 +148,7 @@ export class PlanillaDialogComponent {
   }
 
   formatearNumero(valor: string) {
+    valor = valor ?? '';
     let formateado = parseFloat(valor.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
@@ -226,6 +227,32 @@ export class PlanillaDialogComponent {
 
   stringToFloat(valor: string) {
     return parseFloat(valor.replace(/[^\d.-]/g, ''))
+  }
+
+  onEnterPressed(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+  
+      const currentElement = event.target as HTMLElement;
+  
+      let nextElement = currentElement.closest('.planilla-item')?.nextElementSibling?.querySelector('.editable');
+  
+      if (nextElement) {
+        (nextElement as HTMLElement).focus();
+      } else {
+        nextElement = currentElement.closest('.planilla-left')?.nextElementSibling?.querySelector('.editable');
+
+        if (nextElement) {
+          (nextElement as HTMLElement).focus();
+        } else {
+          nextElement = currentElement.closest('.planilla-right')?.previousElementSibling?.querySelector('.editable');
+          
+          if (nextElement) {
+            (nextElement as HTMLElement).focus();
+          }
+        }
+      }
+    }
   }
 
   guardarPlanilla() {

@@ -25,8 +25,8 @@ export class GenericService {
   ) {
   }
  
-  exportarUsuarios(): Observable<any> {
-    return this.http.get(`${this.urlAPI}usuario/exportarUsuarios`, { responseType: 'blob' })
+  exportarExcel(endopoint: string): Observable<any> {
+    return this.http.get(`${this.urlAPI}${endopoint}`, { responseType: 'blob' })
       .pipe(catchError(this.handleError.bind(this)));
   }
  
@@ -69,7 +69,6 @@ export class GenericService {
   public handleError(error: HttpErrorResponse): Observable<never> {
     let id: string = null;
     let message: string = null;
-    
     if (error.error) {
       id = error.error.id;
       message = error.error.message;

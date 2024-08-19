@@ -1,0 +1,83 @@
+<mat-dialog-content class="mat-typography">
+  <a (click)="descargarComprobante()" class="descargar" matTooltip="Descargar comprobante">
+    <mat-icon class="primary-color">download</mat-icon>
+  </a>
+  <mat-card class="planilla-card">
+    <mat-card-header>
+      <mat-card-title>
+        <h4 class="primary-color">Comprobante</h4>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <ng-container *ngIf="isAsalariado != 2">
+        <div class="planilla-container">
+          <div class="planilla-left">
+            <div class="planilla-item"><strong>Salario Base:</strong> <p class="m-0"><strong>{{ formatearNumero(comprobante.salarioBase) }}</strong></p></div>
+            <ng-container *ngIf="aumentos">
+              <div class="planilla-item" *ngFor="let tipo of aumentos">
+                <strong>{{ tipo.descripcion }} {{ tipo.fijo == 2 ? tipo.valor + '%' : tipo.fijo == 1 ? tipo.valor : '' }}:</strong>
+                <p class="m-0">{{ formatearNumero(tipo.monto) }}</p>
+              </div>
+            </ng-container>
+            <div class="planilla-item planilla-total"><strong>SALARIO BRUTO:</strong> <p class="m-0">{{ formatearNumero(comprobante.salarioBruto) }}</p></div>
+            <div class="planilla-item planilla-total"><strong>SALARIO NETO:</strong> <p class="m-0">{{ formatearNumero(comprobante.salarioNeto) }}</p></div>
+          </div>
+          <div class="planilla-right">
+            <div class="planilla-item"><strong>Menos:</strong></div>
+            <ng-container *ngIf="deducciones">
+              <div class="planilla-item" *ngFor="let tipo of deducciones">
+                <strong>{{ tipo.descripcion }} {{ tipo.fijo == 2 ? tipo.valor + '%' : tipo.fijo == 1 ? tipo.valor : '' }}:</strong>
+                <p class="m-0">{{ formatearNumero(tipo.monto) }}</p>
+              </div>
+            </ng-container>
+            <div class="planilla-item planilla-total planilla-deducciones"><strong>TOTAL DEDUCCIONES:</strong> {{ formatearNumero(comprobante.totalDeducciones) }}</div>
+          </div>
+        </div>
+        <div class="planilla-footer">
+          <div class="planilla-left">
+            <div class="planilla-item"><strong>Otros Pagos: {{ showOtrosPagos }}</strong></div>
+            <div class="planilla-item"><strong>Total Deposito:</strong> <p class="m-0"><strong>{{ formatearNumero(comprobante.salarioNeto) }}</strong></p></div>
+          </div>
+          <div class="planilla-right">
+            <div class="planilla-item"><strong>Vacaciones:</strong> <p class="m-0"><strong>{{ comprobante.usuarioVacacion }}</strong></p></div>
+            <div class="planilla-item-fecha"><strong>Fecha:</strong> <p class="m-0"><strong>{{ comprobante.fechaInicio | date: 'dd/MM/yyyy' }} - {{ comprobante.fechaFinal | date: 'dd/MM/yyyy' }}</strong></p></div>
+          </div>
+        </div>
+      </ng-container>
+      
+      <ng-container *ngIf="isAsalariado == 2">
+        <div>
+          <div class="planilla-center">
+            <div class="planilla-item-fecha planilla-fecha"><strong>Fecha:</strong> <p class="m-0">{{ comprobante.fechaInicio | date: 'dd/MM/yyyy' }} - {{ comprobante.fechaFinal | date: 'dd/MM/yyyy' }}</p></div>
+            <br>
+            <ng-container *ngIf="aumentos">
+              <div class="planilla-item" *ngFor="let tipo of aumentos">
+                <strong>{{ tipo.descripcion }}:</strong>
+                <p class="m-0">{{ formatearNumero(tipo.monto) }}</p>
+              </div>
+            </ng-container>
+            <div class="planilla-item planilla-total"><strong>BASE FACTURACION:</strong> <p class="m-0">{{ formatearNumero(comprobante.baseFacturacion) }}</p></div>
+            <ng-container *ngIf="otrosPagos">
+              <div class="planilla-item" *ngFor="let tipo of otrosPagos">
+                <strong>{{ tipo.descripcion }}:</strong>
+                <p class="m-0">{{ formatearNumero(tipo.monto) }}</p>
+              </div>
+            </ng-container>
+            <div class="planilla-item planilla-total"><strong>SUBTOTAL:</strong> <p class="m-0">{{ formatearNumero(comprobante.salarioBruto) }}</p></div>
+            <ng-container *ngIf="deducciones">
+              <div class="planilla-item" *ngFor="let tipo of deducciones">
+                <strong>{{ tipo.descripcion }}:</strong>
+                <p class="m-0">{{ formatearNumero(tipo.monto) }}</p>
+              </div>
+            </ng-container>
+            <div class="planilla-item planilla-total"><strong>TOTAL DESEMBOLSO:</strong> <p class="m-0">{{ formatearNumero(comprobante.salarioNeto) }}</p></div>
+          </div>
+        </div>
+      </ng-container>
+    </mat-card-content>
+  </mat-card>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Salir</button>
+</mat-dialog-actions>

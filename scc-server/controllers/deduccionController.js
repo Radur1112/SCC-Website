@@ -1,5 +1,5 @@
 const db = require('../utils/db.js');
-const { update_planilla_after_anotacion } = require('../utils/triggers.js')
+const { update_planilla_after_anotacion, create_pagos_insert_planilla } = require('../utils/triggers.js')
 
 var nombreTabla = 'deduccion';
 
@@ -23,7 +23,7 @@ module.exports.crear = async (req, res, next) => {
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
     if (data) {
-      update_planilla_after_anotacion(datos.idPlanilla);
+      await create_pagos_insert_planilla(datos.idPlanilla);
       res.status(201).json({
           status: true,
           message: `${nombreTabla} creado`,
@@ -73,7 +73,7 @@ module.exports.crearMultiples = async (req, res, next) => {
       }
 
       const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
-      update_planilla_after_anotacion(dato.idPlanilla);
+      await create_pagos_insert_planilla(dato.idPlanilla);
       return data[0];
     });
 
@@ -139,7 +139,7 @@ module.exports.actualizar = async (req, res, next) => {
 
     const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);
     if (data) {
-      update_planilla_after_anotacion(datos.idPlanilla);
+      await create_pagos_insert_planilla(datos.idPlanilla);
       res.status(201).json({
           status: true,
           message: `${nombreTabla} actualizado`
@@ -187,7 +187,7 @@ module.exports.borrar = async (req, res, next) => {
       await db.query(`DELETE FROM ${nombreTabla} WHERE id = ?`, [id]);
 
       if (anotacion.length > 0) {
-        update_planilla_after_anotacion(anotacion[0].idPlanilla);
+        await create_pagos_insert_planilla(anotacion[0].idPlanilla);
       }
 
       res.status(201).json({

@@ -34,6 +34,11 @@ td {
   text-align: center;
 }
 
+.boton-accion {
+  margin: 5px;
+  color: #ffffff;
+}
+
 :host {
   --mdc-linear-progress-active-indicator-height: 15px;
   --mdc-linear-progress-track-height: 15px;

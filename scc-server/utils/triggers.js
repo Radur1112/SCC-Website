@@ -77,31 +77,34 @@ const create_pagos_insert_planilla = async (idPlanilla) => {
 
     const insertQueries = [];
 
-    tipoAumentos.forEach(tipo => {
-      if ((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) {
+    for (const tipo of tipoAumentos) {
+      const [fijos] = await db.query(`SELECT id FROM aumento WHERE idTipoAumento = ? AND idPlanilla = ?`, [tipo.id, idPlanilla]);
+      if (((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) && fijos.length == 0) {
         const monto = tipo.fijo == 1 ? tipo.valor : tipo.fijo == 2 ? salario_base * tipo.valor / 100 : salario_base;
         const descripcion = tipo.fijo == 1 ? 'Aumento fijo absoluto' : tipo.fijo == 2 ? 'Aumento fijo porcentual' : 'Aumento fijo salario base';
-        insertQueries.push(db.query(`INSERT INTO aumento (idPlanilla, idTipoAumento, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
+        insertQueries.push(await db.query(`INSERT INTO aumento (idPlanilla, idTipoAumento, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
       }
-    });
+    }
 
-    tipoDeducciones.forEach(tipo => {
-      if ((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) {
+    for (const tipo of tipoDeducciones) {
+      const [fijos] = await db.query(`SELECT id FROM deduccion WHERE idTipoDeduccion = ? AND idPlanilla = ?`, [tipo.id, idPlanilla]);
+      if (((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) && fijos.length == 0) {
         const monto = tipo.fijo == 1 ? tipo.valor : tipo.fijo == 2 ? salario_base * tipo.valor / 100 : salario_base;
         const descripcion = tipo.fijo == 1 ? 'Deducción fijo absoluto' : tipo.fijo == 2 ? 'Deducción fijo porcentual' : 'Deducción fijo salario base';
-        insertQueries.push(db.query(`INSERT INTO deduccion (idPlanilla, idTipoDeduccion, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
+        insertQueries.push(await db.query(`INSERT INTO deduccion (idPlanilla, idTipoDeduccion, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
       }
-    });
+    }
 
-    tipoOtrosPagos.forEach(tipo => {
-      if ((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) {
+    for (const tipo of tipoOtrosPagos) {
+      const [fijos] = await db.query(`SELECT id FROM otropago WHERE idTipoOtroPago = ? AND idPlanilla = ?`, [tipo.id, idPlanilla]);
+      if (((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) && fijos.length == 0) {
         const monto = tipo.fijo == 1 ? tipo.valor : tipo.fijo == 2 ? salario_base * tipo.valor / 100 : salario_base;
         const descripcion = tipo.fijo == 1 ? 'Otros pagos fijo absoluto' : tipo.fijo == 2 ? 'Otros pagos fijo porcentual' : 'Otros pagos fijo salario base';
-        insertQueries.push(db.query(`INSERT INTO otropago (idPlanilla, idTipoOtroPago, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
+        insertQueries.push(await db.query(`INSERT INTO otropago (idPlanilla, idTipoOtroPago, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
       }
-    });
+    }
 
-    Promise.all(insertQueries)
+    await Promise.all(insertQueries)
       .then((results) => {
         update_planilla_after_anotacion(planilla.id)
       })
@@ -140,7 +143,12 @@ const update_planilla_after_anotacion = async (idPlanilla) => {
 
     await Promise.all(updateAumentoQueries);
 
-    result = await db.query(`SELECT SUM(monto) AS total FROM aumento WHERE idPlanilla = ${idPlanilla}`);
+    let postQueryAumento = idTipoContrato == 1 ? 'ta.sp = 0 AND' : idTipoContrato == 2 ? 'ta.sp = 1 AND' : '';
+    result = await db.query(`
+      SELECT SUM(a.monto) AS total 
+      FROM aumento a 
+      INNER JOIN tipoaumento ta ON ta.id = a.idTipoAumento 
+      WHERE ${postQueryAumento} a.idPlanilla = ?`, [idPlanilla]);
     const aumentos_total = parseFloat(result[0][0].total) || 0;
 
 
@@ -170,7 +178,7 @@ const update_planilla_after_anotacion = async (idPlanilla) => {
       FROM deduccion d 
       INNER JOIN tipodeduccion td ON td.id = d.idTipoDeduccion AND td.fijo = 2
       WHERE d.idPlanilla = ${idPlanilla}`);
-      
+      console.log(result[0])
     const updateDeduccionQueries = result[0].map(deduccion => {
       const monto = salario_bruto * parseFloat(deduccion.valor) / 100;
       return db.query(`UPDATE deduccion SET monto = ? WHERE id = ?`, [monto, deduccion.id]);
@@ -178,7 +186,12 @@ const update_planilla_after_anotacion = async (idPlanilla) => {
 
     await Promise.all(updateDeduccionQueries);
 
-    result = await db.query(`SELECT SUM(monto) as total FROM deduccion WHERE idPlanilla = ${idPlanilla}`);
+    let postQueryDeduccion = idTipoContrato == 1 ? 'td.sp = 0 AND' : idTipoContrato == 2 ? 'td.sp = 1 AND' : '';
+    result = await db.query(`
+      SELECT SUM(d.monto) AS total 
+      FROM deduccion d 
+      INNER JOIN tipodeduccion td ON td.id = d.idTipoDeduccion 
+      WHERE ${postQueryDeduccion} d.idPlanilla = ?`, [idPlanilla]);
     const deducciones_total = parseFloat(result[0][0].total) || 0;
 
     await db.query('UPDATE planilla SET salarioBruto = ?, salarioNeto = ? WHERE id = ?', [
