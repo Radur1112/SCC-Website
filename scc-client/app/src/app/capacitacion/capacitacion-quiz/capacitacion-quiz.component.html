@@ -1,0 +1,121 @@
+<mat-card class="card-primary">
+  <a [routerLink]="usuarioQuiz && usuarioQuiz.nombre ? '/capacitacion/reporte' : '/capacitacion'" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
+  <div class="mx-auto">
+    <mat-card-header class="content-container-center">
+      <mat-card-title class="light-color">
+        <h2 *ngIf="usuarioQuiz">{{ usuarioQuiz.titulo }}</h2>
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="light-color">
+      <div class="row" *ngIf="usuarioQuiz">
+        <div [innerHTML]="convertService.convertLineBreaks(usuarioQuiz.descripcion)" *ngIf="!usuarioQuiz.nombre">
+        </div>
+        <div class="content-container-center" *ngIf="usuarioQuiz.nombre">
+          <h4>{{ usuarioQuiz.nombre }}</h4>
+        </div>
+      </div>
+    </mat-card-content>
+  </div>
+</mat-card>
+
+<div class="second-pre-card-primary"></div>
+
+<div class="second-card-primary"></div>
+
+<mat-card class="card-pre mx-auto"></mat-card>
+
+<div class="card">
+  <div class=" less-width mx-auto my-4">
+    <ng-container *ngIf="loading; else datos">
+      <div class="loader-container">
+        <div class="loader"></div>
+      </div>
+    </ng-container>
+    <ng-template #datos>
+      <form [formGroup]="quizForm" *ngIf="usuarioQuiz">
+        <div class="total-puntos-container" *ngIf="readOnly">
+          <h6 class="m-0">Total de puntos: {{ usuarioQuiz.nota }}/{{ usuarioQuiz.sumPuntos }}</h6>
+          <h6 class="m-0">Completado: {{ usuarioQuiz.fecha | date: 'dd-MM-yyyy' }}</h6>
+        </div>
+          <div formArrayName="preguntas">
+            <div *ngFor="let pregunta of preguntas().controls; let preguntaIndex = index" [formGroupName]="preguntaIndex">
+              <mat-card class="card-quiz">
+                <div class="quiz-pregunta-container">
+                  <h6 class="primary-color m-0">Pregunta {{ preguntaIndex + 1 }}</h6>
+                  <div class="quiz-puntos-container" *ngIf="pregunta.get('idTipoPregunta').value != 3">
+                    <mat-icon class="incorrecta-color" *ngIf="getPreguntaPoints(pregunta) == 0 && readOnly">close</mat-icon>
+                    <div class="content-container-center-row"><div *ngIf="readOnly">{{ getPreguntaPoints(pregunta) }}/</div>{{ pregunta.get('puntos').value }} puntos</div>
+                  </div>
+                </div>
+                <div class="quiz-pregunta-container">
+                  <div [innerHTML]="convertService.convertLineBreaks(pregunta.get('descripcion').value)"></div>
+                </div>
+
+                <div class="pregunta-img-container" *ngIf="pregunta.get('imagenUrl').value">
+                  <img [src]="pregunta.get('imagenUrl').value" alt="" class="img-fluid">
+                </div>
+        
+                <div *ngIf="pregunta.get('idTipoPregunta').value === 1">
+                  <mat-radio-group class="quiz-respuesta-container" formControlName="respuesta">
+                    <div class="full-width" *ngFor="let respuesta of respuestas(preguntaIndex).controls">
+                      <div class="quiz-radios-container" 
+                      [ngClass]="{'respuesta-correcta': respuesta.get('classCorrecta').value,
+                      'respuesta-incorrecta': respuesta.get('classIncorrecta').value}">
+                        <mat-radio-button 
+                        [ngClass]="{'respuesta-correcta': respuesta.get('classCorrecta').value,
+                        'respuesta-incorrecta': respuesta.get('classIncorrecta').value}"
+                        [value]="respuesta.get('id').value" [checked]="isRespondida(pregunta.get('respondidas')?.value, respuesta.get('id')?.value)">
+                          {{ respuesta.get('descripcion').value }}
+                        </mat-radio-button>
+                        <mat-icon class="correcta-color" *ngIf="respuesta.get('classCorrecta').value">check</mat-icon>
+                        <mat-icon class="incorrecta-color" *ngIf="respuesta.get('classIncorrecta').value">close</mat-icon>
+                      </div>
+                      <div class="respuesta-img-container" *ngIf="respuesta.get('imagenUrl').value">
+                        <img [src]="respuesta.get('imagenUrl').value" alt="" class="img-fluid">
+                      </div>
+                    </div>
+                  </mat-radio-group>
+                </div>
+            
+                <div formArrayName="respuestas" *ngIf="pregunta.get('idTipoPregunta').value === 2">
+                  <div class="quiz-respuesta-container">
+                    <div class="full-width" *ngFor="let respuesta of respuestas(preguntaIndex).controls; let respuestaIndex = index" [formGroupName]="respuestaIndex">
+                      <div class="quiz-radios-container"
+                      [ngClass]="{'respuesta-correcta': respuesta.get('classCorrecta').value,
+                      'respuesta-incorrecta': respuesta.get('classIncorrecta').value}">
+                        <label>
+                          <mat-checkbox formControlName="respuesta" (change)="onChangeRespuestaCheck(preguntaIndex)">
+                            {{ respuesta.get('descripcion').value }}
+                          </mat-checkbox>
+                        </label>
+                        <mat-icon class="correcta-color" *ngIf="respuesta.get('classCorrecta').value">check</mat-icon>
+                        <mat-icon class="incorrecta-color" *ngIf="respuesta.get('classIncorrecta').value">close</mat-icon>
+                      </div>
+                      <div class="respuesta-img-container" *ngIf="respuesta.get('imagenUrl').value">
+                        <img [src]="respuesta.get('imagenUrl').value" alt="" class="img-fluid">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            
+                <div *ngIf="pregunta.get('idTipoPregunta').value === 3">
+                  <div class="quiz-respuesta-container">
+                    <input matInput type="text"  formControlName="respuesta" placeholder="Respuesta" class="quiz-respuesta">
+                  </div>
+                </div>
+              </mat-card>
+            </div>
+          </div>
+          <div class="quiz-boton-container" *ngIf="!readOnly">
+            <button mat-stroked-button type="button" class="quiz-cancelar">Cancelar</button>
+            <button mat-stroked-button type="button" class="quiz-terminar" (click)="terminarQuiz()">Finalizar quiz</button>
+          </div>
+          <div class="quiz-boton-container" *ngIf="readOnly">
+            <button mat-stroked-button type="button" class="quiz-cancelar" routerLink="/capacitacion">Salir</button>
+          </div>
+      </form>
+    </ng-template>
+  </div>
+</div>

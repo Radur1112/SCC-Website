@@ -142,7 +142,6 @@ export class UsuarioVacacionFormComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.vacaciones = res.data;
-        console.log(this.vacaciones)
         this.restartLimit();
       }
     });

@@ -16,157 +16,177 @@
 <div class="second-card-primary"></div>
 <mat-card class="card-pre mx-auto"></mat-card>
 
-<div class="less-width mx-auto">
-  <ng-container *ngIf="foro">
-    <h3 class="primary-color content-container-center">{{ foro.titulo }}</h3>
-    <mat-card class="card-foro mt-4">
-      <mat-card-header class="titulito p-0">
-        <mat-card-title class="foro-titulo px-3 py-2">
-          {{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a' }}
-        </mat-card-title>
-        <div class="opciones-abs" *ngIf="foro.idUsuario == usuarioActual.id || isAdmin">
-          <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #opciones="matMenu">
-            <button mat-menu-item (click)="historialForo(foro.id)" *ngIf="isAdmin">
-              <mat-icon>history</mat-icon>
-              <span>Ver historial</span>
-            </button>
-            <button mat-menu-item (click)="openForoFormDialog(false, foro.id)">
-              <mat-icon>edit</mat-icon>
-              <span>Editar</span>
-            </button>
-            <button mat-menu-item (click)="borrarForo(foro)">
-              <mat-icon>delete</mat-icon>
-              <span>Borrar</span>
-            </button>
-          </mat-menu>
-        </div>
-      </mat-card-header>
-      <mat-card-content class="foro-descripcion p-0">
-        <div class="row">
-          <div class="col-sm-3">
-            <div class="usuario">
-              <h5 class="primary-color content-container-center my-3 px-2">
-                <mat-icon class="user-icon me-1">account_circle</mat-icon>{{ foro.usuarioNombre }}
-              </h5>
-            </div>
-          </div>
-          <div class="col-sm-9"> 
-            <div class="text-justify my-3 ps-sm-0 ps-3 pe-3" [innerHTML]="convertService.convertLineBreaks(foro.descripcion)"></div>
-            <br>
-            <ng-container *ngIf="foroArchivos && foroArchivos.length > 0">
-                <div class="archivo-container my-2 ps-sm-0 ps-3 pe-3" *ngFor="let archivo of foroArchivos">
-                  <a [href]="archivo.ubicacion" target="_blank" rel="noopener noreferrer" class="archivo content-container-center-row p-0" (click)="registrarAcceso(archivo.id)">
-                    <mat-icon mat-list-icon class="primary-color">insert_drive_file</mat-icon>
-                    <span class="archivo-text">{{ archivo.nombreArchivo }}</span>
-                  </a>
-                </div>
-            </ng-container>
-          </div>
-        </div>
-      </mat-card-content>
-    </mat-card>
-    
-    <ng-container *ngIf="foro.tipoForoDescripcion == 'Encuesta'; else noEncuesta">
-      <ng-container *ngIf="filtroRespuestas && filtroRespuestas.length > 0; else noRespuesta">
-        <div class="respuesta-borde">
-          <div class="content-container-center primary-color my-5 py-5">
-            <h3>Esta encuesta ya fue respondida</h3>
-          </div>
-        </div>
-      </ng-container>
-      <ng-template #noRespuesta>
-        <div class="respuesta-borde">
-          <h5 class="primary-color mt-4">Respuestas</h5>
-          <mat-radio-group class="respuestas" [(ngModel)]="usuarioRespuesta">
-            @for (respuesta of foroRespuestas; track respuesta) {
-              <mat-radio-button class="example-radio-button" [value]="respuesta">{{ respuesta.descripcion }}</mat-radio-button>
-            }
-          </mat-radio-group>
-          <div class="my-3" align="end"> 
-            <button mat-flat-button color="primary" type="button" class="primary-button" (click)="responderEncuesta()" [disabled]="!usuarioRespuesta">Enviar</button>
-          </div>
-        </div>
-      </ng-template>
-      
-      <ng-container *ngIf="isAdmin">
-        <h4 class="primary-color mt-5 mb-3">Gráfico de respuestas</h4>
-        <div class="content-container-center primary-color mb-5">
-            <div class="progress-bar-container full-width mx-auto mb-3" *ngFor="let respuesta of foroRespuestas">
-              <mat-progress-bar class="progress-bar" mode="determinate" color="accent" [value]="respuesta.cantRespuestas * 100 / respuestas.length"></mat-progress-bar>
-              <div class="respuesta-container">
-                <span class="respuesta-descripcion">{{ respuesta.descripcion }}</span>
-                <div class="respuesta-otros">
-                  <span class="respuesta-cantidad">{{ respuesta.cantRespuestas + (respuesta.cantRespuestas == 1 ? ' respuesta' : ' respuestas') }}</span>
-                  <span class="respuesta-porcentaje"><strong>{{ respuestas.length > 0 ? (respuesta.cantRespuestas * 100 / respuestas.length).toFixed(0) : 0 }}%</strong></span>
-                </div>
-              </div>
-            </div>
-        </div>
-      </ng-container>
-    </ng-container>
 
-    <ng-template #noEncuesta>
-      <div class="content-container-start-row mt-3">
-        <p class="res menos-opacidad me-3">{{ filtroRespuestas.length == 1 ? filtroRespuestas.length + ' Respuesta' : filtroRespuestas.length + ' Respuestas' }}</p>
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-icon matSuffix class="primary-color me-2">search</mat-icon>
-          <mat-label>Buscar una respuesta</mat-label>
-          <input matInput #buscar (keyup)="busqueda($event)">
-        </mat-form-field>
-      </div>
-      <div>
-        <form [formGroup]="respuestaForm" (ngSubmit)="responderForo()">
-            <div class="row">
-              <mat-form-field class="full-width">
-                <textarea matInput placeholder="Agregue una respuesta..." formControlName="descripcion"></textarea>
-                
-                <div align="end" *ngIf="respuestaForm.valid">
-                  <button mat-button (click)="cancelarRespuesta()">Cancelar</button>
-                  <button mat-button color="primary" type="submit" [disabled]="!respuestaForm.valid">Enviar</button>
-                </div>
-              </mat-form-field>
-            </div>
-        </form>
-      </div>
-  
-      <ng-container *ngIf="filtroRespuestas">
-        <mat-card class="card-foro  my-4" *ngFor="let respuesta of filtroRespuestas">
-          <mat-card-header class="titulito-res p-0">
-            <mat-card-title class="foro-titulo px-3 py-2">
-              {{ respuesta.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a' }}
-            </mat-card-title>
-            <div class="opciones-container" *ngIf="isAdmin">
-              <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">
-                <mat-icon class="light-color">more_vert</mat-icon>
+<ng-container *ngIf="loading; else datos">
+  <div class="loader-container">
+    <div class="loader"></div>
+  </div>
+</ng-container>
+<ng-template #datos>
+  <div class="less-width mx-auto">
+    <ng-container *ngIf="foro">
+      <h3 class="primary-color content-container-center">{{ foro.titulo }}</h3>
+      <mat-card class="card-foro mt-4">
+        <mat-card-header class="titulito p-0">
+          <mat-card-title class="foro-titulo px-3 py-2">
+            {{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a' }}
+          </mat-card-title>
+          <div class="opciones-abs" *ngIf="foro.idUsuario == usuarioActual.id || isAdmin">
+            <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de foro">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #opciones="matMenu">
+              <button mat-menu-item (click)="historialForo(foro.id)" *ngIf="isAdmin">
+                <mat-icon>history</mat-icon>
+                <span>Ver historial</span>
               </button>
-              <mat-menu #opciones="matMenu">
-                <button mat-menu-item (click)="borrarRespuesta(respuesta)">
-                  <mat-icon>delete</mat-icon>
-                  <span>Borrar</span>
-                </button>
-              </mat-menu>
-            </div>
-          </mat-card-header>
-          <mat-card-content class="foro-descripcion p-0">
-            <div class="row">
-              <div class="col-sm-3">
-                <div class="usuario">
-                  <h6 class="primary-color content-container-center my-3 px-2">
-                    <mat-icon class="res-icon me-1">account_circle</mat-icon>{{ respuesta.usuarioNombre }}
-                  </h6>
-                </div>
-              </div>
-              <div class="col-sm-9"> 
-                <div class="text-justify my-3 ps-sm-0 ps-3 pe-3" [innerHTML]="convertService.convertLineBreaks(respuesta.descripcion)">
-                </div>
+              <button mat-menu-item (click)="openForoFormDialog(false, foro.id)">
+                <mat-icon>edit</mat-icon>
+                <span>Editar</span>
+              </button>
+              <button mat-menu-item (click)="borrarForo(foro)">
+                <mat-icon>delete</mat-icon>
+                <span>Borrar</span>
+              </button>
+            </mat-menu>
+          </div>
+        </mat-card-header>
+        <mat-card-content class="foro-descripcion p-0">
+          <div class="row">
+            <div class="col-sm-3">
+              <div class="usuario">
+                <h5 class="primary-color content-container-center my-3 px-2">
+                  <mat-icon class="user-icon me-1">account_circle</mat-icon>{{ foro.usuarioNombre }}
+                </h5>
               </div>
             </div>
-          </mat-card-content>
-        </mat-card>
+            <div class="col-sm-9"> 
+              <div class="text-justify my-3 ps-sm-0 ps-3 pe-3" [innerHTML]="convertService.convertLineBreaks(foro.descripcion)"></div>
+              <br>
+              <ng-container *ngIf="foroArchivos && foroArchivos.length > 0">
+                  <div class="archivo-container my-2 ps-sm-0 ps-3 pe-3" *ngFor="let archivo of foroArchivos">
+                    <a [href]="archivo.ubicacion" target="_blank" rel="noopener noreferrer" class="archivo content-container-center-row p-0" (click)="registrarAcceso(archivo.id)">
+                      <mat-icon mat-list-icon class="primary-color">insert_drive_file</mat-icon>
+                      <span class="archivo-text">{{ archivo.nombreArchivo }}</span>
+                    </a>
+                  </div>
+              </ng-container>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+      
+      <ng-container *ngIf="foro.tipoForoDescripcion == 'Encuesta'; else noEncuesta">
+        <ng-container *ngIf="filtroRespuestas && filtroRespuestas.length > 0; else noRespuesta">
+          <div class="respuesta-borde">
+            <div class="content-container-center primary-color my-5 py-5">
+              <h3>Esta encuesta ya fue respondida</h3>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #noRespuesta>
+          <div class="respuesta-borde">
+            <h5 class="primary-color mt-4">Respuestas</h5>
+            <mat-radio-group class="respuestas" [(ngModel)]="usuarioRespuesta">
+              @for (respuesta of foroRespuestas; track respuesta) {
+                <mat-radio-button class="example-radio-button" [value]="respuesta">{{ respuesta.descripcion }}</mat-radio-button>
+              }
+            </mat-radio-group>
+            <div class="my-3 align-end"> 
+              <button mat-flat-button color="primary" type="button" class="primary-button" (click)="responderEncuesta()" [disabled]="!usuarioRespuesta">Enviar</button>
+            </div>
+          </div>
+        </ng-template>
+        
+        <ng-container *ngIf="isAdmin">
+          <h4 class="primary-color mt-5 mb-3">Gráfico de respuestas</h4>
+          <div class="content-container-center primary-color mb-5">
+              <div class="progress-bar-container full-width mx-auto mb-3" *ngFor="let respuesta of foroRespuestas">
+                <mat-progress-bar class="progress-bar" mode="determinate" color="accent" [value]="respuesta.cantRespuestas * 100 / respuestas.length"></mat-progress-bar>
+                <div class="respuesta-container">
+                  <span class="respuesta-descripcion">{{ respuesta.descripcion }}</span>
+                  <div class="respuesta-otros">
+                    <span class="respuesta-cantidad">{{ respuesta.cantRespuestas + (respuesta.cantRespuestas == 1 ? ' respuesta' : ' respuestas') }}</span>
+                    <span class="respuesta-porcentaje"><strong>{{ respuestas.length > 0 ? (respuesta.cantRespuestas * 100 / respuestas.length).toFixed(0) : 0 }}%</strong></span>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </ng-container>
       </ng-container>
-    </ng-template>
-  </ng-container>
-</div>
+
+      <ng-template #noEncuesta>
+        <div class="content-container-start-row mt-3">
+          <p class="res menos-opacidad me-3">{{ filtroRespuestas.length == 1 ? filtroRespuestas.length + ' Respuesta' : filtroRespuestas.length + ' Respuestas' }}</p>
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-icon matSuffix class="primary-color me-2">search</mat-icon>
+            <mat-label>Buscar una respuesta</mat-label>
+            <input matInput #buscar (keyup)="busqueda($event)">
+          </mat-form-field>
+        </div>
+        <div>
+          <form [formGroup]="respuestaForm" (ngSubmit)="responderForo()">
+              <div class="row">
+                <mat-form-field class="full-width">
+                  <textarea matInput placeholder="Agregue una respuesta..." formControlName="descripcion"></textarea>
+                  
+                  <div class="align-end" *ngIf="respuestaForm.valid">
+                    <button mat-button (click)="cancelarRespuesta()">Cancelar</button>
+                    <button mat-button color="primary" type="submit" [disabled]="!respuestaForm.valid">Enviar</button>
+                  </div>
+                </mat-form-field>
+              </div>
+          </form>
+        </div>
+    
+        <ng-container *ngIf="loadingR; else datosR">
+          <div class="loader-container">
+            <div class="loader"></div>
+          </div>
+        </ng-container>
+        <ng-template #datosR>
+          <ng-container *ngIf="filtroRespuestas && filtroRespuestas.length > 0; else noDatos">
+            <mat-card class="card-foro  my-4" *ngFor="let respuesta of filtroRespuestas">
+              <mat-card-header class="titulito-res p-0">
+                <mat-card-title class="foro-titulo px-3 py-2">
+                  {{ respuesta.fechaCreado | date: 'EEEE d \'de\' MMMM y, h:mm a' }}
+                </mat-card-title>
+                <div class="opciones-container" *ngIf="isAdmin">
+                  <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">
+                    <mat-icon class="light-color">more_vert</mat-icon>
+                  </button>
+                  <mat-menu #opciones="matMenu">
+                    <button mat-menu-item (click)="borrarRespuesta(respuesta)">
+                      <mat-icon>delete</mat-icon>
+                      <span>Borrar</span>
+                    </button>
+                  </mat-menu>
+                </div>
+              </mat-card-header>
+              <mat-card-content class="foro-descripcion p-0">
+                <div class="row">
+                  <div class="col-sm-3">
+                    <div class="usuario">
+                      <h6 class="primary-color content-container-center my-3 px-2">
+                        <mat-icon class="res-icon me-1">account_circle</mat-icon>{{ respuesta.usuarioNombre }}
+                      </h6>
+                    </div>
+                  </div>
+                  <div class="col-sm-9"> 
+                    <div class="text-justify my-3 ps-sm-0 ps-3 pe-3" [innerHTML]="convertService.convertLineBreaks(respuesta.descripcion)">
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </ng-container>
+          <ng-template #noDatos>
+            <h3 class="secondary-color no-data">
+              No hay respuestas
+            </h3>
+          </ng-template>
+        </ng-template>
+      </ng-template>
+    </ng-container>
+  </div>
+</ng-template>

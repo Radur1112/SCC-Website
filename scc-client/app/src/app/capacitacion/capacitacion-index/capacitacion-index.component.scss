@@ -192,6 +192,60 @@ mat-form-field {
   overflow: auto;
 }
 
+.align-right {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.verQuizes {
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  background-color: $primary-color !important;
+  padding: 23px 20px;
+  transition: all 0.15s;
+}
+
+.verQuizes:hover {
+  border: 1px solid $primary-color;
+  background-color: #ffffff !important;
+  color: $primary-color !important;
+}
+
+.card-quiz {
+  border-radius: 10px;
+  margin: 15px 0 0;
+}
+
+.quiz-titulo {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  text-align: center;
+  color: $primary-color;
+}
+
+.quiz-desc {
+  max-height: 90px;
+  overflow: auto;
+}
+
+.quiz-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.quiz-content-score {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: end;
+  text-align: center;
+}
+
 
 :host {
   --mdc-linear-progress-active-indicator-height: 15px;

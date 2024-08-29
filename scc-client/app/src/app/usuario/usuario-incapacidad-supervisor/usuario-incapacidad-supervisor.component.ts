@@ -48,6 +48,8 @@ export class UsuarioIncapacidadSupervisorComponent {
   
   @ViewChild(MatSort) sort: MatSort;
 
+  loading: boolean = true;
+
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
@@ -84,6 +86,8 @@ export class UsuarioIncapacidadSupervisorComponent {
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.sort = this.sort;
+        
+        this.loading = false;
       }
     });
   }
@@ -93,6 +97,7 @@ export class UsuarioIncapacidadSupervisorComponent {
   }
 
   confirmar(id: any) {
+    this.loading = true;
     this.gService.get(`incapacidad/confirmar/${id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
@@ -103,6 +108,7 @@ export class UsuarioIncapacidadSupervisorComponent {
   }
 
   rechazar(id: any) {
+    this.loading = true;
     this.gService.get(`incapacidad/rechazar/${id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {

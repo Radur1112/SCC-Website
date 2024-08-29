@@ -26,6 +26,8 @@ import { PlanillaAnotacionIndexComponent } from './planilla/planilla-anotacion-i
 import { UsuarioIncapacidadIndexComponent } from './usuario/usuario-incapacidad-index/usuario-incapacidad-index.component';
 import { UsuarioVacacionIndexComponent } from './usuario/usuario-vacacion-index/usuario-vacacion-index.component';
 import { HomeIndexComponent } from './home/home-index/home-index.component';
+import { CapacitacionQuizComponent } from './capacitacion/capacitacion-quiz/capacitacion-quiz.component';
+import { CapacitacionAdminReporteComponent } from './capacitacion/capacitacion-admin-reporte/capacitacion-admin-reporte.component';
 
 export const routes: Routes = [
   { path: 'inicio', component: InicioComponent },
@@ -79,7 +81,7 @@ export const routes: Routes = [
   { path: 'vacacion', component: UsuarioVacacionFormComponent, canActivate:[AuthGuard],
     data:{
       permisos: ['Todos'],
-      vacaciones: [1],
+      vacaciones: [1]
     } 
   },
   { path: 'vacacion/solicitudes', component: UsuarioVacacionSupervisorComponent, canActivate:[AuthGuard],
@@ -111,6 +113,22 @@ export const routes: Routes = [
   { path: 'capacitacion', component: CapacitacionIndexComponent, canActivate:[AuthGuard],
     data:{
       permisos: ['Todos']
+    } 
+  },
+  { path: 'capacitacion/quiz/:id', component: CapacitacionQuizComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: ['Todos'],
+      quiz: [1]
+    } 
+  },
+  { path: 'capacitacion/usuarioQuiz/:idUsuarioQuiz', component: CapacitacionQuizComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: [1, 4]
+    } 
+  },
+  { path: 'capacitacion/reporte', component: CapacitacionAdminReporteComponent, canActivate:[AuthGuard],
+    data:{
+      permisos: [1, 4]
     } 
   },
 

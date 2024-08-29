@@ -33,6 +33,7 @@ router.get('/:id', verifyToken([0]), usuarioController.getById);
 router.get('/noModulo/:id', verifyToken([1]), usuarioController.getByNoIdModulo);
 router.get('/identificacion/:id', verifyToken([0]), usuarioController.getByIdentificacion);
 router.get('/correo/:correo', verifyToken([0]), usuarioController.getByCorreo);
+router.get('/home/:id', verifyToken([0]), usuarioController.getHome);
 
 router.post('/login', usuarioController.login);
 router.post("/registrar", verifyToken([1]), usuarioController.registrar);

@@ -154,7 +154,6 @@ export class UsuarioIncapacidadFormComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.incapacidades = res.data;
-        console.log(this.incapacidades)
         this.restartLimit();
       }
     });
@@ -291,7 +290,6 @@ export class UsuarioIncapacidadFormComponent {
     const fechasRepetidas = [];
 
     this.incapacidades.forEach(incapacidad => {
-      console.log(fecha)
       const fechaInicio = new Date(incapacidad.fechaInicio);
       const fechaFinal = new Date(incapacidad.fechaFinal);
       

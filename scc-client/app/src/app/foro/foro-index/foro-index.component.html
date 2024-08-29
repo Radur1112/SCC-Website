@@ -1,5 +1,5 @@
 <mat-card class="card-primary">
-  <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
+  <a routerLink="/bienvenida" class="go-back" matTooltip="Ir atras">
     <mat-icon class="light-color">arrow_back</mat-icon>
   </a>
   <div class="descargar mx-auto" *ngIf="isAdmin">
@@ -58,66 +58,78 @@
   
 <mat-card class="card-pre mx-auto"></mat-card>
 
-<div class="less-width mx-auto my-4 px-3">
-  <div class="row">
-    <button mat-flat-button color="accent" class="secondary-button" (click)="openForoFormDialog(true)">Crear un nuevo foro</button>
+<ng-container *ngIf="loading; else datos">
+  <div class="loader-container">
+    <div class="loader"></div>
   </div>
-  <ng-container *ngIf="filtroForos">
-    <div class="row each-foro my-5" *ngFor="let foro of filtroForos">
-      <div class="col-sm-9 opciones-god my-3"> 
-        <div class="opciones-container" *ngIf="foro.idUsuario == usuarioActual.id || isAdmin">
-          <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de respuesta">
-            <mat-icon>more_vert</mat-icon>
-          </button>
-          <mat-menu #opciones="matMenu">
-            <button mat-menu-item (click)="historialForo(foro.id)" *ngIf="isAdmin">
-              <mat-icon>history</mat-icon>
-              <span>Ver historial</span>
-            </button>
-            <button mat-menu-item (click)="openForoFormDialog(false, foro.id)">
-              <mat-icon>edit</mat-icon>
-              <span>Editar</span>
-            </button>
-            <button mat-menu-item (click)="borrarForo(foro)">
-              <mat-icon>delete</mat-icon>
-              <span>Borrar</span>
-            </button>
-          </mat-menu>
-        </div>
-        <mat-card class="card-foro">
-          <mat-card-header class="row pt-0">
-            <div class="col-7">
-              <mat-card-title class="foro-titulo">
-                <h3 class="primary-color noWrap-texto pe-2" (click)="abrirForo(foro)">
-                  {{ foro.titulo }}
-                </h3>
-                <p class="smaller-body-text noWrap-texto mb-2"><strong>Creado por: </strong>{{ foro.usuarioNombre }}</p>
-              </mat-card-title>
-            </div>
-            <div class="col-5 row right-header">
-              <p class="smaller-body-text m-0">{{ foro.tipoForoDescripcion }}</p>
-              <p class="smaller-body-text m-0"><mat-icon class="smaller-icon mt-2 me-1">forum</mat-icon>{{ foro.cantRespuestas == 1 ? foro.cantRespuestas + ' Respuesta' : foro.cantRespuestas + ' Respuestas' }}</p>
-            </div>
-            <p class="smaller-body-text menos-opacidad m-0"><strong>Publicado: </strong>{{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y - hh:mm aa' }}</p>
-          </mat-card-header>
-          <mat-card-content class="foro-descripcion mt-3" [innerHTML]="convertService.convertLineBreaks(foro.descripcion)">
-          </mat-card-content>
-        </mat-card>
-      </div>
-      <div class="ultima-respuesta col-sm-3">
-        <ng-container *ngIf="foro.respuestaForo">
-          <h5 class="primary-color my-3 pe-2">
-            Última respuesta
-          </h5>
-          <p class="content-container-center-row"><mat-icon class="smaller-icon me-1">account_circle</mat-icon>{{ foro.respuestaForo.usuarioNombre }}</p>
-          <div class="content-container-center"><p><strong>Fecha: </strong>{{ foro.respuestaForo.fecha | date: 'EEEE d \'de\' MMMM y - hh:mm aa' }}</p></div>
-        </ng-container>
-        <ng-container *ngIf="!foro.respuestaForo">
-          <h5 class="primary-color content-container-center my-3 pe-2">
-            No hay respuestas
-          </h5>
-        </ng-container>
-      </div>
+</ng-container>
+<ng-template #datos>
+  <div class="less-width mx-auto my-4 px-3">
+    <div class="row">
+      <button mat-flat-button color="accent" class="secondary-button" (click)="openForoFormDialog(true)">Crear un nuevo foro</button>
     </div>
-  </ng-container>
-</div>
+    <ng-container *ngIf="filtroForos; else noDatos">
+      <div class="row each-foro my-5" *ngFor="let foro of filtroForos">
+        <div class="col-sm-9 opciones-god my-3"> 
+          <div class="opciones-container" *ngIf="foro.idUsuario == usuarioActual.id || isAdmin">
+            <button mat-icon-button class="opciones-button" [matMenuTriggerFor]="opciones" matTooltip="Opciones de foro">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #opciones="matMenu">
+              <button mat-menu-item (click)="historialForo(foro.id)" *ngIf="isAdmin">
+                <mat-icon>history</mat-icon>
+                <span>Ver historial</span>
+              </button>
+              <button mat-menu-item (click)="openForoFormDialog(false, foro.id)">
+                <mat-icon>edit</mat-icon>
+                <span>Editar</span>
+              </button>
+              <button mat-menu-item (click)="borrarForo(foro)">
+                <mat-icon>delete</mat-icon>
+                <span>Borrar</span>
+              </button>
+            </mat-menu>
+          </div>
+          <mat-card class="card-foro">
+            <mat-card-header class="row pt-0">
+              <div class="col-7">
+                <mat-card-title class="foro-titulo">
+                  <h3 class="primary-color noWrap-texto pe-2" (click)="abrirForo(foro)">
+                    {{ foro.titulo }}
+                  </h3>
+                  <p class="smaller-body-text noWrap-texto mb-2"><strong>Creado por: </strong>{{ foro.usuarioNombre }}</p>
+                </mat-card-title>
+              </div>
+              <div class="col-5 row right-header">
+                <p class="smaller-body-text m-0">{{ foro.tipoForoDescripcion }}</p>
+                <p class="smaller-body-text m-0"><mat-icon class="smaller-icon mt-2 me-1">forum</mat-icon>{{ foro.cantRespuestas == 1 ? foro.cantRespuestas + ' Respuesta' : foro.cantRespuestas + ' Respuestas' }}</p>
+              </div>
+              <p class="smaller-body-text menos-opacidad m-0"><strong>Publicado: </strong>{{ foro.fechaCreado | date: 'EEEE d \'de\' MMMM y - hh:mm aa' }}</p>
+            </mat-card-header>
+            <mat-card-content class="foro-descripcion mt-3" [innerHTML]="convertService.convertLineBreaks(foro.descripcion)">
+            </mat-card-content>
+          </mat-card>
+        </div>
+        <div class="ultima-respuesta col-sm-3">
+          <ng-container *ngIf="foro.respuestaForo">
+            <h5 class="primary-color my-3 pe-2">
+              Última respuesta
+            </h5>
+            <p class="content-container-center-row"><mat-icon class="smaller-icon me-1">account_circle</mat-icon>{{ foro.respuestaForo.usuarioNombre }}</p>
+            <div class="content-container-center"><p><strong>Fecha: </strong>{{ foro.respuestaForo.fecha | date: 'EEEE d \'de\' MMMM y - hh:mm aa' }}</p></div>
+          </ng-container>
+          <ng-container *ngIf="!foro.respuestaForo">
+            <h5 class="primary-color content-container-center my-3 pe-2">
+              No hay respuestas
+            </h5>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #noDatos>
+      <h3 class="secondary-color no-data no-data-margint">
+        No hay foros creados
+      </h3>
+    </ng-template>
+  </div>
+</ng-template>

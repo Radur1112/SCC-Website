@@ -1,0 +1,112 @@
+@use '../../../variables' as *;
+
+.card-pre {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  width: 99%;
+  min-height: 61px;
+  border-top-left-radius: 55px;
+  border-top-right-radius: 55px;
+  box-shadow: none;
+}
+
+
+.cards-recientes {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  margin: 40px;
+  gap: 20px;
+}
+
+.card-home {
+  border: 1px solid #dadada;
+  border-radius: 10px;
+  box-shadow: none;;
+  padding: 20px;
+  width: 100%;
+}
+
+.column-between {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.recientes-content {
+  margin: 40px 0;
+}
+
+.display-recientes {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  gap: 10px;
+}
+
+.display-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  align-items: center;
+  text-align: center;
+  margin: 10px 0;
+  padding-top: 5px;
+}
+
+.titulo-reciente {
+  color: rgb(0, 0, 0);
+}
+
+.a-reciente {
+  transition: all 0.15s;
+  cursor: pointer;
+  a {
+    text-decoration: none;
+    transition: all 0.15s;
+  }
+}
+
+.a-reciente:hover {
+  background-color: #f0f0f0;
+  color: $secondary-color;
+  a {
+    color: $secondary-color;
+  };
+}
+
+.fecha-reciente {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.column-reciente {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.ver-todos {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 5px;
+  color: rgb(0, 0, 0, 0.65);
+  text-decoration: none;
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.ver-todos:hover {
+  color: rgb(0, 0, 0, 1);
+  text-decoration: underline;
+}
+  
+@media screen and (max-width: 991.98px) {
+  .cards-recientes {
+    flex-direction: column;
+  }
+}

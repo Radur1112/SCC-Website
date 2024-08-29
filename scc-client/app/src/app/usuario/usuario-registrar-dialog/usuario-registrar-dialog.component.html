@@ -1,4 +1,7 @@
-<h2 mat-dialog-title>Usuarios Subidos</h2>
+<h4 class="primary-color dialog-title">Usuarios Subidos</h4>
+<a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
+  <mat-icon class="dark-color">close</mat-icon>
+</a>
 <mat-dialog-content class="mat-typography">
     <div class="table-container">
         <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">

@@ -68,7 +68,7 @@ const enviarCorreoReclutamiento = async (formData, ubicacionCV) => {
     html: formatearContenidoDeCorreoReclutamiento(datos),
     attachments: [
       {
-        filename: ubicacionCV.split('\\').pop(),
+        filename: ubicacionCV.split('\\').pop().split('/').pop(),
         path: ubicacionCV
       }
     ]

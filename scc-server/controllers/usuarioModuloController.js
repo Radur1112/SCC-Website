@@ -9,7 +9,7 @@ module.exports.get = async(req, res, next) => {
       u.id as usuarioId, u.identificacion as usuarioIdentificacion, u.nombre as usuarioNombre, u.correo as usuarioCorreo, p.descripcion as usuarioPuesto, 
       m.titulo as moduloTitulo, m.descripcion as moduloDescripcion 
       FROM ${nombreTabla} um
-      INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0
+      INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0 AND u.id != 1
       INNER JOIN modulo m ON um.idModulo = m.id AND m.estado != 0 
       `);
     if(data) {
@@ -49,7 +49,7 @@ module.exports.getById = async(req, res, next) => {
       u.id as usuarioId, u.identificacion as usuarioIdentificacion, u.nombre as usuarioNombre, u.correo as usuarioCorreo, p.descripcion as usuarioPuesto, 
       m.titulo as moduloTitulo, m.descripcion as moduloDescripcion 
       FROM ${nombreTabla} um
-      INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0
+      INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0 AND u.id != 1
       INNER JOIN puesto p ON p.id = u.idPuesto 
       INNER JOIN modulo m ON um.idModulo = m.id AND m.estado != 0 
       WHERE um.id = ?`, [id]);
@@ -90,7 +90,7 @@ module.exports.getByIdUsuario = async(req, res, next) => {
       u.id as usuarioId, u.identificacion as usuarioIdentificacion, u.nombre as usuarioNombre, u.correo as usuarioCorreo, p.descripcion as usuarioPuesto, 
       m.titulo as moduloTitulo, m.descripcion as moduloDescripcion 
       FROM ${nombreTabla} um
-      INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0
+      INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0 AND u.id != 1
       INNER JOIN puesto p ON p.id = u.idPuesto 
       INNER JOIN modulo m ON um.idModulo = m.id AND m.estado != 0 
       WHERE um.idUsuario = ?`, [id]);
@@ -131,7 +131,7 @@ module.exports.getByIdModulo = async(req, res, next) => {
       u.id as usuarioId, u.identificacion as usuarioIdentificacion, u.nombre as usuarioNombre, u.correo as usuarioCorreo, p.descripcion as usuarioPuesto, 
       m.titulo as moduloTitulo, m.descripcion as moduloDescripcion 
       FROM ${nombreTabla} um
-      INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0
+      INNER JOIN usuario u ON um.idUsuario = u.id AND u.estado != 0 AND u.id != 1
       INNER JOIN puesto p ON p.id = u.idPuesto 
       INNER JOIN modulo m ON um.idModulo = m.id AND m.estado != 0 
       WHERE um.idModulo = ?`, [id]);
@@ -168,30 +168,97 @@ module.exports.getAllByIdUsuario = async(req, res, next) => {
     }
     
     const data = await db.query(`
-      SELECT um.*,
-        m.titulo AS moduloTitulo, m.descripcion AS moduloDescripcion, 
-        JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'nivel', mv.nivel,
-            'videos', mv.videos
-          )
-        ) AS videosByModulo
-      FROM ${nombreTabla} um
-      INNER JOIN modulo m ON um.idModulo = m.id AND m.estado != 0 
-      LEFT JOIN (
-        SELECT mv.nivel, mv.idModulo,
-        JSON_ARRAYAGG(
-          JSON_OBJECT(
-            'videoId', v.id , 'videoTitulo', v.titulo, 'videoDescripcion', v.descripcion, 'videoLink', v.link, 'videoFechaLimite', v.fechaLimite, 'videoRequerido', v.requerido, 'videoProgreso', uv.progreso
-          )
-        ) AS videos
-        FROM modulovideo mv
-        INNER JOIN video v ON mv.idVideo = v.id AND v.estado != 0
-        LEFT JOIN usuariovideo uv ON mv.idVideo = uv.idVideo AND uv.idUsuario = ?
-        GROUP BY mv.nivel, mv.idModulo
-      ) mv ON mv.idModulo = m.id
-      WHERE um.idUsuario = ?
-      GROUP BY um.id`, [id, id]);
+      SELECT 
+        um.*,
+        m.titulo AS moduloTitulo, 
+        m.descripcion AS moduloDescripcion, 
+        (
+            SELECT 
+              JSON_ARRAYAGG(
+                JSON_OBJECT(
+                    'nivel', mv.nivel,
+                    'videos', mv.videos
+                  )
+              )
+            FROM (
+                SELECT mv.nivel, mv.idModulo,
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'videoId', v.id , 
+                        'videoTitulo', v.titulo, 
+                        'videoDescripcion', v.descripcion, 
+                        'videoLink', v.link, 
+                        'videoFechaLimite', v.fechaLimite, 
+                        'videoRequerido', v.requerido, 
+                        'videoProgreso', uv.progreso
+                    )
+                ) AS videos
+                FROM modulovideo mv
+                INNER JOIN video v ON mv.idVideo = v.id AND v.estado != 0
+                LEFT JOIN usuariovideo uv ON mv.idVideo = uv.idVideo AND uv.idUsuario = ?
+                WHERE mv.idModulo = um.idModulo
+                GROUP BY mv.nivel, mv.idModulo
+            ) mv
+        ) AS videosByModulo,
+        (
+            SELECT 
+                JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', q.id,
+                        'titulo', q.titulo,
+                        'descripcion', q.descripcion,
+                        'nota', uq.nota,
+                        'fecha', uq.fecha,
+                        'cantPreguntas', q.cantPreguntas,
+                        'sumPuntos', q.sumPuntos
+                    )
+                )
+            FROM (
+                SELECT q.*, COUNT(qp.id) AS cantPreguntas, SUM(qp.puntos) AS sumPuntos
+                FROM quiz q
+                LEFT JOIN quizPregunta qp ON qp.idQuiz = q.id AND qp.estado != 0
+                WHERE q.estado != 0 AND q.idModulo = um.idModulo
+                GROUP BY q.id
+            ) q
+            LEFT JOIN usuarioquiz uq ON q.id = uq.idQuiz AND uq.idUsuario = ?
+        ) AS quizes
+    FROM usuariomodulo um
+    INNER JOIN modulo m ON um.idModulo = m.id AND m.estado != 0 
+    WHERE um.idUsuario = ?`, [id, id, id]);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
+module.exports.getByIds = async(req, res, next) => {
+  try {
+    let idUsuario = parseInt(req.params.idUsuario);
+    let idModulo = parseInt(req.params.idModulo);
+    if (!idUsuario || !idModulo) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+    
+    const data = await db.query(`SELECT * FROM ${nombreTabla} WHERE idUsuario = ? AND idModulo = ?`, [idUsuario, idModulo]);
     if(data) {
       res.status(200).send({
         success: true,

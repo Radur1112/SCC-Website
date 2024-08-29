@@ -50,7 +50,9 @@ export class PlanillaComprobanteDialogComponent {
   }
 
   formatearNumero(valor: string) {
-    let formateado = parseFloat(valor.replace(/[^\d.-]/g, ''));
+    valor = valor ?? '';
+    let perFormateado = valor.replace(/,/g, '.');
+    let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
       return '0.00';

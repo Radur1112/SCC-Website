@@ -7,8 +7,9 @@ const usuarioModuloController = require("../controllers/usuarioModuloController"
 router.get('/', verifyToken([0]), usuarioModuloController.get);
 router.get('/:id', verifyToken([0]), usuarioModuloController.getById);
 router.get('/usuario/:id', verifyToken([0]), usuarioModuloController.getByIdUsuario);
-router.get('/usuario/all/:id', verifyToken([0]), usuarioModuloController.getAllByIdUsuario);
 router.get('/modulo/:id', verifyToken([0]), usuarioModuloController.getByIdModulo);
+router.get('/usuarioModulo/:idUsuario/:idModulo', verifyToken([0]), usuarioModuloController.getByIds);
+router.get('/usuario/all/:id', verifyToken([0]), usuarioModuloController.getAllByIdUsuario);
 
 router.post("/", verifyToken([0]), usuarioModuloController.crear);
 router.post("/multiple", verifyToken([0]), usuarioModuloController.crearMultiples);

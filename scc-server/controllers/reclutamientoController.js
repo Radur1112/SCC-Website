@@ -21,6 +21,7 @@ const recibirReclutamientoForm = async (req, res) => {
         }
         const insert = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [reclutamiento]);
         if (insert) {
+          console.log(datos)
           await enviarCorreoReclutamiento(datos, cv.path);
 
           res.status(200).json('Su información ha sido enviada correctamente.');

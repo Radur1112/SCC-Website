@@ -430,8 +430,8 @@ module.exports.borrar = async (req, res, next) => {
     await db.query(`DELETE FROM forohistorial WHERE idForo = ?`, [id]);
     await db.query(`DELETE FROM foroarchivo WHERE idForo = ?`, [id]);
 
-    const folderPath = path.join(__dirname, `../uploads/foro/${id}`)
-    deleteFolderRecursive(folderPath)
+    const folderPath = path.join(__dirname, `../uploads/foro/${id}`);
+    deleteFolderRecursive(folderPath);
 
     res.status(201).json({
         status: true,

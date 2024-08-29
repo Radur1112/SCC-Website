@@ -271,12 +271,17 @@ export class PlanillaSupervisorAnotacionDialogComponent {
     }
   }
 
+  stringToFloat(valor: string) {
+    let perFormateado = valor.replace(/,/g, '.');
+    return parseFloat(perFormateado.replace(/[^\d.-]/g, ''))
+  }
+
   guardarAnotacion() {
     const data = {
       idPlanilla: this.planilla.id,
       idTipo: this.anotacionForm.value.tipo.id,
       descripcion: this.anotacionForm.value.descripcion,
-      monto: this.anotacionForm.value.monto,
+      monto: this.stringToFloat(this.anotacionForm.value.monto),
       idUsuario: this.idUsuarioActual
     }
     

@@ -1,4 +1,7 @@
 <h3 class="primary-color mt-5 ms-5">{{ tituloForm }} modulo</h3>
+<a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
+  <mat-icon class="dark-color">close</mat-icon>
+</a>
 <mat-dialog-content class="mat-typography">
   <form [formGroup]="moduloForm" class="content-container-center my-3"  (ngSubmit)="returnModulo()">
       <div class="row almost-width">
@@ -29,7 +32,7 @@
             </mat-form-field>
             </div>
         
-          <div class="button-container my-3" align="end">
+          <div class="button-container align-end my-3">
             <button mat-flat-button color="accent" type="submit" class="secondary-button" [disabled]="moduloForm.invalid">{{tituloForm}} modulo</button>
           </div>
         </div>

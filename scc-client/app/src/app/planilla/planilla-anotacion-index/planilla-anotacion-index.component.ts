@@ -41,6 +41,8 @@ export class PlanillaAnotacionIndexComponent {
   fechaFinal: Date;
 
   historial: boolean = false;
+
+  loading: boolean = true;
   
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -81,6 +83,8 @@ export class PlanillaAnotacionIndexComponent {
   }
 
   getHistorial() {
+    this.loading = true;
+
     if (!this.historial) {
       let query = `planilla/anotaciones`;
       if (this.usuarioActual.idTipoUsuario == 3) {
@@ -93,6 +97,8 @@ export class PlanillaAnotacionIndexComponent {
           this.dataSource = new MatTableDataSource(res.data);
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
+          
+        this.loading = false;
         }
       });
     } else {
@@ -108,6 +114,8 @@ export class PlanillaAnotacionIndexComponent {
           this.dataSource = new MatTableDataSource(res.data);
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
+          
+          this.loading = false;
         }
       });
       
@@ -123,7 +131,9 @@ export class PlanillaAnotacionIndexComponent {
   }
 
   formatearNumero(valor: string) {
-    let formateado = parseFloat(valor.replace(/[^\d.-]/g, ''));
+    valor = valor ?? '';
+    let perFormateado = valor.replace(/,/g, '.');
+    let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
       return '0.00';

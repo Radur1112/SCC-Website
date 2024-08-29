@@ -21,7 +21,7 @@ module.exports.get = async(req, res, next) => {
       INNER JOIN tipousuario tu ON u.idTipoUsuario = tu.id 
       LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id 
       LEFT JOIN puesto p ON u.idPuesto = p.id 
-      WHERE u.estado != 0`);
+      WHERE u.estado != 0 AND u.id != 1`);
     if(data) {
       res.status(200).send({
         success: true,
@@ -163,7 +163,7 @@ module.exports.getByNoIdModulo = async(req, res, next) => {
       FROM ${nombreTabla} u 
       INNER JOIN puesto p ON p.id = u.idPuesto
       LEFT JOIN usuariomodulo um ON um.idUsuario = u.id AND um.idModulo = ?
-      WHERE u.estado != 0 AND um.idModulo IS NULL || um.idModulo != ?`, [idModulo, idModulo]);
+      WHERE u.estado != 0 AND u.id != 1 AND um.idModulo IS NULL || um.idModulo != ?`, [idModulo, idModulo]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -257,7 +257,7 @@ module.exports.getSupervisores = async(req, res, next) => {
           INNER JOIN puesto p3 ON p3.id = uno.idPuesto
           WHERE uno.id NOT IN (
             SELECT idUsuario FROM usuariosupervisor WHERE idSupervisor = u.id
-          ) AND uno.estado != 0 AND uno.idTipoUsuario = 2
+          ) AND uno.estado != 0 AND u.id != 1 AND uno.idTipoUsuario = 2
         ) AS noSupervisados
       FROM ${nombreTabla} u
       INNER JOIN puesto p ON p.id = u.idPuesto
@@ -324,6 +324,72 @@ module.exports.getSupervisores = async(req, res, next) => {
     })
   }
 }*/
+
+
+
+module.exports.getHome = async(req, res, next) => {
+  try {
+    let id = parseInt(req.params.id);
+    if (!id) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+    
+    const [foros, modulos, vacaciones, incapacidades, planillas] = await Promise.all([
+        db.query(`SELECT * 
+          FROM foro 
+          WHERE estado != 0 
+          ORDER BY fechaCreado DESC 
+          LIMIT 5`),
+        db.query(`
+          SELECT um.*, m.titulo 
+          FROM usuariomodulo um 
+          INNER JOIN modulo m ON m.id = um.idModulo AND m.estado != 0 
+          WHERE um.idUsuario = ? 
+          ORDER BY um.id DESC 
+          LIMIT 5`, [id]),
+        db.query(`
+          SELECT *
+          FROM vacacion
+          WHERE idUsuario = ?
+          ORDER BY fechaCreado DESC
+          LIMIT 3`, [id]),
+        db.query(`
+          SELECT *
+          FROM incapacidad
+          WHERE idUsuario = ?
+          ORDER BY fechaCreado DESC
+          LIMIT 3`, [id]),
+        db.query(`
+          SELECT *
+          FROM planilla
+          WHERE idUsuario = ?
+          ORDER BY fechaInicio DESC
+          LIMIT 3`, [id])
+    ]);
+
+    res.status(200).send({
+      success: true,
+      message: 'Datos obtenidos correctamente',
+      data: {
+        foros: foros[0], 
+        modulos: modulos[0],
+        vacaciones: vacaciones[0], 
+        incapacidades: incapacidades[0], 
+        planillas: planillas[0]
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
 
 module.exports.login = async (req, res, next) => {
     try {
@@ -410,13 +476,23 @@ module.exports.registrar = async (req, res, next) => {
       correo: usuarioData.correo,
       password: usuarioData.password,
       nombre: usuarioData.nombre,
-      salario: usuarioData.salario,
+      salario: stringToFloat(usuarioData.salario),
       fechaIngreso: usuarioData.fechaIngreso,
       vacacion: verificarVacacion(usuarioData.vacacion ?? null),
       idPuesto: usuarioData.idPuesto,
       telefono: usuarioData.telefono
     }
 
+    const [validacion] = await db.query(`SELECT * FROM ${nombreTabla} WHERE correo = ? OR identificacion = ? OR telefono = ?`, [usuario.correo, usuario.identificacion, usuario.telefono]);
+
+    if (validacion.length > 0) {
+      res.status(400).json({
+        success: false,
+        message: 'Identificación, correo y/o telefono ya está en uso por otro usuario',
+        id: 'duplicado',
+      });
+      return;
+    }
     validarUsuario(usuario);
   
     //Salt es una cadena aleatoria.
@@ -580,7 +656,7 @@ module.exports.borrar = async (req, res, next) => {
       });
     }
 
-    await db.query(`UPDATE ${nombreTabla} SET estado = 0 WHERE id = ?`, [id]);
+    await db.query(`UPDATE ${nombreTabla} SET estado = 0 WHERE id = ? AND id != 1`, [id]);
     res.status(201).json({
         status: true,
         message: `${nombreTabla} borrado`
@@ -856,6 +932,7 @@ async function validarDatos(data) {
             }
             break;
           case 'salario':
+            row[nombreColumnaExcel] = row[nombreColumnaExcel].replace(/₡/g, '').replace(/,/g, '.');;
             if (isNaN(row[nombreColumnaExcel])) {
               if (!errors[rowIndex + 1]) errors[rowIndex + 1] = {};
               errors[rowIndex + 1]['salario'] = `El salario es inválido. Debe ser un número válido`;
@@ -1078,7 +1155,6 @@ module.exports.registrarMultiples = async (req, res, next) => {
     }
 
     const usuariosPromises = usuariosData.map(async (usuarioData) => {
-
       let usuario = {
         idTipoUsuario: usuarioData.idTipoUsuario,
         idTipoContrato: usuarioData.idTipoContrato,
@@ -1086,7 +1162,7 @@ module.exports.registrarMultiples = async (req, res, next) => {
         correo: usuarioData.correo,
         password: usuarioData.password,
         nombre: usuarioData.nombre,
-        salario: usuarioData.salario,
+        salario: stringToFloat(usuarioData.salario),
         fechaIngreso: usuarioData.fechaIngreso,
         vacacion: verificarVacacion(usuarioData.vacacion ?? null),
         idPuesto: usuarioData.idPuesto,
@@ -1146,6 +1222,11 @@ module.exports.registrarMultiples = async (req, res, next) => {
   }
 };
 
+function stringToFloat(valor) {
+  let perFormateado = (valor+'').replace(/,/g, '.');
+  return parseFloat(perFormateado.replace(/[^\d.-]/g, ''))
+}
+
 module.exports.exportUsuarios = async(req, res, next) => {
   try {
     const data = await db.query(`
@@ -1157,7 +1238,7 @@ module.exports.exportUsuarios = async(req, res, next) => {
       INNER JOIN tipousuario tu ON u.idTipoUsuario = tu.id 
       LEFT JOIN tipocontrato tc ON u.idTipoContrato = tc.id
       LEFT JOIN puesto p ON u.idPuesto = p.id
-      WHERE u.estado != 0`);
+      WHERE u.estado != 0 AND u.id != 1`);
     if(data) {
       let workbook = new exceljs.Workbook();
       let worksheet = workbook.addWorksheet('Usuarios');

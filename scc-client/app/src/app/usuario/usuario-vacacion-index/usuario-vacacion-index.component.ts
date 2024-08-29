@@ -47,6 +47,8 @@ export class UsuarioVacacionIndexComponent {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  
+  loading: boolean = true;
 
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -78,6 +80,7 @@ export class UsuarioVacacionIndexComponent {
   }
 
   getVacaciones() {
+    this.loading = true;
     let query = `vacacion`;
     if (this.usuarioId !== null) {
       query = `vacacion/usuario/${this.usuarioId}`
@@ -92,6 +95,8 @@ export class UsuarioVacacionIndexComponent {
         this.dataSource = new MatTableDataSource(vacaciones);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        
+        this.loading = false;
       }
     });
   }

@@ -59,6 +59,145 @@ module.exports.getById = async(req, res, next) => {
   }
 }
 
+module.exports.getReporte = async(req, res, next) => {
+  try {
+    const [modulos, usuarios] = await Promise.all([
+        db.query(`
+          SELECT 
+            m.titulo, 
+            (
+              SELECT
+                JSON_ARRAYAGG(
+                  JSON_OBJECT(
+                    'identificacion', u.identificacion,
+                    'nombre', u.nombre,
+                    'progreso', um.progreso,
+                    'videos', 
+                    (
+                      SELECT
+                        JSON_ARRAYAGG(
+                          JSON_OBJECT(
+                            'titulo', v.titulo,
+                            'requerido', v.requerido,
+                            'progreso', uv.progreso
+                          )
+                        )
+                      FROM video v
+                      LEFT JOIN usuariovideo uv ON v.id = uv.idVideo AND uv.idUsuario = u.id
+                      INNER JOIN modulovideo mv ON mv.idModulo = m.id AND mv.idVideo = v.id
+                      WHERE v.estado != 0
+                    ),
+                    'quizzes', 
+                    (
+                      SELECT
+                        JSON_ARRAYAGG(
+                          JSON_OBJECT(
+                            'id', uq.id,
+                            'titulo', q.titulo,
+                            'fecha', uq.fecha,
+                            'nota', uq.nota,
+                            'sumPuntos', qp.sumPuntos
+                          )
+                        )
+                      FROM quiz q
+                      LEFT JOIN usuarioquiz uq ON q.id = uq.idQuiz AND uq.idUsuario = u.id
+                      LEFT JOIN (
+                        SELECT idQuiz, SUM(puntos) AS sumPuntos
+                        FROM quizpregunta
+                        WHERE estado != 0
+                        GROUP BY idQuiz
+                      ) qp ON qp.idQuiz = q.id
+                      WHERE q.idModulo = m.id AND q.estado != 0
+                    )
+                  )
+                )
+              FROM usuariomodulo um
+              INNER JOIN usuario u ON u.id = um.idUsuario AND u.estado != 0 AND u.id != 1
+              WHERE um.idModulo = m.id
+            ) AS usuarios
+          FROM modulo m
+          WHERE m.estado != 0
+          ORDER BY m.id`),
+        db.query(`
+          SELECT 
+            u.nombre, u.identificacion, (um2.sumProgreso / um2.cantModulos) AS progresoTotal,
+            (
+              SELECT
+                JSON_ARRAYAGG(
+                  JSON_OBJECT(
+                    'titulo', m.titulo,
+                    'progreso', um.progreso,
+                    'videos', 
+                    (
+                      SELECT
+                        JSON_ARRAYAGG(
+                          JSON_OBJECT(
+                            'titulo', v.titulo,
+                            'requerido', v.requerido,
+                            'progreso', uv.progreso
+                          )
+                        )
+                      FROM video v
+                      LEFT JOIN usuariovideo uv ON v.id = uv.idVideo AND uv.idUsuario = u.id
+                      INNER JOIN modulovideo mv ON mv.idModulo = m.id AND mv.idVideo = v.id
+                      WHERE v.estado != 0
+                    ),
+                    'quizzes', 
+                    (
+                      SELECT
+                        JSON_ARRAYAGG(
+                          JSON_OBJECT(
+                            'id', uq.id,
+                            'titulo', q.titulo,
+                            'fecha', uq.fecha,
+                            'nota', uq.nota,
+                            'sumPuntos', qp.sumPuntos
+                          )
+                        )
+                      FROM quiz q
+                      LEFT JOIN usuarioquiz uq ON q.id = uq.idQuiz AND uq.idUsuario = u.id
+                      LEFT JOIN (
+                        SELECT idQuiz, SUM(puntos) AS sumPuntos
+                        FROM quizpregunta
+                        WHERE estado != 0
+                        GROUP BY idQuiz
+                      ) qp ON qp.idQuiz = q.id
+                      WHERE q.idModulo = m.id AND q.estado != 0
+                    )
+                  )
+                )
+              FROM usuariomodulo um
+              INNER JOIN modulo m ON m.id = um.idModulo AND m.estado != 0
+              WHERE um.idUsuario = u.id
+            ) AS modulos
+          FROM usuario u
+          LEFT JOIN (
+            SELECT idUsuario, SUM(um.progreso) AS sumProgreso, COUNT(um.progreso) AS cantModulos
+            FROM usuariomodulo um
+            INNER JOIN modulo m ON m.id = um.idModulo AND m.estado != 0
+            GROUP BY idUsuario
+          ) um2 ON um2.idUsuario = u.id
+          WHERE u.estado != 0 AND u.id != 1`)
+    ]);
+
+    res.status(200).send({
+      success: true,
+      message: 'Datos obtenidos correctamente',
+      data: {
+        modulos: modulos[0], 
+        usuarios: usuarios[0]
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
 module.exports.crear = async (req, res, next) => {
   try {
     const datos = req.body;

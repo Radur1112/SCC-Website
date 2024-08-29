@@ -29,14 +29,19 @@ SELECT * FROM modulovideo;
 SELECT * FROM usuariovideo;
 SELECT * FROM usuariomodulo;
 
+SELECT * FROM quiz;
+SELECT * FROM quizpregunta;
+SELECT * FROM tipopregunta;
+SELECT * FROM quizrespuesta;
+SELECT * FROM usuarioquiz;
+SELECT * FROM usuarioquizrespuesta;
+
 SELECT * FROM tipoforo;
 SELECT * FROM foro;
 SELECT * FROM foroarchivo;
 SELECT * FROM fororespuesta;
 SELECT * FROM forohistorial;
 SELECT * FROM usuariofororespuesta;
-
-delete from deduccion where id > 15;
 
 SELECT * FROM planilla;
 SELECT * FROM aumento;
@@ -48,7 +53,16 @@ SELECT * FROM tipootropago;
 SELECT * FROM comprobanteplanilla;
 SELECT * FROM planillahistorial;
 
-SELECT * FROM usuariofororespuesta;
+DELETE FROM usuarioquizrespuesta WHERE id > 0;
+ALTER TABLE usuarioquizrespuesta AUTO_INCREMENT = 1;
+DELETE FROM usuarioquiz WHERE id > 0;
+ALTER TABLE usuarioquiz AUTO_INCREMENT = 1;
+DELETE FROM quizrespuesta WHERE id > 0;
+ALTER TABLE quizrespuesta AUTO_INCREMENT = 1;
+DELETE FROM quizpregunta WHERE id > 0;
+ALTER TABLE quizpregunta AUTO_INCREMENT = 1;
+DELETE FROM quiz WHERE id > 0;
+ALTER TABLE quiz AUTO_INCREMENT = 1;
 
 DELETE FROM incapacidadarchivo WHERE id > 0;
 ALTER TABLE incapacidadarchivo AUTO_INCREMENT = 1;

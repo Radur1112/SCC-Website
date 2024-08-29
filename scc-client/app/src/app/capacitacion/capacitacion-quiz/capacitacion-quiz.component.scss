@@ -1,0 +1,163 @@
+@use '../../../variables' as *;
+
+$correcta-color: #339650;
+$correcta-background: #e6f4ea;
+$incorrecta-color: #dc3a2c;
+$incorrecta-background: #fce8e6;
+
+.card {
+  background-color: #e6ebf3;
+}
+
+.total-puntos-container {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  gap: 20px;
+  padding: 15px 25px 15px;
+}
+
+.card-quiz {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 20px auto !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+  z-index: 2;
+  padding: 15px 25px 25px;
+}
+
+.quiz-titulo {
+  font-size: 30px;
+}
+
+.quiz-puntos-container {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  text-align: end;
+}
+
+.quiz-puntos {
+  width: 70px;
+  margin: 0;
+  padding: 10px;
+}
+
+.quiz-respuesta {
+  outline: none; 
+  border: none; 
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  width: 50%;
+  transition: border 0.15s;
+}
+
+.quiz-respuesta:hover {
+  border-bottom: 1px solid $secondary-color;
+}
+
+.quiz-respuesta:focus {
+  border-bottom: 1px solid $primary-color;
+}
+
+.quiz-pregunta-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  gap: 15px;
+}
+
+.quiz-respuesta-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+}
+
+.pregunta-img-container, .respuesta-img-container {
+  position: relative;
+  object-fit: cover;
+  text-align: center;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.pregunta-img-container img {
+  max-height: 450px;
+  width: auto;
+}
+
+.respuesta-img-container {
+  width: 50%;
+}
+
+.respuesta-img-container img {
+  max-height: 200px;
+  width: auto;
+}
+
+.quiz-boton-container {
+  display: flex;
+  justify-content: end;
+  align-content: center;
+  gap: 10px;
+  margin: 10px 0 50px;
+}
+
+.quiz-cancelar {
+  border-radius: 10px !important;
+  padding: 24px 20px;
+}
+
+.quiz-terminar {
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  background-color: $primary-color !important;
+  padding: 23px 20px;
+}
+
+.quiz-radios-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 98%;
+}
+
+.correcta-color {
+  color: $correcta-color;
+}
+
+.incorrecta-color {
+  color: $incorrecta-color;
+}
+
+.respuesta-correcta {
+  padding-right: 5px;
+  border-radius: 5px;
+  background-color: $correcta-background;
+  --mat-checkbox-disabled-label-color: rgb(0, 0, 0, 1) !important;
+  --mdc-checkbox-disabled-selected-icon-color: rgb(0, 0, 0, 1) !important;
+  --mdc-checkbox-disabled-unselected-icon-color: rgb(0, 0, 0, 1) !important;
+  
+  --mat-radio-disabled-label-color: rgb(0, 0, 0, 1) !important;
+  --mdc-radio-disabled-selected-icon-color: rgb(0, 0, 0, 1) !important;
+  --mdc-radio-disabled-unselected-icon-color: rgb(0, 0, 0, 1) !important;
+  --mdc-radio-disabled-selected-icon-opacity: 1;
+  --mdc-radio-disabled-unselected-icon-opacity: 1;
+}
+
+.respuesta-incorrecta {
+  background-color: $incorrecta-background;
+  --mat-checkbox-disabled-label-color: rgb(0, 0, 0, 1) !important;
+  --mdc-checkbox-disabled-selected-icon-color: rgb(0, 0, 0, 1) !important;
+  --mdc-checkbox-disabled-unselected-icon-color: rgb(0, 0, 0, 1) !important;
+  
+  --mat-radio-disabled-label-color: rgb(0, 0, 0, 1) !important;
+  --mdc-radio-disabled-selected-icon-color: rgb(0, 0, 0, 1) !important;
+  --mdc-radio-disabled-unselected-icon-color: rgb(0, 0, 0, 1) !important;
+  --mdc-radio-disabled-selected-icon-opacity: 1;
+  --mdc-radio-disabled-unselected-icon-opacity: 1;
+}

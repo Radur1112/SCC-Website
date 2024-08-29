@@ -1,4 +1,6 @@
-
+<a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
+  <mat-icon class="dark-color">close</mat-icon>
+</a>
 <form [formGroup]="anotacionForm" (ngSubmit)="guardarAnotacion()">
   <mat-dialog-content class="mat-typography">
     <h4 class="primary-color my-3">Modificar  {{ anotacion.tipo }}: {{ anotacion.tipoDescripcion }}</h4>

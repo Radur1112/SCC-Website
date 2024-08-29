@@ -53,6 +53,8 @@ export class PlanillaSupervisorIndexComponent {
   selectedfecha: any;
   
   @ViewChild(MatSort) sort: MatSort;
+  
+  loading: boolean = true;
 
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -80,6 +82,8 @@ export class PlanillaSupervisorIndexComponent {
   }
 
   getUsuarios() {
+    this.loading = true;
+
     let query = `planilla/usuarios`;
     if (this.usuarioActual.idTipoUsuario == 3) {
       query = `planilla/supervisor/${this.usuarioActual.id}`
@@ -89,6 +93,8 @@ export class PlanillaSupervisorIndexComponent {
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.sort = this.sort;
+        
+        this.loading = false;
       }
     });
   }
@@ -117,7 +123,6 @@ export class PlanillaSupervisorIndexComponent {
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        console.log(result);
       }
     });
   }

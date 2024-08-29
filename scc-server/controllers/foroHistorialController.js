@@ -14,8 +14,8 @@ module.exports.get = async(req, res, next) => {
         ELSE 'Accesó al foro'
       END AS accion
       FROM ${nombreTabla} fh
-      INNER JOIN foro f ON f.id = fh.idForo && f.estado != 0
-      INNER JOIN usuario u ON u.id = fh.idUsuario && u.estado != 0
+      INNER JOIN foro f ON f.id = fh.idForo AND f.estado != 0
+      INNER JOIN usuario u ON u.id = fh.idUsuario AND u.estado != 0 AND u.id != 1
       LEFT JOIN foroarchivo fa ON fa.id = fh.idForoArchivo
       ORDER BY fecha DESC`);
     if(data) {
@@ -49,7 +49,7 @@ module.exports.getById = async(req, res, next) => {
         message: 'Id inválido',
       });
     }
-    const data = await db.query(`SELECT * FROM ${nombreTabla} WHERE id = ?`, [id]);
+    const data = await db.query(`SELECT * FROM ${nombreTabla} WHERE id = ? AND idUsuario != 1`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -91,8 +91,8 @@ module.exports.getByIdForo = async(req, res, next) => {
         ELSE 'Accesó al foro'
       END AS accion
       FROM ${nombreTabla} fh
-      INNER JOIN foro f ON f.id = fh.idForo && f.estado != 0
-      INNER JOIN usuario u ON u.id = fh.idUsuario && u.estado != 0
+      INNER JOIN foro f ON f.id = fh.idForoAND&& f.estado != 0
+      INNER JOIN usuario u ON u.id = fh.idUsuario AND u.estado != 0 AND u.id != 1
       LEFT JOIN foroarchivo fa ON fa.id = fh.idForoArchivo
       WHERE fh.idForo = ?
       ORDER BY fecha DESC`, [id]);
@@ -123,22 +123,29 @@ module.exports.crear = async (req, res, next) => {
     const datos = req.body;
     
     let crearDatos = {
-        idForo: datos.idForo,
-        idForoArchivo: datos.idForoArchivo ?? null,
-        idUsuario: datos.idUsuario
+      idForo: datos.idForo,
+      idForoArchivo: datos.idForoArchivo ?? null,
+      idUsuario: datos.idUsuario
     }
 
-    const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
-    if (data) {
+    if (crearDatos.idUsuario != 1) {
+      const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
+      if (data) {
+        res.status(201).json({
+            status: true,
+            message: `${nombreTabla} creado`,
+            data: data[0],
+        });
+      } else {
+        res.status(404).send({
+          success: false,
+          message: 'Error en INSERT',
+        });
+      }
+    } else {
       res.status(201).json({
           status: true,
-          message: `${nombreTabla} creado`,
-          data: data[0],
-      });
-    } else {
-      res.status(404).send({
-        success: false,
-        message: 'Error en INSERT',
+          message: `${nombreTabla} creado`
       });
     }
   } catch (error) {

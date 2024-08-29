@@ -47,6 +47,9 @@ export class ForoDetalleComponent {
   respuestaForm: FormGroup;
 
   usuarioRespuesta: any;
+  
+  loading: boolean = true;
+  loadingR: boolean = true;
 
   constructor(
     private gService: GenericService,
@@ -81,6 +84,7 @@ export class ForoDetalleComponent {
   }
   
   getForo() {
+    this.loading = true;
     this.gService.get(`foro/${this.foroId}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
@@ -97,7 +101,7 @@ export class ForoDetalleComponent {
         if (this.foro.respuestas) {
           this.foroRespuestas = this.foro.respuestas;
         }
-        console.log(this.foro)
+        this.loading = false;
         this.registrarAcceso();
         this.getRespuestas();
         this.formularioReactive();
@@ -106,11 +110,14 @@ export class ForoDetalleComponent {
   }
   
   getRespuestas() {
+    this.loadingR = true;
     this.gService.get(`usuariofororespuesta/foro/${this.foroId}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.respuestas = res.data;
         this.filtroRespuestas = this.respuestas;
+
+        this.loadingR = false;
       }
     });
   }
@@ -258,7 +265,6 @@ export class ForoDetalleComponent {
     this.gService.put(`foro`, foro)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(foro)
         const archivoCreatePromise = foro.archivos && foro.archivos.length > 0 ? this.crearArchivos(foro.id, foro.archivos) : Promise.resolve();
         const archivoUpdatePromise = foro.archivosBorrar && foro.archivosBorrar.length > 0 ? this.actualizarArchivos(foro.id, foro.archivosBorrar) : Promise.resolve();
         const respuestaPromise = foro.respuestasBorrarIds || foro.respuestasNuevas ? this.actualizarRespuestas(foro.id, {respuestasBorrarIds: foro.respuestasBorrarIds, respuestasNuevas: foro.respuestasNuevas}) : Promise.resolve();

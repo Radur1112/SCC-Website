@@ -84,8 +84,6 @@ export class UsuarioSupervisorDialogComponent {
     this.selectionNo.clear();
     this.selectionSi.clear();
 
-    console.log(this.supervisor)
-
     this.dataSourceNo = new MatTableDataSource(this.supervisor.noSupervisados);
     this.dataSourceSi = new MatTableDataSource(this.supervisor.supervisados);
   }

@@ -47,6 +47,8 @@ export class UsuarioVacacionSupervisorComponent {
   usuarios: any;
   
   @ViewChild(MatSort) sort: MatSort;
+  
+  loading: boolean = true;
 
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -75,6 +77,7 @@ export class UsuarioVacacionSupervisorComponent {
   }
 
   getVacaciones() {
+    this.loading = true;
     let query = `vacacion/pendientes`;
     if (this.usuarioActual.idTipoUsuario == 3) {
       query = `vacacion/pendientes/supervisor/${this.usuarioActual.id}`
@@ -84,11 +87,14 @@ export class UsuarioVacacionSupervisorComponent {
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.sort = this.sort;
+        
+        this.loading = false;
       }
     });
   }
 
   confirmar(id: any) {
+    this.loading = true;
     this.gService.get(`vacacion/confirmar/${id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
@@ -99,6 +105,7 @@ export class UsuarioVacacionSupervisorComponent {
   }
 
   rechazar(id: any) {
+    this.loading = true;
     this.gService.get(`vacacion/rechazar/${id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {

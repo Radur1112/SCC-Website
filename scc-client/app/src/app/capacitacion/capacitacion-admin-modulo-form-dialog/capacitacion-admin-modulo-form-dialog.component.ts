@@ -10,11 +10,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-capacitacion-admin-modulo-form-dialog',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatTooltipModule, MatDialogModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatTooltipModule, MatDialogModule, MatIconModule],
   templateUrl: './capacitacion-admin-modulo-form-dialog.component.html',
   styleUrl: './capacitacion-admin-modulo-form-dialog.component.scss'
 })
@@ -52,7 +53,6 @@ export class CapacitacionAdminModuloFormDialogComponent {
     this.gService.get(`modulo/${this.idModulo}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res)
         this.moduloForm.setValue({
           id: res.data.id,
           titulo: res.data.titulo,

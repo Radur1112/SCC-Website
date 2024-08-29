@@ -6,6 +6,7 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Subject } from 'rxjs';
 import { UsuarioErrorsDialogComponent } from '../usuario-errors-dialog/usuario-errors-dialog.component';
+import { MatIconModule } from '@angular/material/icon';
 
 export interface usuarioInterface {
   id: any;
@@ -23,7 +24,7 @@ export interface usuarioInterface {
 @Component({
   selector: 'app-usuario-registrar-dialog',
   standalone: true,
-  imports: [CommonModule, MatTableModule, MatSortModule, MatDialogModule, MatButtonModule],
+  imports: [CommonModule, MatTableModule, MatSortModule, MatDialogModule, MatButtonModule, MatIconModule],
   templateUrl: './usuario-registrar-dialog.component.html',
   styleUrl: './usuario-registrar-dialog.component.scss'
 })

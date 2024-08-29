@@ -62,6 +62,8 @@ export class UsuarioIndexComponent {
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
+  loading: boolean;
+
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
@@ -99,12 +101,15 @@ export class UsuarioIndexComponent {
   }
 
   getUsuarios() {
+    this.loading = true;
     this.gService.get(`usuario`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+
+        this.loading = false;
       }
     });
   }
@@ -113,8 +118,9 @@ export class UsuarioIndexComponent {
     this.gService.get(`usuario/supervisores`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(res.data)
         this.dataSourceSupervisor = new MatTableDataSource(res.data);
+
+        this.loading = false;
       }
     });
   }
@@ -126,6 +132,7 @@ export class UsuarioIndexComponent {
   }
 
   borrarUsuario(usuario: any) {
+    this.loading = true;
     this.confirmationService.confirm()
       .subscribe(result => {
         if (result) {

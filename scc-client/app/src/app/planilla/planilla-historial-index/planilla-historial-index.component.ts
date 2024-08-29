@@ -38,6 +38,8 @@ export class PlanillaHistorialIndexComponent {
 
   usuarioActual: any;
   
+  loading: boolean = true;
+  
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
@@ -62,6 +64,8 @@ export class PlanillaHistorialIndexComponent {
   }
 
   getHistorial(fechaInicio: any, fechaFinal: any) {
+    this.loading = true;
+
     this.gService.get(`planilla/historial`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
@@ -70,6 +74,8 @@ export class PlanillaHistorialIndexComponent {
         this.dataSource = new MatTableDataSource(prePlanilla);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        
+        this.loading = false;
       }
     });
   }

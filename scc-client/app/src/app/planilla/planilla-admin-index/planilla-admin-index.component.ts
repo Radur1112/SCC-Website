@@ -21,6 +21,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/material/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import moment from 'moment';
 
 export interface usuarioInterface {
   id: any;
@@ -73,6 +74,7 @@ export class PlanillaAdminIndexComponent {
   
   dateFilter = (date: Date | null): boolean => true;
   
+  loading: boolean = true;
 
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -146,6 +148,8 @@ export class PlanillaAdminIndexComponent {
   }
 
   getUsuarios() {
+    this.loading = true;
+
     let query = `planilla/usuarios`;
     if (this.usuarioActual.idTipoUsuario == 3) {
       query = `planilla/supervisor/${this.usuarioActual.id}`
@@ -159,6 +163,8 @@ export class PlanillaAdminIndexComponent {
         
         this.getFechaActual();
         this.getFechas();
+        
+        this.loading = false;
       }
     });
   }
@@ -252,21 +258,14 @@ export class PlanillaAdminIndexComponent {
     });
   }
 
-  descargarPlanillas() {
-    this.gService.exportarPlanillas(this.selectedfecha.split("T")[0]).subscribe(blob => {
-      const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
-      const day = ('0' + currentDate.getDate()).slice(-2);
-      const hours = ('0' + currentDate.getHours()).slice(-2);
-      const minutes = ('0' + currentDate.getMinutes()).slice(-2);
-      const seconds = ('0' + currentDate.getSeconds()).slice(-2);
-      const dateString = `${year}${month}${day}${hours}${minutes}${seconds}`;
-      const fileName = `Usuarios_${dateString}.xlsx`;
+  descargarPlanilla() {
+    this.gService.exportarExcel(`planilla/actual/exportar`).subscribe(blob => {
+
+      const nombre = `resumen_planilla__${moment(new Date(this.fechas.fechaInicio)).format('YYYYMMDD')}_${moment(new Date(this.fechas.fechaFinal)).format('YYYYMMDD')}.xlsx`;
 
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);
-      link.download = fileName;
+      link.download = nombre;
       link.click();
     });
   }

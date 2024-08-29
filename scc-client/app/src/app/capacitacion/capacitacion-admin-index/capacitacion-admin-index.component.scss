@@ -55,6 +55,7 @@
 
 .boton-modulo {
   border: 1px solid #ffffff;
+  border-radius: 10px;
   color: #ffffff;
   margin: 0 10px;
 }
@@ -181,13 +182,216 @@ mat-form-field {
 
 .iconoUsuario:hover {
   mat-icon {
-      color: $secondary-color;
+    color: $secondary-color;
   }
 }
 
 .boton-accion {
-    margin: 5px;
-    color: #ffffff;
+  margin: 5px;
+  color: #ffffff;
+}
+
+
+
+.capacitacion-accordion {
+  background-color: #e6ebf3;
+}
+
+.card-quiz {
+  width: 100% !important;
+  height: 100% !important;
+  margin: 20px auto !important;
+  border-radius: 10px !important;
+  overflow: hidden !important;
+  box-shadow: none !important;
+  z-index: 2;
+  padding: 25px;
+}
+
+.quiz-titulo {
+  font-size: 30px;
+}
+
+.quiz-titulo, .quiz-descripcion, .quiz-pregunta, .quiz-respuesta, .quiz-puntos {
+  outline: none; 
+  border: none; 
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+  margin: 10px;
+  padding: 5px;
+  transition: border 0.15s;
+}
+
+.quiz-titulo:hover, .quiz-descripcion:hover, .quiz-pregunta:hover, .quiz-respuesta:hover, .quiz-puntos:hover {
+  border-bottom: 1px solid $secondary-color;
+}
+
+.quiz-titulo:focus, .quiz-descripcion:focus, .quiz-pregunta:focus, .quiz-respuesta:focus, .quiz-puntos:focus {
+  border-bottom: 1px solid $primary-color;
+}
+
+.quiz-puntos-container {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  text-align: end;
+}
+
+.quiz-puntos {
+  width: 70px;
+  margin: 0;
+  padding: 10px;
+}
+
+.quiz-pregunta-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0;
+  gap: 15px;
+}
+
+.quiz-pregunta, .quiz-select {
+  width: 100%;
+  margin: 0;
+  padding: 10px;
+}
+
+.quiz-pregunta {
+  background-color: #f8f9fa;
+}
+
+.quiz-select {
+  outline: none; 
+  border: none; 
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  height: 70%;
+  cursor: pointer;
+}
+
+.quiz-select:hover {
+  border: 1px solid $secondary-color;
+}
+
+.quiz-select:focus {
+  border: 1px solid $primary-color;
+}
+
+.quiz-respuesta-container {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+}
+
+.quiz-respuesta {
+  width: 50%;
+}
+
+.quiz-boton-agregar, .quiz-boton-delete, .quiz-boton-correcta {
+  transition: all 0.15s;
+}
+
+.quiz-boton-agregar:hover {
+  color: $primary-color;
+}
+
+.quiz-boton-correcta:hover {
+  color: $secondary-color;
+}
+
+.quiz-boton-delete:hover {
+  color: $warn-color;
+}
+
+.subir-archivo {
+  display: none;
+}
+  
+.subir-archivo-label {
+  cursor: pointer;
+  transition: all 0.15s;
+}
+  
+.subir-archivo-label:hover {
+  transform: scale(1.02);
+
+  mat-icon {
+    color: $primary-color;
+  }
+}
+  
+.subir-archivo-label mat-icon {
+  color: rgba(0, 0, 0, 0.7);
+}
+
+.pregunta-img-container, .respuesta-img-container {
+  position: relative;
+  object-fit: cover;
+  text-align: center;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.pregunta-img-container img {
+  max-height: 450px;
+  width: auto;
+}
+
+.respuesta-img-container {
+  width: 50%;
+}
+
+.respuesta-img-container img {
+  max-height: 200px;
+  width: auto;
+}
+
+.pregunta-img-remover {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: #ffffff;
+  padding: 10px;
+}
+
+.quiz-respuesta-imagen-container {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.quiz-respuesta-imagen-container label {
+  margin: 16px auto 0;
+}
+
+mat-expansion-panel-header {
+  padding: 40px 25px;
+}
+
+.quiz-boton-container {
+  display: flex;
+  justify-content: end;
+  align-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.quiz-agregar {
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  background-color: $primary-color !important;
+  padding: 23px 20px;
+}
+
+.quiz-cancelar {
+  border-radius: 10px !important;
+  padding: 23px 20px;
+}
+
+.chiki {
+  display: none;
 }
 
 :host {
@@ -264,6 +468,10 @@ mat-form-field {
       font-size: 70px;
     }
   }
+
+  .respuesta-img-container {
+    width: 60%;
+  }
 }
 
 @media screen and (max-width: 767.98px) {
@@ -283,11 +491,27 @@ mat-form-field {
       font-size: 60px;
     }
   }
+
+  .respuesta-img-container {
+    width: 70%;
+  }
+
+  .chiki {
+    display: inline-block;
+  }
+
+  .bigi {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 630px) {
   .special-text {
     font-size: 40px;
+  }
+
+  .respuesta-img-container {
+    width: 80%;
   }
 }
 
@@ -318,6 +542,10 @@ mat-form-field {
   .modulo-buttons {
     margin: -15px 0 0;
   }
+
+  .respuesta-img-container {
+    width: 90%;
+  }
 }
 
 @media screen and (max-width: 488px) {
@@ -333,6 +561,14 @@ mat-form-field {
 
   .boton-modulo-text {
     display: none;
+  }
+
+  .boton-modulo mat-icon {
+    margin: 0;
+  }
+
+  .respuesta-img-container {
+    width: 100%;
   }
 }
 

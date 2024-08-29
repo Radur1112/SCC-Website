@@ -119,3 +119,9 @@ mat-form-field {
   --mdc-filled-text-field-error-hover-label-text-color: #f19e0b;
   */
 }
+
+@media screen and (max-width: 767.98px) {
+  .bigi {
+    display: none;
+  }
+}

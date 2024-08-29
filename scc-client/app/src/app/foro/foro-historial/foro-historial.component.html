@@ -26,38 +26,53 @@
 
 <mat-card class="card-pre mx-auto"></mat-card>
 
-<div class="table-container almost-width mx-auto">
+<ng-container *ngIf="loading; else datos">
+  <div class="loader-container">
+    <div class="loader"></div>
+  </div>
+</ng-container>
+<ng-template #datos>
+  <ng-container *ngIf="dataSource && dataSource.data.length > 0; else noDatos">
+    <div class="table-container almost-width mx-auto">
 
-  <table mat-table [dataSource]="dataSource" matSort>
-  <ng-container matColumnDef="usuario">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuario </th>
-    <td mat-cell *matCellDef="let row"> {{ row.usuarioNombre }} </td>
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="usuario">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuario </th>
+          <td mat-cell *matCellDef="let row"> {{ row.usuarioNombre }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="accion">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Acción </th>
+          <td mat-cell *matCellDef="let row">
+            <div class="content-container-start-row">
+              <mat-icon class="primary-color me-2" *ngIf="row.archivoNombre">file_download</mat-icon>
+              <mat-icon class="primary-color me-2" *ngIf="!row.archivoNombre">visibility</mat-icon>
+              {{ row.accion }}
+            </div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="foroTitulo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Foro </th>
+          <td mat-cell *matCellDef="let row"> {{ row.foroTitulo }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha de acceso </th>
+          <td mat-cell *matCellDef="let row"> {{ row.fecha | date: 'd \'de\' MMMM, y - hh:mm aa' }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+    </div>
   </ng-container>
+  <ng-template #noDatos>
+    <h3 class="secondary-color no-data">
+      No hay historial de foros
+    </h3>
+  </ng-template>
+</ng-template>
 
-  <ng-container matColumnDef="accion">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Acción </th>
-    <td mat-cell *matCellDef="let row">
-      <div class="content-container-start-row">
-        <mat-icon class="primary-color me-2" *ngIf="row.archivoNombre">file_download</mat-icon>
-        <mat-icon class="primary-color me-2" *ngIf="!row.archivoNombre">visibility</mat-icon>
-        {{ row.accion }}
-      </div>
-    </td>
-  </ng-container>
-
-  <ng-container matColumnDef="foroTitulo">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Foro </th>
-    <td mat-cell *matCellDef="let row"> {{ row.foroTitulo }} </td>
-  </ng-container>
-
-  <ng-container matColumnDef="fecha">
-    <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha de acceso </th>
-    <td mat-cell *matCellDef="let row"> {{ row.fecha | date: 'd \'de\' MMMM, y - hh:mm aa' }} </td>
-  </ng-container>
-
-  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
-
-  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
-</div>
+<mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>

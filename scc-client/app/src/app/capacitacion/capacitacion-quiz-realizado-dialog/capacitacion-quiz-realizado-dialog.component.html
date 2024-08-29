@@ -1,0 +1,11 @@
+<h2 mat-dialog-title>Confrimación de Cambio</h2>
+<a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
+  <mat-icon class="dark-color">close</mat-icon>
+</a>
+<mat-dialog-content>
+  {{ mensaje }}
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button [mat-dialog-close]="true">Aceptar</button>
+</mat-dialog-actions>

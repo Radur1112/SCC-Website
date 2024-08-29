@@ -248,6 +248,7 @@ module.exports.crear = async (req, res, next) => {
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
     if (data) {
+      update_usuario_modulo_progreso(null, crearDatos.idModulo);
       res.status(201).json({
           status: true,
           message: `${nombreTabla} creado`,
@@ -289,6 +290,7 @@ module.exports.actualizar = async (req, res, next) => {
 
     const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE idModulo = ? AND idVideo = ?`, [actualizarDatos, idModulo, idVideo]);
     if (data) {
+      update_usuario_modulo_progreso(null, idModulo);
       res.status(201).json({
           status: true,
           message: `${nombreTabla} creado`,

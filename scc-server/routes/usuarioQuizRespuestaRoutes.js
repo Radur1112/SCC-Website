@@ -11,7 +11,8 @@ router.get('/usuario/:id', verifyToken([0]), usuarioQuizRespuestaController.getB
 router.get('/pregunta/:id', verifyToken([0]), usuarioQuizRespuestaController.getByIdPregunta);
 router.get('/quiz/:id', verifyToken([0]), usuarioQuizRespuestaController.getByIdRespuesta);
 
-router.post("/", verifyToken([1, 4]), usuarioQuizRespuestaController.crear);
+router.post("/", verifyToken([0]), usuarioQuizRespuestaController.crear);
+router.post("/multiples", verifyToken([0]), usuarioQuizRespuestaController.crearMultiples);
 
 router.put("/:id", verifyToken([1, 4]), usuarioQuizRespuestaController.actualizar);
 router.put("/borrar/:id", verifyToken([1, 4]), usuarioQuizRespuestaController.borrar);

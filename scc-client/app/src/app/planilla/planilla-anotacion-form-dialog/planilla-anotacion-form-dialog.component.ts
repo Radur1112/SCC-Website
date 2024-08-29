@@ -80,13 +80,19 @@ export class PlanillaAnotacionFormDialogComponent {
     }
   }
 
+  stringToFloat(valor: string) {
+    let perFormateado = valor.replace(/,/g, '.');
+    return parseFloat(perFormateado.replace(/[^\d.-]/g, ''))
+  }
+
+
   guardarAnotacion() {
     const data = {
       id: this.anotacion.id,
       idPlanilla: this.anotacion.idPlanilla,
       idTipo: this.anotacion.idTipo,
       descripcion: this.anotacionForm.value.descripcion,
-      monto: this.anotacionForm.value.monto,
+      monto: this.stringToFloat(this.anotacionForm.value.monto),
       idUsuario: this.idUsuarioActual
     }
     

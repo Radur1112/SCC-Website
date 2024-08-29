@@ -124,8 +124,7 @@ module.exports.getById = async(req, res, next) => {
         u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion
       FROM ${nombreTabla} v
       INNER JOIN usuario u ON u.id = v.idUsuario
-      WHERE v.id = ?
-      GROUP BY v.d`, [id]);
+      WHERE v.id = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,

@@ -16,11 +16,12 @@ import { DateAdapter, MAT_DATE_LOCALE, MatNativeDateModule } from '@angular/mate
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-capacitacion-admin-video-form-dialog',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatTooltipModule, MatDialogModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule, MatChipsModule,],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatTooltipModule, MatDialogModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule, MatChipsModule, MatIconModule],
   templateUrl: './capacitacion-admin-video-form-dialog.component.html',
   styleUrl: './capacitacion-admin-video-form-dialog.component.scss',
   providers: [DatePipe]

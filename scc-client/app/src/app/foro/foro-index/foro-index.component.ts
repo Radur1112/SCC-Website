@@ -50,6 +50,8 @@ export class ForoIndexComponent {
 
   maxDate: Date;
   minDate: Date;
+
+  loading: boolean = true;
   
   constructor(
     private gService: GenericService,
@@ -70,8 +72,6 @@ export class ForoIndexComponent {
     this.minDate = new Date(2024, 6, 15);
     this.maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 2, currentDate.getDate());
     
-    this.getTipoForos();
-    this.getForos();
   }
 
   ngOnInit(): void {
@@ -79,6 +79,8 @@ export class ForoIndexComponent {
       if (x && Object.keys(x).length !== 0) {
         this.usuarioActual = x.usuario;
         this.isAdmin = this.usuarioActual.idTipoUsuario == 1;
+        this.getTipoForos();
+        this.getForos();
       } else {
         this.usuarioActual = null;
         this.isAdmin = false;
@@ -96,11 +98,13 @@ export class ForoIndexComponent {
   }
 
   getForos() {
+    this.loading = true;
     this.gService.get(`foro`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.foros = res.data;
         this.filtroForos = this.foros;
+        this.loading = false;
       }
     });
   }

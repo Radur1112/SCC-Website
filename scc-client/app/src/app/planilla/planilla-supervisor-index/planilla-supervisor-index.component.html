@@ -1,5 +1,5 @@
 <mat-card class="card-primary">
-  <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
+  <a routerLink="/planilla" class="go-back" matTooltip="Ir atras">
     <mat-icon class="light-color">arrow_back</mat-icon>
   </a>
   <div class="mx-auto">
@@ -24,52 +24,60 @@
 
 <div class="second-card-primary"></div>
 
-<mat-card class="card-pre mx-auto"> 
-  <div class="row">
-    <mat-card-content>
-    </mat-card-content>
-  </div>
-</mat-card>
+<mat-card class="card-pre mx-auto"></mat-card>
 
-<div class="table-container almost-width mx-auto">
-  <table mat-table [dataSource]="dataSource" matSort>
-      
-      <ng-container matColumnDef="identificacion">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Identificacion</th>
-          <td mat-cell *matCellDef="let row"> {{ row.identificacion }} </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="nombre">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre completo</th>
-          <td mat-cell *matCellDef="let row">{{ row.nombre }}</td>
-      </ng-container>
-  
-      <ng-container matColumnDef="correo">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Correo electrónico</th>
-          <td mat-cell *matCellDef="let row"> {{ row.correo }} </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="puesto">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Puesto</th>
-          <td mat-cell *matCellDef="let row"> {{ row.puestoDescripcion}} </td>
-      </ng-container>
-  
-      <ng-container matColumnDef="tipoContrato">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo de contrato</th>
-          <td mat-cell *matCellDef="let row"> {{ row.tipoContratoDescripcion }} </td>
-      </ng-container>
+<ng-container *ngIf="loading; else datos">
+  <div class="loader-container">
+    <div class="loader"></div>
+  </div>
+</ng-container>
+<ng-template #datos>
+  <ng-container *ngIf="dataSource && dataSource.data.length > 0; else noDatos">
+    <div class="table-container almost-width mx-auto">
+      <table mat-table [dataSource]="dataSource" matSort>
           
-      <ng-container matColumnDef="acciones">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
-        <td mat-cell *matCellDef="let row">
-          <button mat-fab extended color="primary" class="boton-accion" matTooltip="Agregar anotaciones" aria-label="Agregar anotaciones" (click)="mostrarAnotaciones(row.id)">
-            <mat-icon class="mat-18">edit_note</mat-icon>
-            Agregar anotaciones
-          </button>
-        </td>
-      </ng-container> 
-  
-  <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
-</div>
+        <ng-container matColumnDef="identificacion">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Identificacion</th>
+            <td mat-cell *matCellDef="let row"> {{ row.identificacion }} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="nombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Nombre completo</th>
+            <td mat-cell *matCellDef="let row">{{ row.nombre }}</td>
+        </ng-container>
+    
+        <ng-container matColumnDef="correo">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Correo electrónico</th>
+            <td mat-cell *matCellDef="let row"> {{ row.correo }} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="puesto">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Puesto</th>
+            <td mat-cell *matCellDef="let row"> {{ row.puestoDescripcion}} </td>
+        </ng-container>
+    
+        <ng-container matColumnDef="tipoContrato">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Tipo de contrato</th>
+            <td mat-cell *matCellDef="let row"> {{ row.tipoContratoDescripcion }} </td>
+        </ng-container>
+            
+        <ng-container matColumnDef="acciones">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Acciones</th>
+          <td mat-cell *matCellDef="let row">
+            <button mat-fab extended color="primary" class="boton-accion" matTooltip="Agregar anotaciones" aria-label="Agregar anotaciones" (click)="mostrarAnotaciones(row.id)">
+              <mat-icon class="mat-18">edit_note</mat-icon>
+              Agregar anotaciones
+            </button>
+          </td>
+        </ng-container> 
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+    </div>
+  </ng-container>
+  <ng-template #noDatos>
+    <h3 class="secondary-color no-data">
+      No hay usuarios asignados
+    </h3>
+  </ng-template>
+</ng-template>

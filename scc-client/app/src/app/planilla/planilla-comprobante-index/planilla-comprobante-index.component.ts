@@ -67,6 +67,8 @@ export class PlanillaComprobanteIndexComponent {
   
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  
+  loading: boolean = true;
 
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -88,6 +90,8 @@ export class PlanillaComprobanteIndexComponent {
   }
 
   getComprobantes() {
+    this.loading = true;
+
     this.gService.get(`planilla/comprobantes/${this.usuarioId}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
@@ -95,12 +99,16 @@ export class PlanillaComprobanteIndexComponent {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
+        
+        this.loading = false;
       }
     });
   }
 
   formatearNumero(valor: string) {
-    let formateado = parseFloat(valor.replace(/[^\d.-]/g, ''));
+    valor = valor ?? '';
+    let perFormateado = valor.replace(/,/g, '.');
+    let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
       return '0.00';

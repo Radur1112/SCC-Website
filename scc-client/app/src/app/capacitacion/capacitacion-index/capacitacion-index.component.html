@@ -1,4 +1,7 @@
 <mat-card class="card-primary">
+  <a routerLink="/bienvenida" class="go-back" matTooltip="Ir atras">
+    <mat-icon class="light-color">arrow_back</mat-icon>
+  </a>
   <div class="mx-auto less-width">
     <mat-card-header class="content-container-center">
       <mat-card-title class="light-color">
@@ -22,29 +25,29 @@
 <div class="second-card-primary"></div>
 
 
-<mat-card class="card-premodulos mx-auto"> 
-  <div class="row">
-    <mat-card-content>
-      
-    </mat-card-content>
-  </div>
-</mat-card>
+<mat-card class="card-premodulos"></mat-card>
 
 
-<div class="container-fluid my-4">
-  <ng-container *ngIf="filtroModulos">
-    <h3 class="content-container-center primary-color mb-5">Progreso total</h3>
-    <div class="progress-bar-container less-width mx-auto mb-5" [matTooltip]="'Progreso: ' + progresoTotal.toFixed(2) + '%'">
-      <mat-progress-bar class="progress-bar" mode="determinate" color="accent" [value]="progresoTotal"></mat-progress-bar>
-      <div class="checkpoints">
-        <div class="checkpoint" *ngFor="let point of checkpoints" [style.left]="point + '%'" [ngClass]="{'border-color-secondary': point < this.progresoTotal}">
-          <div class="tooltip">{{ point }}%</div>
-          <div class="toolt">{{ point }}%</div>
+<div class="container-fluid mb-4">
+  <ng-container *ngIf="loading; else datos">
+    <div class="loader-container">
+      <div class="loader"></div>
+    </div>
+  </ng-container>
+  <ng-template #datos>
+    <ng-container *ngIf="filtroModulos; else noDatos">
+      <h3 class="content-container-center primary-color mb-5">Progreso total</h3>
+      <div class="progress-bar-container less-width mx-auto mb-5" [matTooltip]="'Progreso: ' + progresoTotal.toFixed(2) + '%'">
+        <mat-progress-bar class="progress-bar" mode="determinate" color="accent" [value]="progresoTotal"></mat-progress-bar>
+        <div class="checkpoints">
+          <div class="checkpoint" *ngFor="let point of checkpoints" [style.left]="point + '%'" [ngClass]="{'border-color-secondary': point < this.progresoTotal}">
+            <div class="tooltip">{{ point }}%</div>
+            <div class="toolt">{{ point }}%</div>
+          </div>
         </div>
       </div>
-    </div>
-    <mat-accordion multi>
-      <mat-expansion-panel class="text-start modulo-expansion my-3 mx-auto" *ngFor="let modulo of filtroModulos">
+      <mat-accordion multi>
+        <mat-expansion-panel class="text-start modulo-expansion my-3 mx-auto" *ngFor="let modulo of filtroModulos">
           <mat-expansion-panel-header class="header">
             <mat-panel-title class="titulo">
               <div>
@@ -61,48 +64,83 @@
           </div>
           <button mat-button class="boton-ellipsis" (click)="modulo.ellipsis = !modulo.ellipsis"> {{ !modulo.ellipsis ? 'ver más' : 'ver menos'}}</button>
           <mat-expansion-panel class="my-3" *ngFor="let moduloVideo of modulo.videosByModulo">
-              <mat-expansion-panel-header>
-                <mat-panel-title class="titulo">
-                  Videos
-                </mat-panel-title>
-                <mat-panel-description>
-                  <div class="desc">
-                    Nivel: {{ moduloVideo.nivel }}
-                  </div>
-                </mat-panel-description>
-              </mat-expansion-panel-header>
-    
-              <div class="row">
-                <div class="col-md-6 col-xl-4 my-3" *ngFor="let video of moduloVideo.videos">
-                  <mat-card class="card-video">
-                    <mat-card-header class="row">
-                      <mat-card-title class="card-titulo">
-                        <div class="video-titulo pe-2">
-                          {{ video.videoTitulo }}
-                        </div>
-                        <div class="video-sub">
-                          <div [ngClass]="{'warn-color': !video.videoRequerido}">
-                            {{ video.videoRequerido ? 'Requerido' : 'No requerido' }}
-                          </div>
-                          <div class="video-progreso" [ngClass]="{'warn-color': video.videoProgreso == 0, 'secondary-color': video.videoProgreso >= 100}">
-                            {{ video.videoProgreso }}%
-                          </div>
-                        </div>
-                      </mat-card-title>
-                    </mat-card-header>
-                    <div class="video-img col-md p-0" (click)="abrirVideo(video.videoId, modulo.idModulo)">
-                      <img [src]="video.videoThumbnail" alt="{{ video.titulo }}">
-                    </div>
-                  </mat-card>
+            <mat-expansion-panel-header>
+              <mat-panel-title class="titulo">
+                Videos
+              </mat-panel-title>
+              <mat-panel-description>
+                <div class="desc">
+                  Nivel: {{ moduloVideo.nivel }}
                 </div>
-              </div>
-    
-            </mat-expansion-panel>
+              </mat-panel-description>
+            </mat-expansion-panel-header>
 
-      </mat-expansion-panel>
-      
-    </mat-accordion>
-  </ng-container>
+            <div class="row">
+              <div class="col-md-6 col-xl-4 my-3" *ngFor="let video of moduloVideo.videos">
+                <mat-card class="card-video">
+                  <mat-card-header class="row">
+                    <mat-card-title class="card-titulo">
+                      <div class="video-titulo pe-2">
+                        {{ video.videoTitulo }}
+                      </div>
+                      <div class="video-sub">
+                        <div [ngClass]="{'warn-color': !video.videoRequerido}">
+                          {{ video.videoRequerido ? 'Requerido' : 'No requerido' }}
+                        </div>
+                        <div class="video-progreso" [ngClass]="{'warn-color': video.videoProgreso == 0, 'secondary-color': video.videoProgreso >= 100}">
+                          {{ video.videoProgreso }}%
+                        </div>
+                      </div>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <div class="video-img col-md p-0" (click)="abrirVideo(video.videoId, modulo.idModulo)">
+                    <img [src]="video.videoThumbnail" [alt]="video.titulo">
+                  </div>
+                </mat-card>
+              </div>
+            </div>
+          </mat-expansion-panel>
+          <div class="mt-5" *ngIf="modulo.quizes && modulo.quizes.length > 0">
+            <h5 class="primary-color">Quizzes</h5>
+            <div class="row">
+              <div class="col-xl-6 col-12" *ngFor="let quiz of modulo.quizes">
+                <mat-card class="card-quiz">
+                  <mat-card-header class="row">
+                    <mat-card-title class="card-titulo">
+                      <div class="quiz-titulo">
+                        <h5>{{ quiz.titulo }}</h5>
+                      </div>
+                      <div class="quiz-desc" [innerHTML]="convertService.convertLineBreaks(quiz.descripcion)">
+                      </div>
+                    </mat-card-title>
+                  </mat-card-header>
+                  <mat-card-content>
+                    <div class="quiz-content">
+                      <span>{{ quiz.cantPreguntas }} preguntas</span>
+                      <div class="quiz-content">
+                        <ng-container *ngIf="quiz.nota">
+                          <div class="quiz-content-score">
+                            <div>Nota: {{ quiz.nota / quiz.sumPuntos * 100 }}%</div>
+                            <div>Completado: {{ quiz.fecha | date: 'dd-MM-yyyy' }}</div>
+                          </div>
+                        </ng-container>
+                        <button mat-stroked-button type="button" class="verQuizes" (click)="!quiz.nota ? hacerQuiz(quiz) : navegarQuiz(quiz.id)">{{ !quiz.nota ? 'Hacer quiz' : 'Ver resultado' }}</button>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+    </ng-container>
+    <ng-template #noDatos>
+      <h3 class="secondary-color no-data">
+        No tienes capacitaciones asignadas
+      </h3>
+    </ng-template>
+  </ng-template>
 </div>
 
 

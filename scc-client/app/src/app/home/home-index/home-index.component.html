@@ -16,3 +16,212 @@
 
 <div class="second-card-primary"></div>
 <mat-card class="card-pre mx-auto"></mat-card>
+
+<div class="cards-recientes">
+  <mat-card class="card-home">
+    <mat-card-header>
+      <mat-card-title class="home-titulo">
+        <h3 class="primary-color">
+          Vacaciones
+        </h3>
+        Gestiona tus solicitudes de vacaciones más recientes.
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="column-between">
+      <ng-container *ngIf="loading; else v">
+        <div class="loader-container">
+          <div class="loader"></div>
+        </div>
+      </ng-container>
+      <ng-template #v>
+        <div class="recientes-content">
+          <ng-container *ngIf="vacaciones && vacaciones.length > 0; else noDatosV">
+            <div *ngFor="let vacacion of vacaciones">
+              <div class="display-column">
+                <div class="titulo-reciente">
+                  {{ vacacion.fechaInicio | date: 'd \'de\' MMMM, y' }} - {{ vacacion.fechaFinal | date: 'd \'de\' MMMM, y' }}
+                </div>
+                <div class="column-reciente" [ngClass]="{'primary-color': vacacion.estado == 1, 'secondary-color': vacacion.estado == 2, 'warn-color': vacacion.estado == 0}">
+                  {{ vacacion.estadoTexto }}
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+            </div>
+          </ng-container>
+          <ng-template #noDatosV>
+            <div class="secondary-color">
+              No hay solicitudes creadas
+            </div>
+          </ng-template>
+        </div>
+      </ng-template>
+      <a routerLink="/vacacion" class="ver-todos">Gestionar vacaciones <mat-icon>arrow_forward</mat-icon></a>
+    </mat-card-content>
+  </mat-card>
+  
+  <mat-card class="card-home">
+    <mat-card-header>
+      <mat-card-title class="home-titulo">
+        <h3 class="primary-color">
+          Incapacidades
+        </h3>
+        Gestiona tus justificantes de incapacidad más recientes.
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="column-between">
+      <ng-container *ngIf="loading; else i">
+        <div class="loader-container">
+          <div class="loader"></div>
+        </div>
+      </ng-container>
+      <ng-template #i>
+        <div class="recientes-content">
+          <ng-container *ngIf="incapacidades && incapacidades.length > 0; else noDatosI">
+            <div *ngFor="let incapacidad of incapacidades">
+              <div class="display-column">
+                <div class="titulo-reciente">
+                  {{ incapacidad.fechaInicio | date: 'd \'de\' MMMM, y' }} - {{ incapacidad.fechaFinal | date: 'd \'de\' MMMM, y' }}
+                </div>
+                <div class="column-reciente" [ngClass]="{'primary-color': incapacidad.estado == 1, 'secondary-color': incapacidad.estado == 2, 'warn-color': incapacidad.estado == 0}">
+                  {{ incapacidad.estadoTexto }}
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+            </div>
+          </ng-container>
+          <ng-template #noDatosI>
+            <div class="secondary-color">
+              No hay justificantes creados
+            </div>
+          </ng-template>
+        </div>
+      </ng-template>
+      <a routerLink="/incapacidad" class="ver-todos">Gestionar justificantes <mat-icon>arrow_forward</mat-icon></a>
+    </mat-card-content>
+  </mat-card>
+  
+  <mat-card class="card-home">
+    <mat-card-header>
+      <mat-card-title class="home-titulo">
+        <h3 class="primary-color">
+          Comprobantes
+        </h3>
+        Accede y gestiona tus comprobantes.
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="column-between">
+      <ng-container *ngIf="loading; else co">
+        <div class="loader-container">
+          <div class="loader"></div>
+        </div>
+      </ng-container>
+      <ng-template #co>
+          <div class="recientes-content">
+            <ng-container *ngIf="planillas && planillas.length > 0; else noDatosCo">
+              <div *ngFor="let planilla of planillas">
+                <div class="display-column">
+                  <div class="titulo-reciente">
+                    {{ planilla.fechaInicio | date: 'd \'de\' MMMM, y' }} - {{ planilla.fechaFinal | date: 'd \'de\' MMMM, y' }}
+                  </div>
+                  <div class="column-reciente primary-color">
+                    ₡{{ formatearNumero(planilla.salarioNeto) }}
+                  </div>
+                </div>
+                <mat-divider></mat-divider>
+              </div>
+            </ng-container>
+            <ng-template #noDatosCo>
+              <div class="secondary-color">
+                No hay comprobantes creados
+              </div>
+            </ng-template>
+          </div>
+        </ng-template>
+      <a [routerLink]="'/comprobante/' + usuarioActual.id" class="ver-todos">Ver comprobantes <mat-icon>arrow_forward</mat-icon></a>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<div class="cards-recientes">
+  <mat-card class="card-home">
+    <mat-card-header>
+      <mat-card-title class="home-titulo">
+        <h3 class="primary-color">
+          Foros
+        </h3>
+        Únete a las conversaciones más recientes y colabora con tu equipo.
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="column-between">
+      <ng-container *ngIf="loading; else f">
+        <div class="loader-container">
+          <div class="loader"></div>
+        </div>
+      </ng-container>
+      <ng-template #f>
+        <div class="recientes-content">
+          <ng-container *ngIf="foros && foros.length > 0; else noDatosF">
+            <div *ngFor="let foro of foros">
+              <div class="display-recientes a-reciente" [routerLink]="'/foro/detalle/' + foro.id">
+                <a class="titulo-reciente">
+                  {{ foro.titulo }}
+                </a>
+                <div class="fecha-reciente">
+                  {{ getRelativeTime(foro.fechaCreado) }}
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+            </div>
+          </ng-container>
+          <ng-template #noDatosF>
+            <div class="secondary-color">
+              No existen foros
+            </div>
+          </ng-template>
+        </div>
+      </ng-template>
+      <a routerLink="/foro" class="ver-todos">Ver foros <mat-icon>arrow_forward</mat-icon></a>
+    </mat-card-content>
+  </mat-card>
+  
+  <mat-card class="card-home">
+    <mat-card-header>
+      <mat-card-title class="home-titulo">
+        <h3 class="primary-color">
+          Capacitaciones
+        </h3>
+        Accede a las últimas capacitaciones y sigue aprendiendo con tu equipo.
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="column-between">
+      <ng-container *ngIf="loading; else c">
+        <div class="loader-container">
+          <div class="loader"></div>
+        </div>
+      </ng-container>
+      <ng-template #c>
+        <div class="recientes-content">
+          <ng-container *ngIf="modulos && modulos.length > 0; else noDatosC">
+            <div *ngFor="let modulo of modulos">
+              <div class="display-recientes">
+                <div class="titulo-reciente">
+                  {{ modulo.titulo }}
+                </div>
+                <div class="fecha-reciente" [ngClass]="{'warn-color': modulo.progreso == 0, 'secondary-color': modulo.progreso >= 100}">
+                  {{ modulo.progreso }}%
+                </div>
+              </div>
+              <mat-divider></mat-divider>
+            </div>
+          </ng-container>
+          <ng-template #noDatosC>
+            <div class="secondary-color">
+              No tienes capacitaciones asignadas
+            </div>
+          </ng-template>
+        </div>
+      </ng-template>
+      <a routerLink="/capacitacion" class="ver-todos">Ver capacitaciones <mat-icon>arrow_forward</mat-icon></a>
+    </mat-card-content>
+  </mat-card>
+</div>

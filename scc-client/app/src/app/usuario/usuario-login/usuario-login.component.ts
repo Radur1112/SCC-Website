@@ -81,7 +81,7 @@ export class UsuarioLoginComponent implements OnInit {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.loginForm.reset();
-        this.router.navigate(['capacitacion']);
+        this.router.navigate(['bienvenida']);
       },
       error:(err) => {
         if (err.status == 401) {

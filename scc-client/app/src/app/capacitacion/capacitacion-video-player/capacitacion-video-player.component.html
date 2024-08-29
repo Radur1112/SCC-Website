@@ -1,4 +1,10 @@
+
 <div id="player-container">
+  <ng-container *ngIf="loading">
+    <div class="loader-container">
+      <div class="loader"></div>
+    </div>
+  </ng-container>
   <div id="player"></div>
 </div>
 <div id="temp-player" style="display:none;"></div>

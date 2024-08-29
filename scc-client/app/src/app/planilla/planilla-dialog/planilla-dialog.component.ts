@@ -6,11 +6,12 @@ import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angu
 import { GenericService } from '../../services/generic.service';
 import { Subject, takeUntil } from 'rxjs';
 import { AlertaService, TipoMessage } from '../../services/alerta.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-planilla-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatCardModule, MatButton],
+  imports: [CommonModule, MatDialogModule, MatCardModule, MatButton, MatIconModule],
   templateUrl: './planilla-dialog.component.html',
   styleUrl: './planilla-dialog.component.scss'
 })
@@ -149,7 +150,8 @@ export class PlanillaDialogComponent {
 
   formatearNumero(valor: string) {
     valor = valor ?? '';
-    let formateado = parseFloat(valor.replace(/[^\d.-]/g, ''));
+    let perFormateado = valor.replace(/,/g, '.');
+    let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
       return '0.00';

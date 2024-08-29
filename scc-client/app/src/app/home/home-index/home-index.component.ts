@@ -20,15 +20,19 @@ import { MatListModule } from '@angular/material/list';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ConvertLineBreaksService } from '../../services/convert-line-breaks.service';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
+import { MatDividerModule } from '@angular/material/divider';
 
 @Component({
   selector: 'app-home-index',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule, MatButtonModule, MatInputModule, MatCardModule, MatProgressBarModule, MatIconModule, MatTooltipModule, MatRadioModule, MatSelectModule, MatMenuModule, MatListModule],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule, MatDividerModule, MatButtonModule, MatInputModule, MatCardModule, MatProgressBarModule, MatIconModule, MatTooltipModule, MatRadioModule, MatSelectModule, MatMenuModule, MatListModule],
   templateUrl: './home-index.component.html',
   styleUrl: './home-index.component.scss'
 })
 export class HomeIndexComponent {
+  destroy$: Subject<boolean> = new Subject<boolean>();
 
   usuarioActual: any;
   nombreUsuario: string;
@@ -37,6 +41,21 @@ export class HomeIndexComponent {
   isCapacitador: boolean;
   isPlanillero: boolean;
   isVacaciones: boolean;
+
+  home: any;
+  foros: any[] = [];
+  modulos: any[] = [];
+  vacaciones: any[] = [];
+  incapacidades: any[] = [];
+  planillas: any[] = [];
+
+  estados = {
+    0: 'Rechazado',
+    1: 'Confirmado',
+    2: 'Pendiente'
+  };
+
+  loading: boolean = true;
 
   constructor(
     private gService: GenericService,
@@ -61,6 +80,8 @@ export class HomeIndexComponent {
         this.isSupervisor = this.usuarioActual.idTipoUsuario == 3 || this.usuarioActual.idTipoUsuario == 1;
         this.isCapacitador = this.usuarioActual.idTipoUsuario == 4 || this.usuarioActual.idTipoUsuario == 1;
         this.isPlanillero = this.usuarioActual.idTipoUsuario == 5 || this.usuarioActual.idTipoUsuario == 1;
+
+        this.getHome();
       } else {
         this.usuarioActual = null;
         this.isAdmin = false;
@@ -69,5 +90,49 @@ export class HomeIndexComponent {
         this.isPlanillero = false;
       }
     });
+  }
+
+  getHome() {
+    this.gService.get(`usuario/home/${this.usuarioActual.id}`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.home = res.data;
+        this.foros = this.home.foros;
+        this.modulos = this.home.modulos;
+        this.vacaciones = res.data.vacaciones.map(vacacion => ({
+          ...vacacion,
+          estadoTexto: this.estados[vacacion.estado]
+        }));
+        this.incapacidades = res.data.incapacidades.map(vacacion => ({
+          ...vacacion,
+          estadoTexto: this.estados[vacacion.estado]
+        }));
+        this.planillas = this.home.planillas;
+
+        this.loading = false;
+      }
+    });
+  }
+
+  getRelativeTime(date) {
+    return formatDistanceToNow(new Date(date), { addSuffix: true, locale: es });
+  }
+
+  formatearNumero(valor: string) {
+    valor = valor ?? '';
+    let perFormateado = valor.replace(/,/g, '.');
+    let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
+    
+    if (isNaN(formateado)) {
+      return '0.00';
+    }
+
+    const parts = formateado.toFixed(2).split('.');
+    let integerPart = parts[0];
+    let decimalPart = parts.length > 1 ? parts[1] : '';
+
+    integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+    return `${integerPart},${decimalPart}`;
   }
 }

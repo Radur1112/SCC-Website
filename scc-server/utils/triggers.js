@@ -178,7 +178,6 @@ const update_planilla_after_anotacion = async (idPlanilla) => {
       FROM deduccion d 
       INNER JOIN tipodeduccion td ON td.id = d.idTipoDeduccion AND td.fijo = 2
       WHERE d.idPlanilla = ${idPlanilla}`);
-      console.log(result[0])
     const updateDeduccionQueries = result[0].map(deduccion => {
       const monto = salario_bruto * parseFloat(deduccion.valor) / 100;
       return db.query(`UPDATE deduccion SET monto = ? WHERE id = ?`, [monto, deduccion.id]);
@@ -362,6 +361,112 @@ const insert_notificacion = async (datos) => {
   }
 };
 
+const update_usuarioQuiz_after_respuestas = async (idUsuarioQuiz) => {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const [preguntas] = await connection.query(`
+      SELECT 
+        qp.id AS idQuizPregunta, 
+        qp.puntos,
+        qp.idTipoPregunta,
+        (
+          SELECT 
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'id', qr.id,
+                'correcta', qr.correcta
+              )
+            )
+          FROM quizrespuesta qr
+          WHERE qr.idQuizPregunta = qp.id AND qr.estado != 0
+        ) AS respuestas,
+        (
+          SELECT 
+            JSON_ARRAYAGG(uqr.idQuizRespuesta)
+          FROM usuarioquizrespuesta uqr
+          WHERE uqr.idQuizPregunta = qp.id AND uqr.idUsuarioQuiz = uq.id
+        ) AS respondido
+      FROM quizpregunta qp
+      JOIN usuarioquiz uq ON uq.idQuiz = qp.idQuiz
+      WHERE uq.id = ? AND qp.estado != 0 AND qp.puntos != 0
+    `, [idUsuarioQuiz]);
+
+    let nota = 0;
+
+    for (let pregunta of preguntas) {
+      const respuestas = pregunta.respuestas;
+      const respondido = pregunta.respondido;
+      
+      if (pregunta.idTipoPregunta === 1) {
+        const respuestasCorrectas = respuestas.filter(r => r.correcta === 1);
+        if (respuestasCorrectas.some(respuesta => respuesta.id === respondido[0])) {
+          nota += pregunta.puntos;
+        }
+      } else if (pregunta.idTipoPregunta === 2) {
+        const respuestasCorrectas = respuestas.filter(r => r.correcta === 1).map(r => r.id);
+        const respuestasUsuario = Array.isArray(respondido) ? respondido : [respondido];
+        
+        if (respuestasCorrectas.every(id => respuestasUsuario.includes(id)) && 
+        respuestasUsuario.every(id => respuestasCorrectas.includes(id))) {
+          nota += pregunta.puntos;
+        }
+      }
+    }
+
+    const [updateResult] = await connection.query(
+      'UPDATE usuarioquiz SET nota = ? WHERE id = ?',
+      [nota, idUsuarioQuiz]
+    );
+
+    if (updateResult.affectedRows === 0) {
+      throw new Error('Update failed');
+    }
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    console.log(error)
+  } finally {
+    connection.release();
+  }
+};
+
+const update_usuarioQuiz_after_quizes = async (idQuiz = null, idUsuario = null) => {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    let query = 'SELECT id FROM usuarioquiz WHERE ';
+    let values = []
+    if (idQuiz) {
+      query += 'idQuiz = ?';
+      values.push(idQuiz);
+      if (idUsuario) {
+        query += 'AND idUsuario = ?';
+        values.push(idUsuario);
+      }
+    } else if (idUsuario) {
+      query += 'idUsuario = ?';
+      values.push(idUsuario);
+    }
+    const [usuarioQuizEntries] = await connection.query(query, values);
+
+    for (let entry of usuarioQuizEntries) {
+      const idUsuarioQuiz = entry.id;
+      update_usuarioQuiz_after_respuestas(idUsuarioQuiz);
+    }
+
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    console.log(error)
+  } finally {
+    connection.release();
+  }
+};
+
 module.exports = {
   create_planilla_insert_usuario,
   create_planilla_update_planilla,
@@ -369,5 +474,7 @@ module.exports = {
   update_planilla_after_anotacion,
   update_usuario_after_vacacion,
   update_usuario_modulo_progreso,
-  insert_notificacion
+  insert_notificacion,
+  update_usuarioQuiz_after_respuestas,
+  update_usuarioQuiz_after_quizes
 };

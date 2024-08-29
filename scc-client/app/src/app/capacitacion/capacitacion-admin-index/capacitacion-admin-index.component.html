@@ -1,5 +1,5 @@
 <mat-card class="card-primary">
-  <a routerLink="/usuario" class="go-back" matTooltip="Ir atras">
+  <a routerLink="/bienvenida" class="go-back" matTooltip="Ir atras">
     <mat-icon class="light-color">arrow_back</mat-icon>
   </a>
   <div class="mx-auto">
@@ -30,7 +30,7 @@
       </div>
       <div class="row modulo-buttons content-container-center-row less-width mx-auto">
         <button mat-fab extended class="boton-modulo boton-crear" matTooltip="Crear módulo" aria-label="Crear módulo" (click)="openModuloFormDialog(true)">
-          <mat-icon class="mat-18 conten">add_circle</mat-icon>
+          <mat-icon class="mat-18">add_circle</mat-icon>
           <div class="boton-modulo-text">
             Crear
           </div>
@@ -61,13 +61,17 @@
     <mat-tab-group>
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>play_circle</mat-icon>
+          <mat-icon class="me-2">play_circle</mat-icon>
           Videos
         </ng-template>
         
         <div class="container-fluid my-4">
-          <ng-container *ngIf="moduloVideos">
-
+          <ng-container *ngIf="loadingV; else datos">
+            <div class="loader-container">
+              <div class="loader"></div>
+            </div>
+          </ng-container>
+          <ng-template #datos>
             <mat-card class="card-button mx-auto" (click)="openVideoFormDialog(true)">
               <mat-card-header class="content-container-center p-0">
                 <mat-card-title>
@@ -79,60 +83,73 @@
               </mat-card-header>
             </mat-card>
       
-            <mat-accordion multi>
-              <mat-expansion-panel class="my-3" *ngFor="let nivel of moduloVideos">
-                <mat-expansion-panel-header>
-                  <mat-panel-title>Videos</mat-panel-title>
-                  <mat-panel-description *ngIf="nivel.nivel">
-                    Nivel: {{ nivel.nivel }}
-                    <mat-icon>play_circle</mat-icon>
-                  </mat-panel-description>
-                </mat-expansion-panel-header>
-      
-                <div class="row">
-                  <div class="col-md-6 col-xl-4 my-3" *ngFor="let video of nivel.moduloVideos">
-                    <mat-card class="card-video">
-                      <mat-card-header>
-                        <mat-card-title class="video-titulo">
-                          {{video.videoTitulo}}
-                        </mat-card-title>
-                      </mat-card-header>
-                      <div class="video-img">
-                        <img [src]="video.videoThumbnail" alt="{{ video.titulo }}">
-                      </div>
-                      <mat-card-content class="video-desc" [innerHTML]="convertService.convertLineBreaks(video.videoDescripcion)">
-                      </mat-card-content>
-                      <mat-card-actions>
-                        <button mat-fab extended color="accent" class="boton-accion" matTooltip="Actualizar Usuario" aria-label="Actualizar Usuario" (click)="openVideoFormDialog(false, video.videoId)">
-                          <mat-icon class="mat-18">edit</mat-icon>
-                          <div class="boton-modulo-text">
-                            Actualizar
-                          </div>
-                        </button>
-                        <button mat-fab extended color="warn" class="boton-accion" matTooltip="Borrar Usuario" aria-label="Borrar Usuario" (click)="borrarVideo(video)">
-                          <mat-icon class="mat-18">delete</mat-icon>
-                          <div class="boton-modulo-text">
-                            Borrar
-                          </div>
-                        </button>
-                      </mat-card-actions>
-                    </mat-card>
+            
+            <ng-container *ngIf="moduloVideos && moduloVideos.length > 0; else noDatosV">
+              <mat-accordion multi>
+                <mat-expansion-panel class="capacitacion-accordion my-3" *ngFor="let nivel of moduloVideos">
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>Videos</mat-panel-title>
+                    <mat-panel-description *ngIf="nivel.nivel">
+                      Nivel: {{ nivel.nivel }}
+                      <mat-icon>play_circle</mat-icon>
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+        
+                  <div class="row">
+                    <div class="col-md-6 col-xl-4 my-3" *ngFor="let video of nivel.moduloVideos">
+                      <mat-card class="card-video">
+                        <mat-card-header>
+                          <mat-card-title class="video-titulo">
+                            {{ video.videoTitulo }}
+                          </mat-card-title>
+                        </mat-card-header>
+                        <div class="video-img">
+                          <img [src]="video.videoThumbnail" alt="{{ video.titulo }}">
+                        </div>
+                        <mat-card-content class="video-desc" [innerHTML]="convertService.convertLineBreaks(video.videoDescripcion)">
+                        </mat-card-content>
+                        <mat-card-actions>
+                          <button mat-fab extended color="accent" class="boton-accion" matTooltip="Actualizar Usuario" aria-label="Actualizar Usuario" (click)="openVideoFormDialog(false, video.videoId)">
+                            <mat-icon class="mat-18">edit</mat-icon>
+                            <div class="boton-modulo-text">
+                              Actualizar
+                            </div>
+                          </button>
+                          <button mat-fab extended color="warn" class="boton-accion" matTooltip="Borrar Usuario" aria-label="Borrar Usuario" (click)="borrarVideo(video)">
+                            <mat-icon class="mat-18">delete</mat-icon>
+                            <div class="boton-modulo-text">
+                              Borrar
+                            </div>
+                          </button>
+                        </mat-card-actions>
+                      </mat-card>
+                    </div>
                   </div>
-                </div>
-      
-              </mat-expansion-panel>
-            </mat-accordion>
-          </ng-container>
+                </mat-expansion-panel>
+              </mat-accordion>
+            </ng-container>
+            <ng-template #noDatosV>
+              <h3 class="secondary-color no-data no-data-margint">
+                No hay videos
+              </h3>
+            </ng-template>
+          </ng-template>
         </div>
       </mat-tab>
     
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>manage_accounts</mat-icon>
+          <mat-icon class="me-2">manage_accounts</mat-icon>
           Asignar Usuarios
         </ng-template>
 
-        <ng-container *ngIf="moduloVideos">
+        
+        <ng-container *ngIf="loadingV; else datosU">
+          <div class="loader-container">
+            <div class="loader"></div>
+          </div>
+        </ng-container>
+        <ng-template #datosU>
           <div class="asignar">
 
             <div class="usuarios-tables">
@@ -179,7 +196,7 @@
                   </tr>
                 
                   <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscarNo.value}}"</td>
+                    <td class="mat-cell mt-3" colspan="4">{{ buscarNo.value ? 'No se encontraron usuario con esta busqueda: ' + buscarNo.value : 'No hay usuarios asignados'}}</td>
                   </tr>
                 </table>
               </div>
@@ -240,22 +257,159 @@
                   </tr>
                 
                   <tr class="mat-row" *matNoDataRow>
-                    <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscarSi.value}}"</td>
+                    <td class="mat-cell mt-3" colspan="4">{{ buscarSi.value ? 'No se encontraron usuario con esta busqueda: ' + buscarSi.value : 'No hay usuarios asignados'}}</td>
                   </tr>
                 </table>
               </div>
             </div>
           </div>
-        </ng-container>
+        </ng-template>
       </mat-tab>
     
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>quiz</mat-icon>
-          Quizes
+          <mat-icon class="me-2">quiz</mat-icon>
+          Quizzes
         </ng-template>
 
-        Content 2
+        <div class="container-fluid my-4">
+          <ng-container *ngIf="loadingQ; else datosQ">
+            <div class="loader-container">
+              <div class="loader"></div>
+            </div>
+          </ng-container>
+          <ng-template #datosQ>
+            <mat-card class="card-button mx-auto" (click)="agregarQuiz()">
+              <mat-card-header class="content-container-center p-0">
+                <mat-card-title>
+                  <div class="icon-text my-3">
+                    <mat-icon>add</mat-icon>
+                    <h5 class="m-0">Crear quiz</h5>
+                  </div>
+                </mat-card-title>
+              </mat-card-header>
+            </mat-card>
+          
+              
+            <ng-container *ngIf="quizes && quizes.length > 0; else noDatosQ">
+              <form [formGroup]="quizForm">
+                <mat-accordion multi>
+                  <div formArrayName="quizzes">
+                    <mat-expansion-panel  class="capacitacion-accordion my-3" *ngFor="let quiz of quizzes().controls; let quizIndex = index" [formGroupName]="quizIndex">
+                      <mat-expansion-panel-header>
+                        <mat-panel-description>
+                          Quiz: {{ quiz.get('titulo').value && quiz.get('titulo').value != '' ? quiz.get('titulo').value : (quizIndex + 1) }}
+                          <button mat-fab extended type="button" color="warn" class="boton-modulo" matTooltip="Borrar quiz" aria-label="Borrar quiz" (click)="removerQuiz(quizIndex)" *ngIf="selectedModulo">
+                            <mat-icon class="mat-18">delete</mat-icon>
+                            <div class="boton-modulo-text">
+                              Borrar
+                            </div>
+                          </button>
+                        </mat-panel-description>
+                      </mat-expansion-panel-header>
+
+                      <mat-card class="card-quiz">
+                        <div class="row">
+                          <div class="col row">
+                            <input matInput type="text" placeholder="Título del quiz" formControlName="titulo" class="quiz-titulo"/>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <div class="col row">
+                            <textarea matInput type="text" placeholder="Descripción del quiz" formControlName="descripcion" class="quiz-descripcion"></textarea>
+                          </div>
+                        </div>
+                      </mat-card>
+            
+                      <div formArrayName="preguntas">
+                        <div *ngFor="let pregunta of preguntas(quizIndex).controls; let preguntaIndex = index" [formGroupName]="preguntaIndex">
+                          <mat-card class="card-quiz">
+                            <div class="quiz-pregunta-container">
+                              <h6 class="primary-color m-0">Pregunta {{ preguntaIndex + 1 }}</h6>
+                              <div class="quiz-puntos-container" *ngIf="pregunta.get('idTipoPregunta').value != 3">
+                                <input matInput type="number" formControlName="puntos" class="quiz-puntos"/>
+                                <span>puntos</span>
+                              </div>
+                            </div>
+                            <div class="quiz-pregunta-container">
+                              <textarea matInput type="text" placeholder="Descripción de la pregunta" formControlName="descripcion" class="quiz-pregunta"></textarea>
+                              <div class="">
+                                <label mat-icon-button class="subir-archivo-label" class="quiz-boton-agregar" matTooltip="Agregar imagen">
+                                  <input type="file" class="subir-archivo" (change)="seleccionarArchivo($event, pregunta)" accept="image/*"/>
+                                  <mat-icon>image</mat-icon>
+                                </label>
+                              </div>
+                              <select formControlName="idTipoPregunta" class="quiz-select" (change)="onTipoPreguntaChange(pregunta)">
+                                <option *ngFor="let tipo of tipoPreguntas" [value]="tipo.id" class="quiz-select">
+                                  {{ tipo.descripcion }}
+                                </option>
+                              </select>
+                            </div>
+
+                            <div class="pregunta-img-container" *ngIf="pregunta.get('imagenUrl').value">
+                              <button mat-stroked-button type="button" color="warn" class="pregunta-img-remover bigi" (click)="removerPreguntaImagen(pregunta)">Remover imagen</button>
+                              <button mat-stroked-button type="button" color="warn" class="pregunta-img-remover chiki" (click)="removerPreguntaImagen(pregunta)"><mat-icon class="m-0">close</mat-icon></button>
+                              <img [src]="pregunta.get('imagenUrl').value" alt="" class="img-fluid">
+                            </div>
+                    
+                            <div formArrayName="respuestas" *ngIf="pregunta.get('idTipoPregunta').value != 3; else respuestaCorta">
+                              <div *ngFor="let respuesta of respuestas(quizIndex, preguntaIndex).controls; let respuestaIndex = index" [formGroupName]="respuestaIndex">
+                                <div class="quiz-respuesta-container">
+                                  <mat-icon [ngClass]="{'secondary-color': respuesta.get('correcta').value == 1}">
+                                    {{ pregunta.get('idTipoPregunta').value == 1 ? (respuesta.get('correcta').value == 1 ? 'radio_button_checked' : 'radio_button_unchecked') : 
+                                    pregunta.get('idTipoPregunta').value == 2 ? (respuesta.get('correcta').value == 1 ? 'check_box' : 'check_box_outline_blank') : '' }}
+                                  </mat-icon> 
+                                  <input #respuestaInput [attr.data-index]="quizIndex + '' + preguntaIndex + '' + respuestaIndex" matInput type="text" [placeholder]="'Opción ' + (respuestaIndex + 1)" formControlName="descripcion" class="quiz-respuesta" (keydown)="onEnterPressRespuesta($event, quizIndex, preguntaIndex)"/>
+                                  <div class="quiz-respuesta-imagen-container">
+                                    <label mat-icon-button class="subir-archivo-label" class="quiz-boton-agregar" matTooltip="Agregar imagen">
+                                      <input type="file" class="subir-archivo" (change)="seleccionarArchivoRespuesta($event, respuesta)" accept="image/*"/>
+                                      <mat-icon>image</mat-icon>
+                                    </label>
+                                  </div>
+                                  <button mat-icon-button type="button" class="quiz-boton-correcta" (click)="marcarCorrecta(respuesta)" [matTooltip]="'Marcar como ' + (respuesta.get('correcta').value == 1 ? 'incorrecta' : 'correcta')">
+                                    <mat-icon [ngClass]="{'secondary-color': respuesta.get('correcta').value == 1}">check</mat-icon>
+                                  </button>
+                                  <button mat-icon-button type="button" class="quiz-boton-delete" (click)="removerRespuesta(quizIndex, preguntaIndex, respuestaIndex)" matTooltip="Borrar respuesta">
+                                    <mat-icon>close</mat-icon>
+                                  </button>
+                                </div>
+                                <div class="respuesta-img-container" *ngIf="respuesta.get('imagenUrl').value">
+                                  <button mat-stroked-button type="button" color="warn" class="pregunta-img-remover bigi" (click)="removerRespuestaImagen(respuesta, quizIndex)">Remover imagen</button>
+                                  <button mat-stroked-button type="button" color="warn" class="pregunta-img-remover chiki" (click)="removerRespuestaImagen(respuesta, quizIndex)"><mat-icon class="m-0">close</mat-icon></button>
+                                  <img [src]="respuesta.get('imagenUrl').value" alt="" class="img-fluid">
+                                </div>
+                              </div>
+                              <button mat-button type="button" class="quiz-boton-agregar" (click)="agregarRespuesta(quizIndex, preguntaIndex)">Agregar respuesta</button>
+                            </div>
+                            <ng-template #respuestaCorta>
+                              <div class="quiz-respuesta-container">
+                                <mat-icon>segment</mat-icon>
+                                <input matInput type="text" placeholder="Texto de la respuesta" disabled="true" class="quiz-respuesta"/>
+                              </div>
+                            </ng-template>
+                            <mat-divider></mat-divider>
+                            <button mat-icon-button type="button" class="quiz-boton-delete" (click)="removerPregunta(quizIndex, preguntaIndex)" matTooltip="Borrar pregunta"><mat-icon>delete</mat-icon></button>
+                          </mat-card>
+                        </div>
+                      </div>
+                    
+                      <button mat-button type="button" class="quiz-boton-agregar" (click)="agregarPregunta(quizIndex)">Agregar pregunta</button>
+                    </mat-expansion-panel>
+                  </div>
+                </mat-accordion>
+                <div class="quiz-boton-container">
+                  <button mat-stroked-button type="button" class="quiz-cancelar" (click)="cancelarQuiz()">Cancelar</button>
+                  <button mat-stroked-button type="button" class="quiz-agregar" (click)="confirmarGuardar()">Guardar cambios</button>
+                </div>
+              </form>
+            </ng-container>
+            <ng-template #noDatosQ>
+              <h3 class="secondary-color no-data no-data-margint">
+                No hay quizzes
+              </h3>
+            </ng-template>
+          </ng-template>
+        </div>
       </mat-tab>
     </mat-tab-group>
   </div>

@@ -1,3 +1,6 @@
+<a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
+  <mat-icon class="dark-color">close</mat-icon>
+</a>
 <mat-dialog-content class="mat-typography">
   <div class="asignar">
     <div class="usuarios-tables">
@@ -44,7 +47,7 @@
           </tr>
         
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscarNo.value}}"</td>
+            <td class="mat-cell mt-3" colspan="4">{{ buscarNo.value ? 'No se encontraron usuario con esta busqueda: ' + buscarNo.value : 'No hay usuarios no asignados'}}</td>
           </tr>
         </table>
       </div>
@@ -105,7 +108,7 @@
           </tr>
         
           <tr class="mat-row" *matNoDataRow>
-            <td class="mat-cell" colspan="4">No se encontraron usuario con esta busqueda: "{{buscarSi.value}}"</td>
+            <td class="mat-cell mt-3" colspan="4">{{ buscarSi.value ? 'No se encontraron usuario con esta busqueda: ' + buscarSi.value : 'No hay usuarios asignados'}}</td>
           </tr>
         </table>
       </div>

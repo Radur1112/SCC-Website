@@ -3,11 +3,12 @@ import { GenericService } from '../../services/generic.service';
 import { Subject, takeUntil } from 'rxjs';
 import { format, toZonedTime } from 'date-fns-tz';
 import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-capacitacion-video-player',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './capacitacion-video-player.component.html',
   styleUrl: './capacitacion-video-player.component.scss'
 })
@@ -33,6 +34,8 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
   completedCheckpoints: number[] = [];
   completado: boolean = false;
 
+  loading: boolean = true;
+
   constructor(
     private gService: GenericService,
     private route: ActivatedRoute
@@ -56,6 +59,8 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
   }
 
   setupComponent(): void {
+    this.loading = true;
+
     this.initialProgress = parseFloat(this.usuarioVideo.progreso);
     this.completedCheckpoints = this.checkpoints.filter(checkpoint => checkpoint <= this.initialProgress);
     
@@ -116,6 +121,7 @@ export class CapacitacionVideoPlayerComponent implements OnDestroy, AfterViewIni
   onPlayerReady(event: YT.PlayerEvent): void {
     // Optionally, start the video automatically
     // event.target.playVideo();
+    this.loading = false;
   }
 
   onPlayerStateChange(event: YT.OnStateChangeEvent): void {

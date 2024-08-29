@@ -1,5 +1,7 @@
 const db = require('../utils/db.js');
 
+const { update_usuarioQuiz_after_respuestas } = require('../utils/triggers.js');
+
 var nombreTabla = 'usuarioquizrespuesta';
 
 module.exports.get = async(req, res, next) => {
@@ -259,7 +261,8 @@ module.exports.crear = async (req, res, next) => {
     let crearDatos = {
         idUsuarioQuiz: datos.idUsuarioQuiz,
         idQuizPregunta: datos.idQuizPregunta,
-        idQuizRespuesta: datos.idQuizRespuesta
+        idQuizRespuesta: datos.idQuizRespuesta,
+        descripcion: datos.descripcion ?? null
     }
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
@@ -284,6 +287,56 @@ module.exports.crear = async (req, res, next) => {
   }
 };
 
+module.exports.crearMultiples = async (req, res, next) => {
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    const datos = req.body;
+
+    if (!Array.isArray(datos) || datos.length === 0) {
+      throw new Error('Invalid input: datos should be a non-empty array');
+    }
+  
+    const usrQuery = `INSERT INTO ${nombreTabla} (idUsuarioQuiz, idQuizPregunta, idQuizRespuesta, descripcion) VALUES (?, ?, ?, ?)`;
+    
+    for (const respuesta of datos) {
+      if (!respuesta.idUsuarioQuiz || !respuesta.idQuizPregunta) {
+        throw new Error('Invalid respuesta: idUsuarioQuiz and idQuizPregunta are required');
+      }
+  
+      await connection.query(usrQuery, [
+        respuesta.idUsuarioQuiz,
+        respuesta.idQuizPregunta,
+        respuesta.idQuizRespuesta ?? null,
+        respuesta.descripcion ? respuesta.descripcion.trim() : null
+      ]);
+    }
+  
+    await connection.query(`UPDATE usuarioquiz SET fecha = NOW() WHERE id = ?`, [datos[0].idUsuarioQuiz])
+
+    await connection.commit();
+
+    update_usuarioQuiz_after_respuestas(datos[0].idUsuarioQuiz);
+
+    res.status(201).json({
+      status: true,
+      message: `${nombreTabla} creados`
+    });
+  } catch (error) {
+    await connection.rollback();
+    console.error(error);
+
+    res.status(500).send({
+      success: false,
+      message: `Error en registrar ${nombreTabla}`,
+      error: error
+    })
+  } finally {
+    connection.release();
+  }
+};
+
 module.exports.actualizar = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -298,7 +351,8 @@ module.exports.actualizar = async (req, res, next) => {
     let actualizarDatos = {
         idUsuarioQuiz: datos.idUsuarioQuiz,
         idQuizPregunta: datos.idQuizPregunta,
-        idQuizRespuesta: datos.idQuizRespuesta
+        idQuizRespuesta: datos.idQuizRespuesta,
+        descripcion: datos.descripcion ?? null
     }
 
     const data = await db.query(`UPDATE ${nombreTabla} SET ? WHERE id = ?`, [actualizarDatos, id]);

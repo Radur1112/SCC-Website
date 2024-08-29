@@ -1,28 +1,25 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import {MatPaginator, MatPaginatorIntl, MatPaginatorModule} from '@angular/material/paginator';
-import {MatSort, MatSortModule} from '@angular/material/sort';
-import {MatTableDataSource, MatTableModule} from '@angular/material/table';
-import {MatInput, MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { GenericService } from '../../services/generic.service';
 import { AuthService } from '../../services/auth.service';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { Router, RouterLink } from '@angular/router';
+import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ConfirmationService } from '../../services/confirmation.service';
 import { MatAccordion, MatExpansionModule } from '@angular/material/expansion';
-import {MatTabsModule} from '@angular/material/tabs';
-import { MatSelect, MatSelectModule } from '@angular/material/select';
-import {MatGridListModule} from '@angular/material/grid-list';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatSelectModule } from '@angular/material/select';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { SelectionModel } from '@angular/cdk/collections';
 import { MatDialog } from '@angular/material/dialog';
-import { forkJoin, Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ConvertLineBreaksService } from '../../services/convert-line-breaks.service';
 
@@ -62,13 +59,11 @@ export class CapacitacionIndexComponent {
 
   checkpoints = [20, 50, 80];
 
+  loading: boolean = true;
+
   constructor(private gService:GenericService,
     private authService: AuthService,
-    private confirmationService: ConfirmationService,
     private router:Router,
-    private route:ActivatedRoute,
-    private activeRouter: ActivatedRoute,
-    private httpClient:HttpClient,
     private dialog: MatDialog,
     public convertService: ConvertLineBreaksService
   ){
@@ -88,7 +83,8 @@ export class CapacitacionIndexComponent {
   }
 
   cargarModulos() {
-    this.gService.get(`usuarioModulo/usuario/all/${this.usuarioActual.id}` )
+    this.loading = true;
+    this.gService.get(`usuarioModulo/usuario/all/${this.usuarioActual.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         if (res.data && res.data.length > 0) {
@@ -111,6 +107,8 @@ export class CapacitacionIndexComponent {
           this.progresoTotal /= this.modulos.length;
           this.filtroModulos = this.modulos;
         }
+        
+        this.loading = false;
       }
     });
   }
@@ -143,5 +141,22 @@ export class CapacitacionIndexComponent {
 
   abrirVideo(idVideo: any, idModulo: any) {
     this.router.navigate(['capacitacion/video', idVideo, idModulo]);
+  }
+
+  hacerQuiz(quiz: any) {
+    const datos = {
+      idQuiz: quiz.id,
+      idUsuario: this.usuarioActual.id
+    }
+    this.gService.post(`usuarioQuiz/vacio`, datos)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next: (res) => {
+        this.navegarQuiz(quiz.id);
+      }
+    });
+  }
+
+  navegarQuiz(idQuiz: any) {
+    this.router.navigate(['capacitacion/quiz', idQuiz]);
   }
 }

@@ -1,4 +1,7 @@
-<h1 mat-dialog-title>Detalle de errores</h1>
+<h4 class="primary-color dialog-title">Detalle de errores</h4>
+<a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
+  <mat-icon class="dark-color">close</mat-icon>
+</a>
 <div mat-dialog-content>
   <p *ngIf="errors">La fila {{ rowIndex }} tiene los siguientes errores de formato:</p>
   <ul>

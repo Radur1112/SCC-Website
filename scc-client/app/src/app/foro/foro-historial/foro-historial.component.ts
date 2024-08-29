@@ -39,6 +39,8 @@ export class ForoHistorialComponent {
   titulo: any;
   foroId: any;
   
+  loading: boolean = true;
+  
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
@@ -74,6 +76,8 @@ export class ForoHistorialComponent {
   }
 
   getHistorial() {
+    this.loading = true;
+
     let query = '';
     if (this.foroId) {
       query = `forohistorial/foro/${this.foroId}`
@@ -86,6 +90,8 @@ export class ForoHistorialComponent {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+        
+        this.loading = false;
       }
     });
   }

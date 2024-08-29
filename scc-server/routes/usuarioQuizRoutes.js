@@ -8,10 +8,13 @@ router.get('/', verifyToken([0]), usuarioQuizController.get);
 router.get('/:id', verifyToken([0]), usuarioQuizController.getById);
 router.get('/usuario/:id', verifyToken([0]), usuarioQuizController.getByIdUsuario);
 router.get('/quiz/:id', verifyToken([0]), usuarioQuizController.getByIdQuiz);
+router.get('/:idUsuario/:idQuiz', verifyToken([0]), usuarioQuizController.getByIds);
+router.get('/all/:idUsuario/:idQuiz', verifyToken([0]), usuarioQuizController.getAllByIds);
 
-router.post("/", verifyToken([1, 4]), usuarioQuizController.crear);
+router.post("/", verifyToken([0]), usuarioQuizController.crear);
+router.post("/vacio", verifyToken([0]), usuarioQuizController.crearVacio);
 
-router.put("/:id", verifyToken([1, 4]), usuarioQuizController.actualizar);
-router.put("/borrar/:id", verifyToken([1, 4]), usuarioQuizController.borrar);
+router.put("/:id", verifyToken([0]), usuarioQuizController.actualizar);
+router.put("/borrar/:id", verifyToken([0]), usuarioQuizController.borrar);
 
 module.exports = router;

@@ -54,6 +54,8 @@ export class UsuarioIncapacidadIndexComponent {
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
+  
+  loading: boolean = true;
 
   constructor(private gService:GenericService,
     private authService: AuthService,
@@ -85,6 +87,7 @@ export class UsuarioIncapacidadIndexComponent {
   }
 
   getIncapacidades() {
+    this.loading = true;
     let query = `incapacidad`;
     if (this.usuarioId !== null) {
       query = `incapacidad/usuario/${this.usuarioId}`
@@ -99,6 +102,8 @@ export class UsuarioIncapacidadIndexComponent {
         this.dataSource = new MatTableDataSource(incapacidades);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
+
+        this.loading = false;
       }
     });
   }

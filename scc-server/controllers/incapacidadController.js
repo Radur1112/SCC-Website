@@ -170,8 +170,7 @@ module.exports.getById = async(req, res, next) => {
         ) AS archivos
       FROM ${nombreTabla} i
       INNER JOIN usuario u ON u.id = i.idUsuario
-      WHERE i.id = ?
-      GROUP BY i.id`, [id]);
+      WHERE i.id = ?`, [id]);
     if(data) {
       res.status(200).send({
         success: true,

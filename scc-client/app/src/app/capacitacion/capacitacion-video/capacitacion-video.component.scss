@@ -105,3 +105,24 @@ h5:hover {
   background-color: #f3f3f3;
   border-radius: 25px;
 }
+
+.completar-container {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  margin: 20px auto;
+}
+
+.completar-button {
+  border-radius: 10px !important;
+  color: #ffffff !important;
+  background-color: $primary-color !important;
+  padding: 23px 20px;
+  transition: all 0.15s;
+}
+
+.completar-button:hover {
+  border: 1px solid $primary-color;
+  background-color: #ffffff !important;
+  color: $primary-color !important;
+}
