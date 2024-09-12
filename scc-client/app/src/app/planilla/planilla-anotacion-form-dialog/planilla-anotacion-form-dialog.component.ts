@@ -50,13 +50,13 @@ export class PlanillaAnotacionFormDialogComponent {
   ) {
     this.idUsuarioActual = this.data.idUsuarioActual;
     this.anotacion = data.anotacion;
-    console.log(this.anotacion.monto / (this.anotacion.usuarioSalario / (this.horasQuincena) * (this.anotacion.valorHoras)))
+    console.log(this.anotacion)
     this.reactiveForm();
   }
   
   reactiveForm() {
     this.anotacionForm = this.fb.group({
-      descripcion: [this.anotacion.descripcion, [Validators.required, Validators.maxLength(100)]],
+      descripcion: [{value: this.anotacion.descripcion, disabled: !this.anotacion.id}, [Validators.required, Validators.maxLength(100)]],
       hora: [null],
       monto: [this.anotacion.monto, Validators.required]
     });
@@ -73,15 +73,15 @@ export class PlanillaAnotacionFormDialogComponent {
     if (hora) {
       const [hours, minutes] = hora.split(':').map(Number);
       const horasTotales = hours + minutes / 60;
-
-      const salarioXhora = this.anotacion.usuarioSalario / (this.horasQuincena) * (this.anotacion.valorHoras);
+      
+      const salarioXhora = this.anotacion.salarioBase / (this.horasQuincena) * (this.anotacion.valorHoras);
 
       monto.setValue((horasTotales * salarioXhora).toFixed(2));
     }
   }
 
   stringToFloat(valor: string) {
-    let perFormateado = valor.replace(/,/g, '.');
+    let perFormateado = (valor+'').replace(/,/g, '.');
     return parseFloat(perFormateado.replace(/[^\d.-]/g, ''))
   }
 
@@ -96,13 +96,17 @@ export class PlanillaAnotacionFormDialogComponent {
       idUsuario: this.idUsuarioActual
     }
     
-    this.gService.put(`${transformarTipo(this.anotacion.tipo)}`, data)
-    .pipe(takeUntil(this.destroy$)).subscribe({
-      next:(res) => {
-        this.alerta.mensaje('Anotacion', 'Anotacion modificada correctamente', TipoMessage.success);
-        this.dialogRef.close(true);
-      }
-    });
+    if (data.id) {
+      this.gService.put(`${transformarTipo(this.anotacion.tipo)}`, data)
+      .pipe(takeUntil(this.destroy$)).subscribe({
+        next:(res) => {
+          this.alerta.mensaje('Anotacion', 'Anotacion modificada correctamente', TipoMessage.success);
+          this.dialogRef.close(true);
+        }
+      });
+    } else {
+      this.dialogRef.close(data);
+    }
   }
 }
 

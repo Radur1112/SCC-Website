@@ -188,7 +188,7 @@ module.exports.getByIds = async(req, res, next) => {
       uq.nota, uq.fecha,
       COUNT(qp.id)
       FROM quiz q
-      LEFT JOIN quizPregunta qp ON qp.idQuiz = q.id AND qp.estado != 0
+      LEFT JOIN quizpregunta qp ON qp.idQuiz = q.id AND qp.estado != 0
       LEFT JOIN usuarioquiz uq ON q.id = uq.idQuiz AND uq.idUsuario = ?
       WHERE q.estado != 0 AND q.idModulo = ?`, [idUsuario, idModulo]);
     if(data) {

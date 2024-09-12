@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject } from '@angular/core';
-import { MatButton } from '@angular/material/button';
+import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { GenericService } from '../../services/generic.service';
 import { Subject, takeUntil } from 'rxjs';
 import { AlertaService, TipoMessage } from '../../services/alerta.service';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { PlanillaAnotacionFormDialogComponent } from '../planilla-anotacion-form-dialog/planilla-anotacion-form-dialog.component';
 
 @Component({
   selector: 'app-planilla-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatCardModule, MatButton, MatIconModule],
+  imports: [CommonModule, MatDialogModule, MatCardModule, MatButtonModule, MatIconModule, MatMenuModule],
   templateUrl: './planilla-dialog.component.html',
   styleUrl: './planilla-dialog.component.scss'
 })
@@ -55,7 +57,6 @@ export class PlanillaDialogComponent {
     this.usuarioId = data.usuarioId;
     this.planilla = data.planilla;
     this.isAsalariado = data.isAsalariado;
-    console.log(this.planilla)
     this.getTipos();
   }
 
@@ -76,7 +77,6 @@ export class PlanillaDialogComponent {
               break;
           }
         }
-
         this.bindTipos();
       }
     });
@@ -125,14 +125,13 @@ export class PlanillaDialogComponent {
           this.otrosPagos.push({idTipoOtroPago: tipo.id, descripcion: tipo.descripcion, monto: this.formatearNumero(monto.toString()), fijo: tipo.fijo, valor: tipo.valor});
           this.otrosPagosInicial.push(this.formatearNumero(monto.toString()));
         } else {
-          this.otrosPagos.push({idTipoOtroPago: tipo.id, descripcion: tipo.descripcion, monto: '0.00', fijo: tipo.fijo, valor: tipo.valor});
           this.otrosPagosInicial.push('0.00');
         }
       }
     });
 
     this.showOtrosPagos = this.otrosPagos
-    .filter(op => op.monto !== '0.00')
+    .filter(op => op.monto !== '-1')
     .map(op => op.descripcion)
     .join(', ');  
   }
@@ -150,7 +149,7 @@ export class PlanillaDialogComponent {
 
   formatearNumero(valor: string) {
     valor = valor ?? '';
-    let perFormateado = valor.replace(/,/g, '.');
+    let perFormateado = (valor+'').replace(/,/g, '.');
     let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
@@ -228,7 +227,7 @@ export class PlanillaDialogComponent {
   }
 
   stringToFloat(valor: string) {
-    return parseFloat(valor.replace(/[^\d.-]/g, ''))
+    return parseFloat((valor+'').replace(/[^\d.-]/g, ''))
   }
 
   onEnterPressed(event: KeyboardEvent) {
@@ -255,6 +254,65 @@ export class PlanillaDialogComponent {
         }
       }
     }
+  }
+
+  openAnotacionDialog(tipoOtroPago: any) {
+    let width = '600px';
+    let data = { 
+      anotacion: {
+        id: null,
+        idPlanilla: this.planilla.id,
+        idTipo: tipoOtroPago.id,
+        descripcion: 'Cambio de administrador',
+        monto: '0',
+        idUsuario: this.idUsuarioActual,
+        salarioBase: this.stringToFloat(this.planilla.salarioBase),
+        valorHoras: parseFloat(tipoOtroPago.valorHoras)
+      }
+    };
+    
+    const dialogRef = this.dialog.open(PlanillaAnotacionFormDialogComponent, {
+      data,
+      width
+    });
+  
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        const otroPago = {
+          otroPagoDescripcion: 'Cambio de administrador',
+          otroPagoMonto: result.monto,
+          tipoOtroPagoDescripcion: tipoOtroPago.descripcion,
+          tipoOtroPagoId: result.idTipo,
+          tipoValorHoras: parseFloat(tipoOtroPago.valorHoras)
+        }
+
+        if (!this.planilla.otrosPagos) {
+          this.planilla.otrosPagos = [];
+        }
+        this.planilla.otrosPagos.push(otroPago)
+        this.otrosPagos = [];
+
+        this.tipoOtrosPagos.forEach(tipo => {
+          if ((tipo.sp === 0 && this.planilla.usuarioIdTipoContrato === 1) || (tipo.sp === 1 && this.planilla.usuarioIdTipoContrato === 2)) {
+            if (this.planilla.otrosPagos) {
+              const monto = this.planilla.otrosPagos.reduce((sum, item) => {
+                return item.tipoOtroPagoId === tipo.id ? sum + item.otroPagoMonto : sum;
+              }, 0);
+              
+              this.otrosPagos.push({idTipoOtroPago: tipo.id, descripcion: tipo.descripcion, monto: this.formatearNumero(monto.toString()), fijo: tipo.fijo, valor: tipo.valor});
+              this.otrosPagosInicial.push(this.formatearNumero(monto.toString()));
+            } else {
+              this.otrosPagosInicial.push('0.00');
+            }
+          }
+        });
+    
+        this.showOtrosPagos = this.otrosPagos
+        .filter(op => op.monto !== '-1')
+        .map(op => op.descripcion)
+        .join(', ');  
+      }
+    });
   }
 
   guardarPlanilla() {
@@ -295,7 +353,7 @@ export class PlanillaDialogComponent {
     this.otrosPagos.forEach((tipo, index) => {
       if (tipo.fijo != 2) {
         const newMonto = this.stringToFloat(tipo.monto) - this.stringToFloat(this.otrosPagosInicial[index]);
-        if (newMonto != 0) {
+        if (newMonto >= 0) {
           newOtrosPagos.push({
             idPlanilla: this.planilla.id,
             idTipoOtroPago: tipo.idTipoOtroPago, 
@@ -359,6 +417,7 @@ export class PlanillaDialogComponent {
   }
 
   crearOtrosPagos(crear: any) {
+    console.log(crear)
     this.gService.post(`otroPago/multiple`, crear)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {

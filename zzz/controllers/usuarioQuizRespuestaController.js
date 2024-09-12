@@ -10,9 +10,9 @@ module.exports.get = async(req, res, next) => {
       r.descripcion as quizRespuestaDescripcion, r.correcta as quizRespuestaCorrecta, 
       u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
       FROM ${nombreTabla} ur
-      INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-      INNER JOIN quizPregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
-      INNER JOIN quizRespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
+      INNER JOIN usuarioquiz uq ON ur.idUsuarioQuiz = uq.id 
+      INNER JOIN quizpregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
+      INNER JOIN quizrespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
       INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
       `);
     if(data) {
@@ -53,9 +53,9 @@ module.exports.getById = async(req, res, next) => {
       r.descripcion as quizRespuestaDescripcion, r.correcta as quizRespuestaCorrecta, 
       u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
       FROM ${nombreTabla} ur
-      INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-      INNER JOIN quizPregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
-      INNER JOIN quizRespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
+      INNER JOIN usuarioquiz uq ON ur.idUsuarioQuiz = uq.id 
+      INNER JOIN quizpregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
+      INNER JOIN quizrespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
       INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
         WHERE ur.id = ?`, [id]);
     if(data) {
@@ -96,9 +96,9 @@ module.exports.getByIdUsuarioQuiz = async(req, res, next) => {
       r.descripcion as quizRespuestaDescripcion, r.correcta as quizRespuestaCorrecta, 
       u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
       FROM ${nombreTabla} ur
-      INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-      INNER JOIN quizPregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
-      INNER JOIN quizRespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
+      INNER JOIN usuarioquiz uq ON ur.idUsuarioQuiz = uq.id 
+      INNER JOIN quizpregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
+      INNER JOIN quizrespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
       INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
         WHERE ur.idUsuarioQuiz = ?`, [id]);
     if(data) {
@@ -139,9 +139,9 @@ module.exports.getByIdUsuario = async(req, res, next) => {
       r.descripcion as quizRespuestaDescripcion, r.correcta as quizRespuestaCorrecta, 
       u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
       FROM ${nombreTabla} ur
-      INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-      INNER JOIN quizPregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
-      INNER JOIN quizRespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
+      INNER JOIN usuarioquiz uq ON ur.idUsuarioQuiz = uq.id 
+      INNER JOIN quizpregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
+      INNER JOIN quizrespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
       INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
         WHERE uq.idUsuario = ?`, [id]);
     if(data) {
@@ -182,9 +182,9 @@ module.exports.getByIdPregunta = async(req, res, next) => {
       r.descripcion as quizRespuestaDescripcion, r.correcta as quizRespuestaCorrecta, 
       u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
       FROM ${nombreTabla} ur
-      INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-      INNER JOIN quizPregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
-      INNER JOIN quizRespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
+      INNER JOIN usuarioquiz uq ON ur.idUsuarioQuiz = uq.id 
+      INNER JOIN quizpregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
+      INNER JOIN quizrespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
       INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
         WHERE ur.idPregunta = ?`, [id]);
     if(data) {
@@ -225,9 +225,9 @@ module.exports.getByIdRespuesta = async(req, res, next) => {
       r.descripcion as quizRespuestaDescripcion, r.correcta as quizRespuestaCorrecta, 
       u.nombre as usuarioNombre, u.identificacion as usuarioIdentificacion 
       FROM ${nombreTabla} ur
-      INNER JOIN usuarioQuiz uq ON ur.idUsuarioQuiz = uq.id 
-      INNER JOIN quizPregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
-      INNER JOIN quizRespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
+      INNER JOIN usuarioquiz uq ON ur.idUsuarioQuiz = uq.id 
+      INNER JOIN quizpregunta p ON ur.idquizPregunta = p.id AND p.estado != 0 
+      INNER JOIN quizrespuesta r ON ur.idquizRespuesta = r.id AND r.estado != 0 
       INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
         WHERE ur.idRespuesta = ?`, [id]);
     if(data) {

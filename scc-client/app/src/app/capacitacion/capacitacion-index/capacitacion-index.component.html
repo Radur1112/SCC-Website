@@ -63,44 +63,53 @@
           <div class="desc" [ngClass]="{'ellipsis': !modulo.ellipsis}" [innerHTML]="convertService.convertLineBreaks(modulo.moduloDescripcion)">
           </div>
           <button mat-button class="boton-ellipsis" (click)="modulo.ellipsis = !modulo.ellipsis"> {{ !modulo.ellipsis ? 'ver más' : 'ver menos'}}</button>
-          <mat-expansion-panel class="my-3" *ngFor="let moduloVideo of modulo.videosByModulo">
-            <mat-expansion-panel-header>
-              <mat-panel-title class="titulo">
-                Videos
-              </mat-panel-title>
-              <mat-panel-description>
-                <div class="desc">
-                  Nivel: {{ moduloVideo.nivel }}
-                </div>
-              </mat-panel-description>
-            </mat-expansion-panel-header>
 
-            <div class="row">
-              <div class="col-md-6 col-xl-4 my-3" *ngFor="let video of moduloVideo.videos">
-                <mat-card class="card-video">
-                  <mat-card-header class="row">
-                    <mat-card-title class="card-titulo">
-                      <div class="video-titulo pe-2">
-                        {{ video.videoTitulo }}
-                      </div>
-                      <div class="video-sub">
-                        <div [ngClass]="{'warn-color': !video.videoRequerido}">
-                          {{ video.videoRequerido ? 'Requerido' : 'No requerido' }}
-                        </div>
-                        <div class="video-progreso" [ngClass]="{'warn-color': video.videoProgreso == 0, 'secondary-color': video.videoProgreso >= 100}">
-                          {{ video.videoProgreso }}%
-                        </div>
-                      </div>
-                    </mat-card-title>
-                  </mat-card-header>
-                  <div class="video-img col-md p-0" (click)="abrirVideo(video.videoId, modulo.idModulo)">
-                    <img [src]="video.videoThumbnail" [alt]="video.titulo">
+          
+          <ng-container *ngIf="modulo.videosByModulo && modulo.videosByModulo.length > 0; else noDatosv">
+            <mat-expansion-panel class="my-3" *ngFor="let moduloVideo of modulo.videosByModulo">
+              <mat-expansion-panel-header>
+                <mat-panel-title class="titulo">
+                  Videos
+                </mat-panel-title>
+                <mat-panel-description>
+                  <div class="desc">
+                    Nivel: {{ moduloVideo.nivel }}
                   </div>
-                </mat-card>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="row">
+                <div class="col-md-6 col-xl-4 my-3" *ngFor="let video of moduloVideo.videos">
+                  <mat-card class="card-video">
+                    <mat-card-header class="row">
+                      <mat-card-title class="card-titulo">
+                        <div class="video-titulo pe-2">
+                          {{ video.videoTitulo }}
+                        </div>
+                        <div class="video-sub">
+                          <div [ngClass]="{'warn-color': !video.videoRequerido}">
+                            {{ video.videoRequerido ? 'Requerido' : 'No requerido' }}
+                          </div>
+                          <div class="video-progreso" [ngClass]="{'warn-color': video.videoProgreso == 0, 'secondary-color': video.videoProgreso >= 100}">
+                            {{ video.videoProgreso }}%
+                          </div>
+                        </div>
+                      </mat-card-title>
+                    </mat-card-header>
+                    <div class="video-img col-md p-0" (click)="abrirVideo(video.videoId, modulo.idModulo)">
+                      <img [src]="video.videoThumbnail" [alt]="video.titulo">
+                    </div>
+                  </mat-card>
+                </div>
               </div>
-            </div>
-          </mat-expansion-panel>
-          <div class="mt-5" *ngIf="modulo.quizes && modulo.quizes.length > 0">
+            </mat-expansion-panel>
+          </ng-container>
+          <ng-template #noDatosv>
+            <h3 class="secondary-color no-data no-data-margint">
+              No hay videos
+            </h3>
+          </ng-template>
+          <div class="mt-5" *ngIf="modulo.quizes && modulo.quizes.length > 0; else noDatosq">
             <h5 class="primary-color">Quizzes</h5>
             <div class="row">
               <div class="col-xl-6 col-12" *ngFor="let quiz of modulo.quizes">
@@ -132,6 +141,11 @@
               </div>
             </div>
           </div>
+          <ng-template #noDatosq>
+            <h3 class="secondary-color no-data no-data-margint">
+              No hay quizzes
+            </h3>
+          </ng-template>
         </mat-expansion-panel>
       </mat-accordion>
     </ng-container>

@@ -279,20 +279,20 @@
             </div>
           </ng-container>
           <ng-template #datosQ>
-            <mat-card class="card-button mx-auto" (click)="agregarQuiz()">
-              <mat-card-header class="content-container-center p-0">
-                <mat-card-title>
-                  <div class="icon-text my-3">
-                    <mat-icon>add</mat-icon>
-                    <h5 class="m-0">Crear quiz</h5>
-                  </div>
-                </mat-card-title>
-              </mat-card-header>
-            </mat-card>
-          
-              
-            <ng-container *ngIf="quizes && quizes.length > 0; else noDatosQ">
-              <form [formGroup]="quizForm">
+            <form [formGroup]="quizForm">
+              <mat-card class="card-button mx-auto" (click)="agregarQuiz()">
+                <mat-card-header class="content-container-center p-0">
+                  <mat-card-title>
+                    <div class="icon-text my-3">
+                      <mat-icon>add</mat-icon>
+                      <h5 class="m-0">Crear quiz</h5>
+                    </div>
+                  </mat-card-title>
+                </mat-card-header>
+              </mat-card>
+            
+                
+              <ng-container *ngIf="quizzes().controls && quizzes().controls.length > 0; else noDatosQ">
                 <mat-accordion multi>
                   <div formArrayName="quizzes">
                     <mat-expansion-panel  class="capacitacion-accordion my-3" *ngFor="let quiz of quizzes().controls; let quizIndex = index" [formGroupName]="quizIndex">
@@ -397,17 +397,17 @@
                     </mat-expansion-panel>
                   </div>
                 </mat-accordion>
-                <div class="quiz-boton-container">
-                  <button mat-stroked-button type="button" class="quiz-cancelar" (click)="cancelarQuiz()">Cancelar</button>
-                  <button mat-stroked-button type="button" class="quiz-agregar" (click)="confirmarGuardar()">Guardar cambios</button>
-                </div>
-              </form>
-            </ng-container>
-            <ng-template #noDatosQ>
-              <h3 class="secondary-color no-data no-data-margint">
-                No hay quizzes
-              </h3>
-            </ng-template>
+              </ng-container>
+              <ng-template #noDatosQ>
+                <h3 class="secondary-color no-data no-data-margint">
+                  No hay quizzes
+                </h3>
+              </ng-template>
+              <div class="quiz-boton-container">
+                <button mat-stroked-button type="button" class="quiz-cancelar" (click)="cancelarQuiz()">Cancelar</button>
+                <button mat-stroked-button type="button" class="quiz-agregar" (click)="confirmarGuardar()">Guardar cambios</button>
+              </div>
+            </form>
           </ng-template>
         </div>
       </mat-tab>

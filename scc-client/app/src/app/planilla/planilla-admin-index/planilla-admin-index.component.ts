@@ -261,7 +261,7 @@ export class PlanillaAdminIndexComponent {
   descargarPlanilla() {
     this.gService.exportarExcel(`planilla/actual/exportar`).subscribe(blob => {
 
-      const nombre = `resumen_planilla__${moment(new Date(this.fechas.fechaInicio)).format('YYYYMMDD')}_${moment(new Date(this.fechas.fechaFinal)).format('YYYYMMDD')}.xlsx`;
+      const nombre = `resumen_planilla__${moment(new Date(this.selectedFecha.value.fechaInicio)).format('YYYYMMDD')}_${moment(new Date(this.selectedFecha.value.fechaFinal)).format('YYYYMMDD')}.xlsx`;
 
       const link = document.createElement('a');
       link.href = window.URL.createObjectURL(blob);

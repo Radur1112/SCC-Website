@@ -30,14 +30,23 @@
                 <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
               </div>
             </ng-container>
-            <div class="planilla-item planilla-total planilla-deducciones"><strong>TOTAL DEDUCCIONES:</strong> {{ formatearNumero(planilla.totalDeducciones) }}</div>
+            <div class="planilla-item planilla-total planilla-deducciones"><strong>TOTAL DEDUCCIONES:</strong>{{ formatearNumero(planilla.totalDeducciones) }}</div>
           </div>
         </div>
         <div class="planilla-footer">
           <div class="planilla-left">
-            <div class="planilla-item"><strong>Otros Pagos: {{ showOtrosPagos }}</strong></div>
+            <div class="planilla-item"><strong>Otros Pagos: {{ showOtrosPagos }}</strong><p><button mat-icon-button class="my-auto" [matMenuTriggerFor]="menuOtroPago"><mat-icon>add_circle</mat-icon></button></p></div>
             <div class="planilla-item"><strong>Total Deposito:</strong> <p class="m-0"><strong>{{ formatearNumero(planilla.salarioNeto) }}</strong></p></div>
           </div>
+          <mat-menu #menuOtroPago="matMenu">
+            <div *ngFor="let top of tipoOtrosPagos">
+              <button mat-menu-item *ngIf="top.sp === 0 && !top.fijo" (click)="openAnotacionDialog(top)">
+                <span>
+                  {{ top.descripcion }}
+                </span>
+              </button>
+            </div>
+          </mat-menu>
           <div class="planilla-right">
             <div class="planilla-item"><strong>Vacaciones:</strong> <p class="m-0"><strong>{{ planilla.usuarioVacacion }}</strong></p></div>
             <div class="planilla-item-fecha"><strong>Fecha:</strong> <p class="m-0"><strong>{{ planilla.fechaInicio | date: 'dd/MM/yyyy' }} - {{ planilla.fechaFinal | date: 'dd/MM/yyyy' }}</strong></p></div>

@@ -31,6 +31,8 @@ export class ReclutamientoComponent {
   textoExperiencia: any = 'No';
   sizeError: any;
 
+  tipoTrabajos: any;
+
   provincias: any;
   cantones: any;
   distritos: any;
@@ -81,7 +83,17 @@ export class ReclutamientoComponent {
   };
 
   ngOnInit(): void {
+    this.getTipoTrabajos();
     this.loadProvincias();
+  }
+
+  getTipoTrabajos() {
+    this.gService.get(`tipoTrabajo`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.tipoTrabajos = res.data;
+      }
+    });
   }
 
   formatearTelefono() {
@@ -201,23 +213,10 @@ export class ReclutamientoComponent {
   }
 
   crearAsunto() {
-    let asunto = this.reclutamientoForm.value.tieneExperiencia ? "Con Experiencia " : "Sin Experiencia ";
-    switch(this.reclutamientoForm.value.trabajo) {
-      case 'cobros':
-        asunto += "Cobros"
-        break;
-      case 'servicio':
-        asunto += "Servicio al cliente"
-        break;
-        case 'ventas':
-          asunto += "Ventas"
-          break;
-      case 'domiciliario':
-        asunto += "Cobrador domiciliario (D2D)"
-        break;
-      default:
-    }
-    return asunto;
+    let asunto = this.reclutamientoForm.value.tieneExperiencia ? "Con Experiencia" : "Sin Experiencia";
+    let trabajo = this.reclutamientoForm.value.trabajo.descripcion
+    
+    return `${asunto} ${trabajo}`;
   }
 
   crearDireccion() {

@@ -94,14 +94,16 @@ export class CapacitacionIndexComponent {
             modulo.ellipsis = false;
             modulo.progreso = modulo.progreso ?? '0.00';
             this.progresoTotal += parseFloat(modulo.progreso);
-            modulo.videosByModulo.forEach(item => {
-              if (item.videos) {
-                item.videos.forEach(video => {
-                  video.videoThumbnail = this.getThumbnailUrl(video.videoLink);
-                  video.videoProgreso = video.videoProgreso ?? parseFloat('0.00');
-                });
-              }
-            });
+            if (modulo.videosByModulo) {
+              modulo.videosByModulo.forEach(item => {
+                if (item.videos) {
+                  item.videos.forEach(video => {
+                    video.videoThumbnail = this.getThumbnailUrl(video.videoLink);
+                    video.videoProgreso = video.videoProgreso ?? parseFloat('0.00');
+                  });
+                }
+              });
+            }
           });
           
           this.progresoTotal /= this.modulos.length;

@@ -97,7 +97,7 @@ module.exports.getById = async(req, res, next) => {
         FROM ${nombreTabla} uq
         INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
         INNER JOIN quiz q ON uq.idQuiz = q.id AND q.estado != 0 
-        LEFT JOIN quizPregunta qp2 ON qp2.idQuiz = q.id AND qp2.estado != 0
+        LEFT JOIN quizpregunta qp2 ON qp2.idQuiz = q.id AND qp2.estado != 0
         WHERE uq.id = ?
         GROUP BY uq.id, q.titulo, q.descripcion, q.idModulo;`, [id]);
     if(data) {
@@ -306,7 +306,7 @@ module.exports.getAllByIds = async(req, res, next) => {
         FROM ${nombreTabla} uq
         INNER JOIN usuario u ON uq.idUsuario = u.id AND u.estado != 0
         INNER JOIN quiz q ON uq.idQuiz = q.id AND q.estado != 0 
-        LEFT JOIN quizPregunta qp2 ON qp2.idQuiz = q.id AND qp2.estado != 0
+        LEFT JOIN quizpregunta qp2 ON qp2.idQuiz = q.id AND qp2.estado != 0
         WHERE uq.idUsuario = ? AND uq.idQuiz = ?
         GROUP BY uq.id, q.titulo, q.descripcion, q.idModulo;`, [idUsuario, idQuiz]);
     if(data) {

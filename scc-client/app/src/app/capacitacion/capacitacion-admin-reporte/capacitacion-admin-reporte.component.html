@@ -158,14 +158,12 @@
                 </ng-container>
               </mat-expansion-panel>
             </ng-container>
-            <ng-container *ngIf="(!item.usuarios && !item.modulos)">
-              <h3 class="secondary-color no-data no-data-margint" *ngIf="viewModulos">
-                No hay usuarios asignados
-              </h3>
-              <h3 class="secondary-color no-data no-data-margint" *ngIf="!viewModulos">
-                No hay capacitaciones asignadas
-              </h3>
-            </ng-container>
+            <h3 class="secondary-color no-data no-data-margint" *ngIf="viewModulos && !item.usuarios">
+              No hay usuarios asignados
+            </h3>
+            <h3 class="secondary-color no-data no-data-margint" *ngIf="!viewModulos && !item.modulos">
+              No hay capacitaciones asignadas
+            </h3>
           </mat-expansion-panel>
         </mat-accordion>
       </ng-container>

@@ -483,7 +483,7 @@ module.exports.registrar = async (req, res, next) => {
       telefono: usuarioData.telefono
     }
 
-    const [validacion] = await db.query(`SELECT * FROM ${nombreTabla} WHERE correo = ? OR identificacion = ? OR telefono = ?`, [usuario.correo, usuario.identificacion, usuario.telefono]);
+    const [validacion] = await db.query(`SELECT * FROM ${nombreTabla} WHERE estado != 0 AND correo = ? OR identificacion = ? OR telefono = ?`, [usuario.correo, usuario.identificacion, usuario.telefono]);
 
     if (validacion.length > 0) {
       res.status(400).json({

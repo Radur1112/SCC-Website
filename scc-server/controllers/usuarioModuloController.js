@@ -216,7 +216,7 @@ module.exports.getAllByIdUsuario = async(req, res, next) => {
             FROM (
                 SELECT q.*, COUNT(qp.id) AS cantPreguntas, SUM(qp.puntos) AS sumPuntos
                 FROM quiz q
-                LEFT JOIN quizPregunta qp ON qp.idQuiz = q.id AND qp.estado != 0
+                LEFT JOIN quizpregunta qp ON qp.idQuiz = q.id AND qp.estado != 0
                 WHERE q.estado != 0 AND q.idModulo = um.idModulo
                 GROUP BY q.id
             ) q

@@ -1,24 +1,24 @@
 @use '../../../variables' as *;
 
 nav {
-    background-color: #ffffff;
+  background-color: #ffffff;
 }
 
 .logo-container {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 h3 {
-    margin: auto 0;
+  margin: auto 0;
 }
 
 .routerLinkA, img {
-    margin: 0 20px;
+  margin: 0 20px;
 }
 
 img {
-    margin-left: 0;
+  margin-left: 0;
 }
 
 .icono-usuario, .icono-notificacion {

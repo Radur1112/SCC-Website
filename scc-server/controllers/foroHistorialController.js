@@ -91,7 +91,7 @@ module.exports.getByIdForo = async(req, res, next) => {
         ELSE 'Accesó al foro'
       END AS accion
       FROM ${nombreTabla} fh
-      INNER JOIN foro f ON f.id = fh.idForoAND&& f.estado != 0
+      INNER JOIN foro f ON f.id = fh.idForo AND f.estado != 0
       INNER JOIN usuario u ON u.id = fh.idUsuario AND u.estado != 0 AND u.id != 1
       LEFT JOIN foroarchivo fa ON fa.id = fh.idForoArchivo
       WHERE fh.idForo = ?

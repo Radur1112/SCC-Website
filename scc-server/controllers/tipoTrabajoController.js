@@ -1,6 +1,6 @@
 const db = require('../utils/db.js');
 
-var nombreTabla = 'tipodeduccion';
+var nombreTabla = 'tipotrabajo';
 
 module.exports.get = async(req, res, next) => {
   try {
@@ -64,11 +64,7 @@ module.exports.crear = async (req, res, next) => {
     const datos = req.body;
 
     let crearDatos = {
-      sp: datos.sp,
-      descripcion: datos.descripcion,
-      valorHoras: datos.valorHoras,
-      fijo: datos.fijo ?? null,
-      valor: datos.valor ?? null
+        descripcion: datos.descripcion
     }
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
@@ -106,11 +102,7 @@ module.exports.actualizar = async (req, res, next) => {
     const datos = req.body;
 
     let actualizarDatos = {
-      sp: datos.sp,
-      descripcion: datos.descripcion,
-      valorHoras: datos.valorHoras,
-      fijo: datos.fijo ?? null,
-      valor: datos.valor ?? null
+        descripcion: datos.descripcion
     }
 
 

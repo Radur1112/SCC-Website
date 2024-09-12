@@ -186,7 +186,7 @@ export const routes: Routes = [
 
   { path:'nosotros', redirectTo:'/sobre-nosotros', pathMatch:'full'},
   { path:'', redirectTo:'/inicio', pathMatch:'full'},
-  { path:'**',component:PaginaNoEncontradaComponent},
+  { path:'**', component:PaginaNoEncontradaComponent},
 
   /*
   { path:'condominio', component: CondominioIndexComponent, canActivate:[AuthGuard],

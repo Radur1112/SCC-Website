@@ -13,6 +13,7 @@ const app = express();
 
 const recultamientoRouter = require('./routes/recultamientoRoutes');
 const contactoRouter = require('./routes/contactoRoutes');
+const tipoTrabajoRouter = require('./routes/tipoTrabajoRoutes');
 
 const notificacionRouter = require('./routes/notificacionRoutes');
 
@@ -41,6 +42,7 @@ const tipoAumentoRouter = require('./routes/tipoAumentoRoutes');
 const deduccionRouter = require('./routes/deduccionRoutes');
 const tipoDeduccionRouter = require('./routes/tipoDeduccionRoutes');
 const otroPagoRouter = require('./routes/otroPagoRoutes');
+const tipoOtroPagoRouter = require('./routes/tipoOtroPagoRoutes');
 const usuarioSupervisorRouter = require('./routes/usuarioSupervisorRoutes');
 
 const foroRouter = require('./routes/foroRoutes');
@@ -88,6 +90,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/reclutamiento/", recultamientoRouter);
 app.use("/contacto/", contactoRouter);
+app.use("/tipoTrabajo/", tipoTrabajoRouter);
 
 app.use("/notificacion/", notificacionRouter);
 
@@ -116,6 +119,7 @@ app.use("/tipoAumento/", tipoAumentoRouter);
 app.use("/deduccion/", deduccionRouter);
 app.use("/tipoDeduccion/", tipoDeduccionRouter);
 app.use("/otroPago/", otroPagoRouter);
+app.use("/tipoOtroPago/", tipoOtroPagoRouter);
 app.use("/usuarioSupervisor/", usuarioSupervisorRouter)
 
 app.use("/foro/", foroRouter);

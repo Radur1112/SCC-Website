@@ -93,7 +93,6 @@ export class PlanillaAnotacionIndexComponent {
       this.gService.get(query)
       .pipe(takeUntil(this.destroy$)).subscribe({
         next:(res) => {
-          console.log(res.data)
           this.dataSource = new MatTableDataSource(res.data);
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;
@@ -106,11 +105,9 @@ export class PlanillaAnotacionIndexComponent {
         fechaInicio: this.formatearFecha(this.fechaInicio),
         fechaFinal: this.formatearFecha(this.fechaFinal)
       }
-      console.log(datos)
       this.gService.post(`planilla/anotaciones/fechas`, datos)
       .pipe(takeUntil(this.destroy$)).subscribe({
         next:(res) => {
-          console.log(res.data)
           this.dataSource = new MatTableDataSource(res.data);
           this.dataSource.paginator = this.paginator;
           this.dataSource.sort = this.sort;

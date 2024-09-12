@@ -64,7 +64,11 @@ module.exports.crear = async (req, res, next) => {
     const datos = req.body;
 
     let crearDatos = {
-        descripcion: datos.descripcion
+      sp: datos.sp,
+      descripcion: datos.descripcion,
+      valorHoras: datos.valorHoras,
+      fijo: datos.fijo ?? null,
+      valor: datos.valor ?? null
     }
 
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
@@ -102,7 +106,11 @@ module.exports.actualizar = async (req, res, next) => {
     const datos = req.body;
 
     let actualizarDatos = {
-        descripcion: datos.descripcion
+      sp: datos.sp,
+      descripcion: datos.descripcion,
+      valorHoras: datos.valorHoras,
+      fijo: datos.fijo ?? null,
+      valor: datos.valor ?? null
     }
 
 

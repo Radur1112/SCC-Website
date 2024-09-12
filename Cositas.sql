@@ -53,6 +53,9 @@ SELECT * FROM tipootropago;
 SELECT * FROM comprobanteplanilla;
 SELECT * FROM planillahistorial;
 
+SELECT * FROM tipotrabajo;
+
+
 DELETE FROM usuarioquizrespuesta WHERE id > 0;
 ALTER TABLE usuarioquizrespuesta AUTO_INCREMENT = 1;
 DELETE FROM usuarioquiz WHERE id > 0;

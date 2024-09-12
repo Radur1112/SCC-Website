@@ -188,10 +188,9 @@
               <mat-form-field>
                 <mat-label>Quiero aplicar en:</mat-label>
                 <mat-select formControlName="trabajo">
-                  <mat-option value="cobros">Cobranza</mat-option>
-                  <mat-option value="servicio">Servicio al cliente</mat-option>
-                  <mat-option value="ventas">Ventas</mat-option>
-                  <mat-option value="domiciliario">Cobrador domiciliario (D2D)</mat-option>
+                  <mat-option *ngFor="let tipo of tipoTrabajos" [value]="tipo">
+                    {{ tipo.descripcion }}
+                  </mat-option>
                 </mat-select>
                 <mat-error *ngIf="errorHandling('trabajo','required')">
                     La selección del puesto es <strong>requerida</strong>

@@ -256,9 +256,11 @@ export class CapacitacionAdminIndexComponent {
     this.loadingV = true;
     this.loadingQ = true;
     this.loadingU = true;
-    this.getModuloVideosByIdModulo();
-    this.getUsuariosByModulo();
-    this.getQuizModulo();
+    if (this.selectedModulo) {
+      this.getModuloVideosByIdModulo();
+      this.getUsuariosByModulo();
+      this.getQuizModulo();
+    }
   }
 
   buscarModulo(event: any) {
@@ -566,22 +568,29 @@ export class CapacitacionAdminIndexComponent {
       next:(res) => {
         this.quizes = res.data;
         this.quizes.forEach(quiz =>{
-          quiz.preguntas.sort((a: preguntaInterface, b: preguntaInterface) => {
-            if (a.orden === undefined) return 1;
-            if (b.orden === undefined) return -1;
-            return a.orden - b.orden;
-          });
-          quiz.preguntas.forEach(pregunta => {
-            pregunta.respuestas.sort((a: respuestaInterface, b: respuestaInterface) => {
+          if (quiz.preguntas) {
+            quiz.preguntas.sort((a: preguntaInterface, b: preguntaInterface) => {
               if (a.orden === undefined) return 1;
               if (b.orden === undefined) return -1;
               return a.orden - b.orden;
             });
-          });
+            quiz.preguntas.forEach(pregunta => {
+              if (pregunta.respuestas) {
+                pregunta.respuestas.sort((a: respuestaInterface, b: respuestaInterface) => {
+                  if (a.orden === undefined) return 1;
+                  if (b.orden === undefined) return -1;
+                  return a.orden - b.orden;
+                });
+              }
+            });
+          }
         });
         this.loadingQ = false;
 
-        this.cargarQuizDatos();
+        this.reactiveQuizForm();
+        if (this.quizes && this.quizes.length > 0) {
+          this.cargarQuizDatos();
+        }
         this.getTipoPreguntas();
       }
     });
