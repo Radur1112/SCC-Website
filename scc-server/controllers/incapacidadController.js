@@ -12,6 +12,7 @@ module.exports.get = async(req, res, next) => {
     const data = await db.query(`
       SELECT i.*,
         u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion,
+        u2.nombre AS supervisorNombre,
         (
           SELECT 
             JSON_ARRAYAGG(
@@ -25,6 +26,8 @@ module.exports.get = async(req, res, next) => {
         ) AS archivos
       FROM ${nombreTabla} i
       INNER JOIN usuario u ON u.id = i.idUsuario
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE u.estado != 0
       GROUP BY i.id
       ORDER BY i.fechaCreado DESC`);
     if(data) {
@@ -54,6 +57,7 @@ module.exports.getPendientes = async(req, res, next) => {
     const data = await db.query(`
       SELECT i.*,
         u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion,
+        u2.nombre AS supervisorNombre,
         (
           SELECT 
             JSON_ARRAYAGG(
@@ -67,7 +71,8 @@ module.exports.getPendientes = async(req, res, next) => {
         ) AS archivos
       FROM ${nombreTabla} i
       INNER JOIN usuario u ON u.id = i.idUsuario
-      WHERE i.estado = 2
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE i.estado = 2 AND u.estado != 0
       GROUP BY i.id
       ORDER BY i.fechaCreado DESC`);
     if(data) {
@@ -105,6 +110,7 @@ module.exports.getPendientesByIdSupervisor = async(req, res, next) => {
     const data = await db.query(`
       SELECT i.*,
         u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion,
+        u2.nombre AS supervisorNombre,
         (
           SELECT 
             JSON_ARRAYAGG(
@@ -119,7 +125,8 @@ module.exports.getPendientesByIdSupervisor = async(req, res, next) => {
       FROM ${nombreTabla} i
       INNER JOIN usuario u ON i.idUsuario = u.id AND u.estado != 0
       INNER JOIN usuariosupervisor us ON us.idUsuario = u.id
-      WHERE us.idSupervisor = ? AND i.estado = 2
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE us.idSupervisor = ? AND i.estado = 2 AND u.estado != 0
       GROUP BY i.id, u.nombre, u.identificacion
       ORDER BY i.fechaCreado DESC`, [id]);
     if(data) {
@@ -157,6 +164,7 @@ module.exports.getById = async(req, res, next) => {
     const data = await db.query(`
       SELECT i.*,
         u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion,
+        u2.nombre AS supervisorNombre,
         (
           SELECT 
             JSON_ARRAYAGG(
@@ -170,7 +178,8 @@ module.exports.getById = async(req, res, next) => {
         ) AS archivos
       FROM ${nombreTabla} i
       INNER JOIN usuario u ON u.id = i.idUsuario
-      WHERE i.id = ?`, [id]);
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE i.id = ? AND u.estado != 0`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -193,6 +202,60 @@ module.exports.getById = async(req, res, next) => {
   }
 };
 
+module.exports.getByIdSupervisor = async(req, res, next) => {
+  try {
+    let id = parseInt(req.params.id);
+    if (!id) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+
+    const data = await db.query(`
+      SELECT i.*,
+        u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion,
+        u2.nombre AS supervisorNombre,
+        (
+          SELECT 
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                'id', ia.id,
+                'ubicacion', ia.ubicacion
+              )
+            )
+          FROM incapacidadarchivo ia
+          WHERE ia.idIncapacidad = i.id
+        ) AS archivos
+      FROM ${nombreTabla} i
+      INNER JOIN usuario u ON i.idUsuario = u.id AND u.estado != 0
+      INNER JOIN usuariosupervisor us ON us.idUsuario = u.id
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE us.idSupervisor = ? AND u.estado != 0
+      GROUP BY i.id, u.nombre, u.identificacion
+      ORDER BY i.fechaCreado DESC`, [id]);
+    if(data) {
+      res.status(200).send({
+        success: true,
+        message: 'Datos obtenidos correctamente',
+        data: data[0]
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
 module.exports.getNoRechazadoByIdUsuario = async(req, res, next) => {
   try {
     let id = parseInt(req.params.id);
@@ -203,7 +266,14 @@ module.exports.getNoRechazadoByIdUsuario = async(req, res, next) => {
       });
     }
 
-    const data = await db.query(`SELECT * FROM ${nombreTabla} WHERE estado != 0 AND idUsuario = ? ORDER BY fechaInicio`, [id]);
+    const data = await db.query(`
+      SELECT i.*,
+        u2.nombre AS supervisorNombre
+      FROM ${nombreTabla} i
+      INNER JOIN usuario u ON u.id = i.idUsuario
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE i.estado != 0 AND i.idUsuario = ?  AND u.estado != 0
+      ORDER BY i.fechaInicio`, [id]);
     if(data) {
       res.status(200).send({
         success: true,
@@ -239,6 +309,7 @@ module.exports.getByIdUsuario = async(req, res, next) => {
     const data = await db.query(`
       SELECT i.*,
         u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion,
+        u2.nombre AS supervisorNombre,
         (
           SELECT 
             JSON_ARRAYAGG(
@@ -252,7 +323,8 @@ module.exports.getByIdUsuario = async(req, res, next) => {
         ) AS archivos
       FROM ${nombreTabla} i
       INNER JOIN usuario u ON u.id = i.idUsuario
-      WHERE i.idUsuario = ?
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE i.idUsuario = ? AND u.estado != 0
       GROUP BY i.id
       ORDER BY i.fechaCreado DESC`, [id]);
     if(data) {
@@ -365,7 +437,9 @@ module.exports.confirmarIncapacidad = async (req, res, next) => {
       });
     }
 
-    const data = await db.query(`UPDATE ${nombreTabla} SET estado = 1 WHERE id = ?`, [id]);
+    const datos = req.body;
+
+    const data = await db.query(`UPDATE ${nombreTabla} SET estado = 1, idSupervisor = ? WHERE id = ?`, [datos.idSupervisor, id]);
     if (data) {
       enviarNotificacion(true, id);
       res.status(201).json({
@@ -398,7 +472,9 @@ module.exports.rechazarIncapacidad = async (req, res, next) => {
       });
     }
 
-    const data = await db.query(`UPDATE ${nombreTabla} SET estado = 0 WHERE id = ?`, [id]);
+    const datos = req.body;
+
+    const data = await db.query(`UPDATE ${nombreTabla} SET estado = 0, idSupervisor = ? WHERE id = ?`, [datos.idSupervisor, id]);
     if (data) {
       enviarNotificacion(false, id);
       res.status(201).json({

@@ -120,7 +120,7 @@ export class HomeIndexComponent {
 
   formatearNumero(valor: string) {
     valor = valor ?? '';
-    let perFormateado = valor.replace(/,/g, '.');
+    let perFormateado = (valor+'').replace(/,/g, '.');
     let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {

@@ -203,7 +203,7 @@ export class UsuarioFormComponent {
     const salario = this.usuarioForm.get('salario');
 
     // Obtener el valor numérico del campo, eliminando caracteres no numéricos excepto el punto decimal
-    const valorNumerico = parseFloat(salario.value.replace(/[^\d.]/g, ''));
+    const valorNumerico = parseFloat((salario.value.replace(/,/g, '.')).replace(/[^\d.]/g, ''));
     
     // Si el valor es un número válido, formatearlo con dos decimales
     if (!isNaN(valorNumerico)) {

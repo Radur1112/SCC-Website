@@ -63,8 +63,17 @@
 
 .planilla-footer {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
   margin-top: 10px;
   padding-top: 10px;
   border-top: 1px solid #000;
+}
+
+.planilla-up,
+.planilla-down {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  width: 100%;
 }

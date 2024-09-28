@@ -27,13 +27,15 @@ router.get('/', verifyToken([1, 3]), incapacidadController.get);
 router.get('/pendientes', verifyToken([1, 3]), incapacidadController.getPendientes);
 router.get('/:id', verifyToken([1, 3]), incapacidadController.getById);
 router.get("/usuario/:id", verifyToken([0]), incapacidadController.getByIdUsuario);
-router.get("/confirmar/:id", verifyToken([1, 3]), incapacidadController.confirmarIncapacidad);
-router.get("/rechazar/:id", verifyToken([1, 3]), incapacidadController.rechazarIncapacidad);
+router.get("/supervisor/:id", verifyToken([0]), incapacidadController.getByIdSupervisor);
 router.get("/noRechazado/usuario/:id", verifyToken([0]), incapacidadController.getNoRechazadoByIdUsuario);
 router.get('/pendientes/supervisor/:id', verifyToken([1, 3]), incapacidadController.getPendientesByIdSupervisor);
 
 router.post("/", verifyToken([0]), incapacidadController.crear);
 router.post("/archivos", verifyToken([0]), upload.array('archivo'), incapacidadController.crearArchivos);
+
+router.put("/confirmar/:id", verifyToken([1, 3]), incapacidadController.confirmarIncapacidad);
+router.put("/rechazar/:id", verifyToken([1, 3]), incapacidadController.rechazarIncapacidad);
 
 
 module.exports = router;

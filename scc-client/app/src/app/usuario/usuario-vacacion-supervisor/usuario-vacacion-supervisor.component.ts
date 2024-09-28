@@ -80,7 +80,7 @@ export class UsuarioVacacionSupervisorComponent {
     this.loading = true;
     let query = `vacacion/pendientes`;
     if (this.usuarioActual.idTipoUsuario == 3) {
-      query = `vacacion/pendientes/supervisor/${this.usuarioActual.id}`
+      query += `/supervisor/${this.usuarioActual.id}`
     }
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
@@ -95,7 +95,12 @@ export class UsuarioVacacionSupervisorComponent {
 
   confirmar(id: any) {
     this.loading = true;
-    this.gService.get(`vacacion/confirmar/${id}`)
+    const datos = {
+      id: id,
+      idSupervisor: this.usuarioActual.id
+    }
+
+    this.gService.put(`vacacion/confirmar`, datos)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.alerta.mensaje('Vacación', 'Vacaciones confirmadas correctamente', TipoMessage.success);
@@ -106,7 +111,12 @@ export class UsuarioVacacionSupervisorComponent {
 
   rechazar(id: any) {
     this.loading = true;
-    this.gService.get(`vacacion/rechazar/${id}`)
+    const datos = {
+      id: id,
+      idSupervisor: this.usuarioActual.id
+    }
+
+    this.gService.put(`vacacion/rechazar`, datos)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.alerta.mensaje('Vacación', 'Vacaciones rechazadas correctamente', TipoMessage.success);

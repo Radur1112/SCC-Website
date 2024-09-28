@@ -132,7 +132,6 @@ export class UsuarioIndexComponent {
   }
 
   borrarUsuario(usuario: any) {
-    this.loading = true;
     this.confirmationService.confirm()
       .subscribe(result => {
         if (result) {

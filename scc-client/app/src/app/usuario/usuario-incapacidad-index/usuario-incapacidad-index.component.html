@@ -67,6 +67,11 @@
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Estado</th>
           <td mat-cell *matCellDef="let row" [ngClass]="{'primary-color': row.estado == 1, 'secondary-color': row.estado == 2, 'warn-color': row.estado == 0}"> {{ row.estadoTexto }} </td>
         </ng-container> 
+      
+        <ng-container matColumnDef="supervisorNombre">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Revisado por</th>
+            <td mat-cell *matCellDef="let row"> {{ row.supervisorNombre ?? 'No especificado' }} </td>
+        </ng-container>
 
         <ng-container matColumnDef="expandible">
           <td mat-cell *matCellDef="let row" [attr.colspan]="displayedColumns.length">

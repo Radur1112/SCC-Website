@@ -2,37 +2,61 @@ const db = require('./db.js');
 const moment = require('moment-timezone');
 
 const create_planilla_insert_usuario = async (idUsuario) => {
+  const connection = await db.getConnection();
   try {
-    let fecha_inicio, fecha_final, salario_base;
+    await connection.beginTransaction();
+    
+    let data;
+    let idPlanillaUsuario;
 
-    const [planilla] = await db.query(`SELECT fechaInicio, fechaFinal FROM planilla WHERE estado = 1 ORDER BY fechaInicio DESC LIMIT 1;`);
-    const [usuario] = await db.query(`SELECT salario FROM usuario WHERE estado != 0 AND id = ?`, [idUsuario]);
+    const [planilla] = await connection.query(`SELECT * FROM planilla WHERE estado = 1`);
 
     if (planilla.length > 0) {
-      fecha_inicio = moment(planilla[0].fechaInicio).tz('America/Costa_Rica').format('YYYY-MM-DD');
-      fecha_final = moment(planilla[0].fechaFinal).tz('America/Costa_Rica').format('YYYY-MM-DD');
-    } else {
-      fecha_inicio = moment().tz('America/Costa_Rica').format('YYYY-MM-DD');
-      fecha_final = moment().tz('America/Costa_Rica').add(15, 'days').format('YYYY-MM-DD');
+      const [usuario] = await connection.query(`SELECT salario FROM usuario WHERE estado != 0 AND idPuesto NOT IN (1, 2) AND id = ?`, [idUsuario]);
+
+      if (usuario.length > 0) {
+        const salario_base = parseFloat(usuario[0].salario) / 2;
+
+        const [planillaUsuario] = await connection.query(`
+          SELECT pu.* 
+          FROM planillaUsuario pu
+          INNER JOIN planilla pl ON pl.id = pu.idPlanilla
+          WHERE pl.estado = 1 AND pu.idUsuario = ?`, [idUsuario]);
+  
+        if (planillaUsuario.length > 0) {
+          idPlanillaUsuario = planillaUsuario[0].id;
+      
+          data = await connection.query(`
+            UPDATE planillausuario SET salarioBase = ? WHERE id = ?`, [salario_base, idPlanillaUsuario]);
+        } else {
+          const idPlanilla = planilla[0].id;
+      
+          data = await connection.query(`
+            INSERT INTO planillausuario (idPlanilla, idUsuario, salarioBase) 
+            VALUES (?, ?, ?)`, [idPlanilla, idUsuario, salario_base]);
+  
+          idPlanillaUsuario = data[0].insertId;
+        }
+      }
+  
+      await connection.commit();
+
+      if (data) {
+        create_fijos_planilla_usuario(idPlanillaUsuario)
+      } else {
+        console.log('Error en INSERT')
+      }
     }
 
-    salario_base = parseFloat(usuario[0].salario) / 2;
-
-    const data = await db.query(`
-      INSERT INTO planilla (idUsuario, fechaInicio, fechaFinal, salarioBase) 
-      VALUES (?, ?, ?, ?)`, [idUsuario, fecha_inicio, fecha_final, salario_base]);
-
-    if (data) {
-      create_pagos_insert_planilla(data[0].insertId)
-    } else {
-      console.log('Error en INSERT')
-    }
   } catch (error) {
+    await connection.rollback();
     console.log(error)
+  } finally {
+    connection.release();
   }
 };
 
-const create_planilla_update_planilla = async (oldPlanilla, idNewPlanilla) => {
+/*const create_planilla_update_planilla = async (oldPlanilla, idNewPlanilla) => {
   try {
     const [newPlanilla] = await db.query(`
       SELECT pl.*, u.salario AS usuarioSalario
@@ -58,148 +82,186 @@ const create_planilla_update_planilla = async (oldPlanilla, idNewPlanilla) => {
   } catch (error) {
     console.log(error)
   }
-};
+};*/
 
-const create_pagos_insert_planilla = async (idPlanilla) => {
+const create_fijos_planilla_usuario = async (idPlanillaUsuario) => {
+  const connection = await db.getConnection();
   try {
-    let result;
+    await connection.beginTransaction();
 
-    result = await db.query(`SELECT * FROM planilla WHERE id = ${idPlanilla}`);
-    const planilla = result[0][0];
-    const salario_base = planilla.salarioBase;
-
-    result = await db.query(`SELECT salario, idTipoContrato FROM usuario WHERE id = ${planilla.idUsuario}`);
-    const idTipoContrato = result[0][0].idTipoContrato;
-
-    const [tipoAumentos] = await db.query(`SELECT id, sp, fijo, valor FROM tipoaumento WHERE fijo > 0`);
-    const [tipoDeducciones] = await db.query(`SELECT id, sp, fijo, valor FROM tipodeduccion WHERE fijo > 0`);
-    const [tipoOtrosPagos] = await db.query(`SELECT id, sp, fijo, valor FROM tipootropago WHERE fijo > 0`);
-
-    const insertQueries = [];
-
-    for (const tipo of tipoAumentos) {
-      const [fijos] = await db.query(`SELECT id FROM aumento WHERE idTipoAumento = ? AND idPlanilla = ?`, [tipo.id, idPlanilla]);
-      if (((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) && fijos.length == 0) {
-        const monto = tipo.fijo == 1 ? tipo.valor : tipo.fijo == 2 ? salario_base * tipo.valor / 100 : salario_base;
-        const descripcion = tipo.fijo == 1 ? 'Aumento fijo absoluto' : tipo.fijo == 2 ? 'Aumento fijo porcentual' : 'Aumento fijo salario base';
-        insertQueries.push(await db.query(`INSERT INTO aumento (idPlanilla, idTipoAumento, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
-      }
-    }
-
-    for (const tipo of tipoDeducciones) {
-      const [fijos] = await db.query(`SELECT id FROM deduccion WHERE idTipoDeduccion = ? AND idPlanilla = ?`, [tipo.id, idPlanilla]);
-      if (((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) && fijos.length == 0) {
-        const monto = tipo.fijo == 1 ? tipo.valor : tipo.fijo == 2 ? salario_base * tipo.valor / 100 : salario_base;
-        const descripcion = tipo.fijo == 1 ? 'Deducción fijo absoluto' : tipo.fijo == 2 ? 'Deducción fijo porcentual' : 'Deducción fijo salario base';
-        insertQueries.push(await db.query(`INSERT INTO deduccion (idPlanilla, idTipoDeduccion, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
-      }
-    }
-
-    for (const tipo of tipoOtrosPagos) {
-      const [fijos] = await db.query(`SELECT id FROM otropago WHERE idTipoOtroPago = ? AND idPlanilla = ?`, [tipo.id, idPlanilla]);
-      if (((tipo.sp === 0 && idTipoContrato === 1) || (tipo.sp === 1 && idTipoContrato === 2)) && fijos.length == 0) {
-        const monto = tipo.fijo == 1 ? tipo.valor : tipo.fijo == 2 ? salario_base * tipo.valor / 100 : salario_base;
-        const descripcion = tipo.fijo == 1 ? 'Otros pagos fijo absoluto' : tipo.fijo == 2 ? 'Otros pagos fijo porcentual' : 'Otros pagos fijo salario base';
-        insertQueries.push(await db.query(`INSERT INTO otropago (idPlanilla, idTipoOtroPago, descripcion, monto) VALUES (?, ?, ?, ?)`, [planilla.id, tipo.id, descripcion, monto]));
-      }
-    }
-
-    await Promise.all(insertQueries)
-      .then((results) => {
-        update_planilla_after_anotacion(planilla.id)
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-
-  } catch (error) {
-    console.log(error)
-  }
-};
-
-const update_planilla_after_anotacion = async (idPlanilla) => {
-  try {
-    let result;
-
-    result = await db.query(`SELECT * FROM planilla WHERE id = ${idPlanilla}`);
-    const planilla = result[0][0];
+    const [planillaResult] = await connection.query('SELECT * FROM planillausuario WHERE id = ?', [idPlanillaUsuario]);
+    const planilla = planillaResult[0];
     const salario_base = parseFloat(planilla.salarioBase);
 
-    result = await db.query(`SELECT salario, idTipoContrato FROM usuario WHERE id = ${planilla.idUsuario}`);
-    const idTipoContrato = result[0][0].idTipoContrato;
+    const [usuarioResult] = await connection.query('SELECT idTipoContrato FROM usuario WHERE id = ?', [planilla.idUsuario]);
+    const idTipoContrato = usuarioResult[0].idTipoContrato;
+
+    const [aumentosFijos] = await connection.query(`
+      SELECT id, idTipoAnotacion, idTipoContrato, fijo, valor
+      FROM anotacion 
+      WHERE fijo > 0 AND idTipoContrato = ? AND estado != 0 AND idTipoAnotacion = 1`, [idTipoContrato]);
+
+    const [deduccionesFijos] = await connection.query(`
+      SELECT id, idTipoAnotacion, idTipoContrato, fijo, valor 
+      FROM anotacion 
+      WHERE fijo > 0 AND idTipoContrato = ? AND estado != 0 AND idTipoAnotacion = 2`, [idTipoContrato]);
+
+    const [otrosPagosFijos] = await connection.query(`
+      SELECT id, idTipoAnotacion, idTipoContrato, fijo, valor 
+      FROM anotacion 
+      WHERE fijo > 0 AND idTipoContrato = ? AND estado != 0 AND idTipoAnotacion = 3`, [idTipoContrato]);
 
 
-    result = await db.query(`
-      SELECT a.id, ta.valor 
-      FROM aumento a 
-      INNER JOIN tipoaumento ta ON ta.id = a.idTipoAumento AND ta.fijo = 2
-      WHERE a.idPlanilla = ${idPlanilla}`);
+    const [anotacionesExistentes] = await connection.query(`
+      SELECT idAnotacion 
+      FROM planillausuarioanotacion 
+      WHERE idPlanillaUsuario = ?`, [idPlanillaUsuario]);
+
+    const mapExistentes = new Map(anotacionesExistentes.map(f => [f.idAnotacion, f.monto]));
+
+    const aumentoQueries = aumentosFijos.map((anotacion) => {
+      let monto = anotacion.valor * (anotacion.fijo === 1 || anotacion.fijo === 3? salario_base / 100 : 1);
+      let descripcion = `Aumento fijo ${anotacion.fijo === 1 || anotacion.fijo === 3? 'porcentual' : 'absoluto'}`;
       
-    const updateAumentoQueries = result[0].map(aumento => {
-      
-      const monto = salario_base * parseFloat(aumento.valor) / 100;
-      return db.query(`UPDATE aumento SET monto = ? WHERE id = ?`, [monto, aumento.id]);
+      return upsertPlanillaAnotacionFijos(mapExistentes, connection, idPlanillaUsuario, anotacion, descripcion, monto);
     });
 
-    await Promise.all(updateAumentoQueries);
+    await Promise.all(aumentoQueries);
 
-    let postQueryAumento = idTipoContrato == 1 ? 'ta.sp = 0 AND' : idTipoContrato == 2 ? 'ta.sp = 1 AND' : '';
-    result = await db.query(`
-      SELECT SUM(a.monto) AS total 
-      FROM aumento a 
-      INNER JOIN tipoaumento ta ON ta.id = a.idTipoAumento 
-      WHERE ${postQueryAumento} a.idPlanilla = ?`, [idPlanilla]);
-    const aumentos_total = parseFloat(result[0][0].total) || 0;
+    const [aumentoResult] = await connection.query(`
+      SELECT SUM(pua.monto) AS total 
+      FROM planillausuarioanotacion pua 
+      INNER JOIN anotacion a ON a.id = pua.idAnotacion 
+      WHERE a.idTipoContrato = ? AND pua.idPlanillaUsuario = ? AND a.idTipoAnotacion = 1`, [idTipoContrato, idPlanillaUsuario]);
+    const aumentos_total = parseFloat(aumentoResult[0].total) || 0;
 
 
     let otrosPagos_total = 0;
+    let deducciones_total = 0;
+
+    let salario_bruto = 0;
+    let total_deducciones = 0;
+    let sub_total = 0;
+    let salario_neto = 0;
+    let total_deposito = 0;
+
+    //Modificaciones de servicios profesionales
     if (idTipoContrato == 2) {
-      result = await db.query(`
-        SELECT op.id, top.valor 
-        FROM otropago op 
-        INNER JOIN tipootropago top ON top.id = op.idTipoOtroPago AND top.fijo = 2
-        WHERE op.idPlanilla = ${idPlanilla}`);
-        
-      const updateOtroQueries = result[0].map(otroPago => {
-        const monto = aumentos_total * parseFloat(otroPago.valor) / 100;
-        return db.query(`UPDATE otropago SET monto = ? WHERE id = ?`, [monto, otroPago.id]);
+      salario_bruto = aumentos_total;
+      
+      //Otros pagos
+      const otroPagoQueries = otrosPagosFijos.map((anotacion) => {
+        let monto = anotacion.valor * (anotacion.fijo === 1 || anotacion.fijo === 3? salario_bruto / 100 : 1);
+        let descripcion = `Otro pago fijo ${anotacion.fijo === 1 || anotacion.fijo === 3? 'porcentual' : 'absoluto'}`;
+      
+        return upsertPlanillaAnotacionFijos(mapExistentes, connection, idPlanillaUsuario, anotacion, descripcion, monto);
       });
   
-      await Promise.all(updateOtroQueries);
+      await Promise.all(otroPagoQueries);
 
-      result = await db.query(`SELECT SUM(monto) as total FROM otropago WHERE idPlanilla = ${idPlanilla}`);
-      otrosPagos_total = parseFloat(result[0][0].total) || 0;
+      const [otroPagoResult] = await connection.query(`
+        SELECT SUM(pua.monto) AS total 
+        FROM planillausuarioanotacion pua 
+        INNER JOIN anotacion a ON a.id = pua.idAnotacion 
+        WHERE a.idTipoContrato = ? AND pua.idPlanillaUsuario = ? AND a.idTipoAnotacion = 3`, [idTipoContrato, idPlanillaUsuario]);
+      otrosPagos_total = parseFloat(otroPagoResult[0].total) || 0;
+
+      sub_total = salario_bruto + otrosPagos_total;
+      
+
+      //Deducción
+      const deduccionQueries = deduccionesFijos.map((anotacion) => {
+        let monto = anotacion.valor * (anotacion.fijo === 1 || anotacion.fijo === 3? sub_total / 100 : 1);
+        let descripcion = `Deducción fija ${anotacion.fijo === 1 || anotacion.fijo === 3? 'porcentual' : 'absoluto'}`;
+      
+        return upsertPlanillaAnotacionFijos(mapExistentes, connection, idPlanillaUsuario, anotacion, descripcion, monto);
+      });
+  
+      await Promise.all(deduccionQueries);
+
+      const [deduccionResult] = await connection.query(`
+        SELECT SUM(pua.monto) AS total 
+        FROM planillausuarioanotacion pua 
+        INNER JOIN anotacion a ON a.id = pua.idAnotacion 
+        WHERE a.idTipoContrato = ? AND pua.idPlanillaUsuario = ? AND a.idTipoAnotacion = 2`, [idTipoContrato, idPlanillaUsuario]);
+      deducciones_total = parseFloat(deduccionResult[0].total) || 0;
+
+      total_deducciones = deducciones_total;
+      salario_neto = sub_total - total_deducciones;
+      total_deposito = salario_neto;
+
+
+    //Modificaciones de asalariados
+    } else {
+      salario_bruto = salario_base + aumentos_total;
+
+      //Deducción
+      const deduccionQueries = deduccionesFijos.map((anotacion) => {
+        let monto = anotacion.valor * (anotacion.fijo === 1 || anotacion.fijo === 3? salario_bruto / 100 : 1);
+        let descripcion = `Deducción fija ${anotacion.fijo === 1 || anotacion.fijo === 3? 'porcentual' : 'absoluto'}`;
+      
+        return upsertPlanillaAnotacionFijos(mapExistentes, connection, idPlanillaUsuario, anotacion, descripcion, monto);
+      });
+  
+      await Promise.all(deduccionQueries);
+
+      const [deduccionResult] = await connection.query(`
+        SELECT SUM(pua.monto) AS total 
+        FROM planillausuarioanotacion pua 
+        INNER JOIN anotacion a ON a.id = pua.idAnotacion 
+        WHERE a.idTipoContrato = ? AND pua.idPlanillaUsuario = ? AND a.idTipoAnotacion = 2`, [idTipoContrato, idPlanillaUsuario]);
+      deducciones_total = parseFloat(deduccionResult[0].total) || 0;
+
+      total_deducciones = deducciones_total;
+      salario_neto = salario_bruto - total_deducciones;
+      
+
+      //Otros pagos
+      const otroPagoQueries = otrosPagosFijos.map((anotacion) => {
+        let monto = anotacion.valor * (anotacion.fijo === 1 || anotacion.fijo === 3? salario_neto / 100 : 1);
+        let descripcion = `Otro pago fijo ${anotacion.fijo === 1 || anotacion.fijo === 3? 'porcentual' : 'absoluto'}`;
+      
+        return upsertPlanillaAnotacionFijos(mapExistentes, connection, idPlanillaUsuario, anotacion, descripcion, monto);
+      });
+  
+      await Promise.all(otroPagoQueries);
+
+      const [otroPagoResult] = await connection.query(`
+        SELECT SUM(pua.monto) AS total 
+        FROM planillausuarioanotacion pua 
+        INNER JOIN anotacion a ON a.id = pua.idAnotacion 
+        WHERE a.idTipoContrato = ? AND pua.idPlanillaUsuario = ? AND a.idTipoAnotacion = 3`, [idTipoContrato, idPlanillaUsuario]);
+      otrosPagos_total = parseFloat(otroPagoResult[0].total) || 0;
+
+      total_deposito = salario_neto + otrosPagos_total;
     }
 
-    const salario_bruto = (idTipoContrato != 2 ? salario_base : 0) + aumentos_total + otrosPagos_total;
+    await connection.query(`
+      UPDATE planillausuario SET 
+      salarioBruto = ?, totalDeducciones = ?, subTotal = ?, salarioNeto = ?, totalDeposito = ? 
+      WHERE id = ?`, [salario_bruto, total_deducciones, sub_total, salario_neto, total_deposito, idPlanillaUsuario]);
 
-    result = await db.query(`
-      SELECT d.id, td.valor 
-      FROM deduccion d 
-      INNER JOIN tipodeduccion td ON td.id = d.idTipoDeduccion AND td.fijo = 2
-      WHERE d.idPlanilla = ${idPlanilla}`);
-    const updateDeduccionQueries = result[0].map(deduccion => {
-      const monto = salario_bruto * parseFloat(deduccion.valor) / 100;
-      return db.query(`UPDATE deduccion SET monto = ? WHERE id = ?`, [monto, deduccion.id]);
-    });
-
-    await Promise.all(updateDeduccionQueries);
-
-    let postQueryDeduccion = idTipoContrato == 1 ? 'td.sp = 0 AND' : idTipoContrato == 2 ? 'td.sp = 1 AND' : '';
-    result = await db.query(`
-      SELECT SUM(d.monto) AS total 
-      FROM deduccion d 
-      INNER JOIN tipodeduccion td ON td.id = d.idTipoDeduccion 
-      WHERE ${postQueryDeduccion} d.idPlanilla = ?`, [idPlanilla]);
-    const deducciones_total = parseFloat(result[0][0].total) || 0;
-
-    await db.query('UPDATE planilla SET salarioBruto = ?, salarioNeto = ? WHERE id = ?', [
-      salario_bruto,
-      salario_bruto - deducciones_total,
-      planilla.id
-    ]);
+    await connection.commit();
   } catch (error) {
+    await connection.rollback();
     console.log(error)
+  } finally {
+    connection.release();
+  }
+};
+
+const upsertPlanillaAnotacionFijos = async (mapExistentes, connection, idPlanillaUsuario, anotacion, descripcion, monto) => {
+  if (mapExistentes.has(anotacion.id)) {
+    return connection.query(`
+      UPDATE planillausuarioanotacion 
+      SET monto = ?
+      WHERE idPlanillaUsuario = ? AND idAnotacion = ? AND idUsuario IS NULL`, 
+      [monto, idPlanillaUsuario, anotacion.id]);
+  } else {
+    return connection.query(`
+      INSERT INTO planillausuarioanotacion (idPlanillaUsuario, idAnotacion, descripcion, monto)
+      VALUES (?, ?, ?, ?)`, 
+      [idPlanillaUsuario, anotacion.id, descripcion, monto]);
   }
 };
 
@@ -469,9 +531,7 @@ const update_usuarioQuiz_after_quizes = async (idQuiz = null, idUsuario = null) 
 
 module.exports = {
   create_planilla_insert_usuario,
-  create_planilla_update_planilla,
-  create_pagos_insert_planilla,
-  update_planilla_after_anotacion,
+  create_fijos_planilla_usuario,
   update_usuario_after_vacacion,
   update_usuario_modulo_progreso,
   insert_notificacion,

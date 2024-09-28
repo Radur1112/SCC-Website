@@ -5,6 +5,7 @@ const xlsx = require('xlsx');
 const path = require('path');
 const exceljs = require('exceljs');
 const fs = require('fs');
+
 const { create_planilla_insert_usuario } = require('../utils/triggers.js')
 
 var nombreTabla = 'usuario';
@@ -363,10 +364,11 @@ module.exports.getHome = async(req, res, next) => {
           ORDER BY fechaCreado DESC
           LIMIT 3`, [id]),
         db.query(`
-          SELECT *
-          FROM planilla
-          WHERE idUsuario = ?
-          ORDER BY fechaInicio DESC
+          SELECT pl.fechaInicio, pl.fechaFinal, pu.totalDeposito
+          FROM planillausuario pu
+          INNER JOIN planilla pl ON pl.id = pu.idPlanilla
+          WHERE pu.idUsuario = ? AND pl.estado != 0
+          ORDER BY pl.fechaInicio DESC
           LIMIT 3`, [id])
     ]);
 
@@ -483,7 +485,7 @@ module.exports.registrar = async (req, res, next) => {
       telefono: usuarioData.telefono
     }
 
-    const [validacion] = await db.query(`SELECT * FROM ${nombreTabla} WHERE estado != 0 AND correo = ? OR identificacion = ? OR telefono = ?`, [usuario.correo, usuario.identificacion, usuario.telefono]);
+    const [validacion] = await db.query(`SELECT * FROM ${nombreTabla} WHERE estado != 0 AND (correo = ? OR identificacion = ? OR telefono = ?)`, [usuario.correo, usuario.identificacion, usuario.telefono]);
 
     if (validacion.length > 0) {
       res.status(400).json({
@@ -506,7 +508,7 @@ module.exports.registrar = async (req, res, next) => {
     const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [usuario]);
     if (data) {
       if (usuario.idPuesto != 1 && usuario.idPuesto != 2) {
-        create_planilla_insert_usuario(data[0].insertId);
+        await create_planilla_insert_usuario(data[0].insertId);
       }
       
       res.status(201).json({
@@ -587,6 +589,8 @@ module.exports.actualizar = async (req, res, next) => {
     
     
     if (data) {
+      await create_planilla_insert_usuario(id)
+
       res.status(201).json({
           status: true,
           message: "Usuario actualizado"
@@ -626,6 +630,8 @@ module.exports.actualizarSalario = async (req, res, next) => {
     let data = await db.query(`UPDATE ${nombreTabla} SET salario = ? WHERE id = ?`, [usuario.salario, id]);
     
     if (data) {
+      await create_planilla_insert_usuario(id);
+      
       res.status(201).json({
           status: true,
           message: "Usuario actualizado"
@@ -727,7 +733,7 @@ function validarUsuario(usuarioData) {
     throw new Error('idPuesto debe ser un número válido');
   }
   
-  if (!usuarioData.salario || (isNaN(usuarioData.salario) || usuarioData.salario < MIN_SALARIO || usuarioData.salario > MAX_SALARIO)) {
+  if (usuarioData.salario != 0 && (!usuarioData.salario || (isNaN(usuarioData.salario) || usuarioData.salario < MIN_SALARIO || usuarioData.salario > MAX_SALARIO))) {
     throw new Error('salario debe ser un número válido dentro del límite establecido');
   }
 
@@ -1182,7 +1188,7 @@ module.exports.registrarMultiples = async (req, res, next) => {
       // Insert into database
       const data = await db.query(`INSERT INTO ${nombreTabla} SET ?`, [usuario]);
       if (usuario.idPuesto != 1 && usuario.idPuesto != 2) {
-        create_planilla_insert_usuario(data[0].insertId);
+        await create_planilla_insert_usuario(data[0].insertId);
       }
       return data[0];
     });

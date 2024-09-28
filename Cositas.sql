@@ -53,8 +53,47 @@ SELECT * FROM tipootropago;
 SELECT * FROM comprobanteplanilla;
 SELECT * FROM planillahistorial;
 
+SELECT * FROM planilla;
+SELECT * FROM planillausuario;
+SELECT * FROM planillausuarioanotacion;
+SELECT * FROM anotacion;
+SELECT * FROM tipoanotacion;
+SELECT * FROM comprobanteplanilla;
+SELECT * FROM planillahistorial;
+
+SELECT * FROM aumento;
+SELECT * FROM tipoaumento;
+SELECT * FROM deduccion;
+SELECT * FROM tipodeduccion;
+SELECT * FROM otropago;
+SELECT * FROM tipootropago;
+
 SELECT * FROM tipotrabajo;
 
+DELETE FROM planillahistorial WHERE id > 0;
+ALTER TABLE planillahistorial AUTO_INCREMENT = 1;
+DELETE FROM comprobanteplanilla WHERE id > 0;
+ALTER TABLE comprobanteplanilla AUTO_INCREMENT = 1;
+DELETE FROM planillausuarioanotacion WHERE id > 0;
+ALTER TABLE planillausuarioanotacion AUTO_INCREMENT = 1;
+DELETE FROM planillausuario WHERE id > 0;
+ALTER TABLE planillausuario AUTO_INCREMENT = 1;
+DELETE FROM planilla WHERE id > 0;
+ALTER TABLE planilla AUTO_INCREMENT = 1;
+
+
+DELETE FROM tipoaumento WHERE id > 0;
+ALTER TABLE tipoaumento AUTO_INCREMENT = 1;
+DELETE FROM tipodeduccion WHERE id > 0;
+ALTER TABLE tipodeduccion AUTO_INCREMENT = 1;
+DELETE FROM tipootropago WHERE id > 0;
+ALTER TABLE tipootropago AUTO_INCREMENT = 1;
+DELETE FROM aumento WHERE id > 0;
+ALTER TABLE aumento AUTO_INCREMENT = 1;
+DELETE FROM deduccion WHERE id > 0;
+ALTER TABLE deduccion AUTO_INCREMENT = 1;
+DELETE FROM otropago WHERE id > 0;
+ALTER TABLE otropago AUTO_INCREMENT = 1;
 
 DELETE FROM usuarioquizrespuesta WHERE id > 0;
 ALTER TABLE usuarioquizrespuesta AUTO_INCREMENT = 1;
@@ -67,25 +106,28 @@ ALTER TABLE quizpregunta AUTO_INCREMENT = 1;
 DELETE FROM quiz WHERE id > 0;
 ALTER TABLE quiz AUTO_INCREMENT = 1;
 
+DELETE FROM usuariomodulo WHERE id > 0;
+ALTER TABLE usuariomodulo AUTO_INCREMENT = 1;
+DELETE FROM usuariovideo WHERE id > 0;
+ALTER TABLE usuariovideo AUTO_INCREMENT = 1;
+DELETE FROM modulovideo WHERE idVideo > 0;
+DELETE FROM modulo WHERE id > 0;
+ALTER TABLE modulo AUTO_INCREMENT = 1;
+DELETE FROM video WHERE id > 0;
+ALTER TABLE video AUTO_INCREMENT = 1;
+
+SELECT * FROM video;
+SELECT * FROM modulo;
+SELECT * FROM modulovideo;
+SELECT * FROM usuariovideo;
+SELECT * FROM usuariomodulo;
+
 DELETE FROM incapacidadarchivo WHERE id > 0;
 ALTER TABLE incapacidadarchivo AUTO_INCREMENT = 1;
 DELETE FROM incapacidad WHERE id > 0;
 ALTER TABLE incapacidad AUTO_INCREMENT = 1;
 DELETE FROM vacacion WHERE id > 0;
 ALTER TABLE vacacion AUTO_INCREMENT = 1;
-
-DELETE FROM planillahistorial WHERE id > 0;
-ALTER TABLE planillahistorial AUTO_INCREMENT = 1;
-DELETE FROM comprobanteplanilla WHERE id > 0;
-ALTER TABLE comprobanteplanilla AUTO_INCREMENT = 1;
-DELETE FROM aumento WHERE id > 0;
-ALTER TABLE aumento AUTO_INCREMENT = 1;
-DELETE FROM deduccion WHERE id > 0;
-ALTER TABLE deduccion AUTO_INCREMENT = 1;
-DELETE FROM otropago WHERE id > 0;
-ALTER TABLE otropago AUTO_INCREMENT = 1;
-DELETE FROM planilla WHERE id > 0;
-ALTER TABLE planilla AUTO_INCREMENT = 1;
 
 DELETE FROM usuario WHERE id > 1;
 ALTER TABLE usuario AUTO_INCREMENT = 2;
@@ -351,15 +393,6 @@ DELETE FROM usuariosupervisor WHERE idSupervisor > 0 AND idUsuario > 0;
 -- For table `vacacion`
 DELETE FROM vacacion WHERE id > 0;
 ALTER TABLE vacacion AUTO_INCREMENT = 1;
-
-
-
-
-
-
-
-
-
 
 
 -- For table `vacacion`

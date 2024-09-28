@@ -30,17 +30,14 @@ import { PlanillaAnotacionFormDialogComponent } from '../planilla-anotacion-form
 export class PlanillaAnotacionIndexComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
-  displayedColumns: string[] = ['tipo', 'usuarioNombre', 'descripcion', 'monto', 'fecha', 'creadoPor', 'acciones'];
+  displayedColumns: string[] = ['tipo', 'usuarioNombre', 'descripcion', 'monto', 'fecha', 'creadoPor'];
   dataSource: MatTableDataSource<any>;
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
   @ViewChild(MatSort) sort: MatSort;
 
   usuarioActual: any;
-  fechaInicio: Date;
-  fechaFinal: Date;
-
-  historial: boolean = false;
+  planillaId: any;
 
   loading: boolean = true;
   
@@ -57,23 +54,19 @@ export class PlanillaAnotacionIndexComponent {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const preFechaI = params.get('fechaInicio');
-      const preFechaF = params.get('fechaFinal');
-
-      if (preFechaI && preFechaF) {
-        this.fechaInicio = new Date(preFechaI);
-        this.fechaFinal = new Date(preFechaF);
-
-        this.historial = true;
-      }
+      this.planillaId = params.get('id');
 
       this.authService.usuarioActual.subscribe((x) => {
         if (x && Object.keys(x).length !== 0) {
           this.usuarioActual = x.usuario;
+
+          if (!this.planillaId) {
+            this.displayedColumns.push('acciones')
+          }
+
+          this.getHistorial();
         }
       });
-  
-      this.getHistorial();
     });
   }
 
@@ -85,38 +78,29 @@ export class PlanillaAnotacionIndexComponent {
   getHistorial() {
     this.loading = true;
 
-    if (!this.historial) {
-      let query = `planilla/anotaciones`;
+    let query = ``;
+    if (this.planillaId) {
+      query = `planillaUsuarioAnotacion/historial/planilla/${this.planillaId}`;
       if (this.usuarioActual.idTipoUsuario == 3) {
-        query = `planilla/historial/supervisor/${this.usuarioActual.id}`
+        query += `/supervisor/${this.usuarioActual.id}`
       }
-      this.gService.get(query)
-      .pipe(takeUntil(this.destroy$)).subscribe({
-        next:(res) => {
-          this.dataSource = new MatTableDataSource(res.data);
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-          
-        this.loading = false;
-        }
-      });
     } else {
-      let datos = {
-        fechaInicio: this.formatearFecha(this.fechaInicio),
-        fechaFinal: this.formatearFecha(this.fechaFinal)
+      query = `planillaUsuarioAnotacion/activa`;
+      if (this.usuarioActual.idTipoUsuario == 3) {
+        query += `/supervisor/${this.usuarioActual.id}`
       }
-      this.gService.post(`planilla/anotaciones/fechas`, datos)
-      .pipe(takeUntil(this.destroy$)).subscribe({
-        next:(res) => {
-          this.dataSource = new MatTableDataSource(res.data);
-          this.dataSource.paginator = this.paginator;
-          this.dataSource.sort = this.sort;
-          
-          this.loading = false;
-        }
-      });
-      
     }
+    
+    this.gService.get(query)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.dataSource = new MatTableDataSource(res.data);
+        this.dataSource.paginator = this.paginator;
+        this.dataSource.sort = this.sort;
+        
+      this.loading = false;
+      }
+    });
   }
 
   formatearFecha(fecha: Date): string {
@@ -129,7 +113,7 @@ export class PlanillaAnotacionIndexComponent {
 
   formatearNumero(valor: string) {
     valor = valor ?? '';
-    let perFormateado = valor.replace(/,/g, '.');
+    let perFormateado = (valor+'').replace(/,/g, '.');
     let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
@@ -145,11 +129,15 @@ export class PlanillaAnotacionIndexComponent {
     return `${integerPart},${decimalPart}`;
   }
 
-  actualizarAnotacion(anotacion: any) {
+  openAnotacionDialog(planillaUsuarioAnotacion: any) {
     let width = '600px';
     let data = { 
-      idUsuarioActual: this.usuarioActual.id,
-      anotacion: anotacion
+      isCrear: false,
+      planillaUsuario: planillaUsuarioAnotacion,
+      descripcion: planillaUsuarioAnotacion.descripcion,
+      monto: planillaUsuarioAnotacion.monto,
+      anotacionId: planillaUsuarioAnotacion.anotacionId,
+      idUsuarioActual: this.usuarioActual.id
     };
     
     const dialogRef = this.dialog.open(PlanillaAnotacionFormDialogComponent, {
@@ -159,7 +147,20 @@ export class PlanillaAnotacionIndexComponent {
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
+        this.actualizarAnotacion(result);
+      }
+    });
+  }
+
+  actualizarAnotacion(anotacion: any) {
+    this.gService.put(`planillaUsuarioAnotacion`, anotacion)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.alerta.mensaje('Anotacion', 'Anotacion actualizada correctamente', TipoMessage.success);
         this.getHistorial();
+      },
+      error:(err) => {
+        console.log(err);
       }
     });
   }
@@ -168,7 +169,7 @@ export class PlanillaAnotacionIndexComponent {
     this.confirmationService.confirm()
       .subscribe(result => {
         if (result) {
-          this.gService.put(`${transformarTipo(anotacion.tipo)}/borrar`, anotacion)
+          this.gService.put(`planillaUsuarioAnotacion/borrar`, anotacion)
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
               this.alerta.mensaje('Anotacion', 'Anotacion eliminada correctamente', TipoMessage.success);

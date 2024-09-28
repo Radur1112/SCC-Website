@@ -175,7 +175,7 @@ module.exports.saveMultiples = async (req, res, next) => {
 
 
     for (const idQuiz of quizesIds) {
-      update_usuarioQuiz_after_quizes(idQuiz);
+      await update_usuarioQuiz_after_quizes(idQuiz);
     }
 
     res.status(201).json({
@@ -346,7 +346,7 @@ module.exports.borrarMultiples = async (req, res, next) => {
     await connection.commit();
 
     for (const idQuiz of quizesIds) {
-      update_usuarioQuiz_after_quizes(idQuiz);
+      await update_usuarioQuiz_after_quizes(idQuiz);
     }
 
     res.status(201).json({

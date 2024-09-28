@@ -38,9 +38,9 @@
               <td mat-cell *matCellDef="let row">{{ row.fechaInicio | date: 'd \'de\' MMMM, y' }} - {{ row.fechaFinal | date: 'd \'de\' MMMM, y' }}</td>
           </ng-container>
       
-          <ng-container matColumnDef="salarioNeto">
-              <th mat-header-cell *matHeaderCellDef>Salario neto</th>
-              <td mat-cell *matCellDef="let row"> {{ formatearNumero(row.salarioNeto) }} </td>
+          <ng-container matColumnDef="totalDeposito">
+              <th mat-header-cell *matHeaderCellDef>Total deposito</th>
+              <td mat-cell *matCellDef="let row"> {{ formatearNumero(row.totalDeposito) }} </td>
           </ng-container>
 
           <ng-container matColumnDef="acciones">

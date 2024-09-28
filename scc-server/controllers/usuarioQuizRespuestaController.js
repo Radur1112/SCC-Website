@@ -317,7 +317,7 @@ module.exports.crearMultiples = async (req, res, next) => {
 
     await connection.commit();
 
-    update_usuarioQuiz_after_respuestas(datos[0].idUsuarioQuiz);
+    await update_usuarioQuiz_after_respuestas(datos[0].idUsuarioQuiz);
 
     res.status(201).json({
       status: true,

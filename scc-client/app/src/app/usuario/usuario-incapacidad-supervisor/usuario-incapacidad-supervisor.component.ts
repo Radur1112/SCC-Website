@@ -79,7 +79,7 @@ export class UsuarioIncapacidadSupervisorComponent {
   getIncapacidades() {
     let query = `incapacidad/pendientes`;
     if (this.usuarioActual.idTipoUsuario == 3) {
-      query = `incapacidad/pendientes/supervisor/${this.usuarioActual.id}`
+      query += `/supervisor/${this.usuarioActual.id}`
     }
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
@@ -98,7 +98,12 @@ export class UsuarioIncapacidadSupervisorComponent {
 
   confirmar(id: any) {
     this.loading = true;
-    this.gService.get(`incapacidad/confirmar/${id}`)
+    const datos = {
+      id: id,
+      idSupervisor: this.usuarioActual.id
+    }
+
+    this.gService.put(`incapacidad/confirmar`, datos)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.alerta.mensaje('Justificación', 'Justificación confirmada correctamente', TipoMessage.success);
@@ -109,7 +114,12 @@ export class UsuarioIncapacidadSupervisorComponent {
 
   rechazar(id: any) {
     this.loading = true;
-    this.gService.get(`incapacidad/rechazar/${id}`)
+    const datos = {
+      id: id,
+      idSupervisor: this.usuarioActual.id
+    }
+
+    this.gService.put(`incapacidad/rechazar`, datos)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.alerta.mensaje('Justificación', 'Justificación rechazada correctamente', TipoMessage.success);

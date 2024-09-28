@@ -173,7 +173,6 @@ export class CapacitacionAdminIndexComponent {
     public convertService: ConvertLineBreaksService,
     private cdr: ChangeDetectorRef
   ){
-
   }
 
   ngOnInit(): void {

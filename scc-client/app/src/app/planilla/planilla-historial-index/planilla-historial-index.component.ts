@@ -37,6 +37,7 @@ export class PlanillaHistorialIndexComponent {
   @ViewChild(MatSort) sort: MatSort;
 
   usuarioActual: any;
+  planillaActual: any;
   
   loading: boolean = true;
   
@@ -53,24 +54,25 @@ export class PlanillaHistorialIndexComponent {
   }
 
   getFechaActual() {
-    this.gService.get(`planilla/fechaActual`)
+    this.gService.get(`planilla/actual`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         if (res.data) {
-          this.getHistorial(res.data.fechaInicio, res.data.fechaFinal);
+          this.planillaActual = res.data;
         }
+        this.getHistorial();
       }
     });
   }
 
-  getHistorial(fechaInicio: any, fechaFinal: any) {
+  getHistorial() {
     this.loading = true;
 
     this.gService.get(`planilla/historial`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        let prePlanilla = [{id: 0, fechaInicio: fechaInicio, fechaFinal: fechaFinal, ubicacion: null}, ...res.data];
-        console.log(prePlanilla)
+        const prePlanilla = res.data;
+        
         this.dataSource = new MatTableDataSource(prePlanilla);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
@@ -84,7 +86,7 @@ export class PlanillaHistorialIndexComponent {
     if (planilla.ubicacion) {
       window.open(planilla.ubicacion, '_blank');
     } else {
-      this.gService.exportarExcel(`planilla/actual/exportar`).subscribe(blob => {
+      this.gService.exportarExcel(`planillaUsuario/resumen/exportar/${this.planillaActual.id}`).subscribe(blob => {
 
         const nombre = `resumen_planilla__${moment(new Date(planilla.fechaInicio)).format('YYYYMMDD')}_${moment(new Date(planilla.fechaFinal)).format('YYYYMMDD')}.xlsx`;
 
@@ -109,6 +111,6 @@ export class PlanillaHistorialIndexComponent {
   }
 
   irAnotaciones(planilla: any) {
-    this.router.navigate(['planilla/anotaciones/', planilla.fechaInicio, planilla.fechaFinal]);
+    this.router.navigate(['planilla/anotaciones/', planilla.id]);
   }
 }

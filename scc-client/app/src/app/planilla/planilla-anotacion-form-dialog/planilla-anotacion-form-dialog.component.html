@@ -1,43 +1,90 @@
-<a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
+<a (click)="cerrarDialog()" class="close-dialog" matTooltip="Ir atras">
   <mat-icon class="dark-color">close</mat-icon>
 </a>
 <form [formGroup]="anotacionForm" (ngSubmit)="guardarAnotacion()">
   <mat-dialog-content class="mat-typography">
-    <h4 class="primary-color my-3">Modificar  {{ anotacion.tipo }}: {{ anotacion.tipoDescripcion }}</h4>
+    <h4 class="primary-color my-3">{{ planillaUsuario.usuarioNombre }}</h4>
     <div class="row my-3">
-      <mat-form-field class="full-width">
-        <mat-label>Descripcion</mat-label>
-        <input matInput type="text" formControlName="descripcion" />
-        <mat-error *ngIf="errorHandling('descripcion','required')">
-            La descripción es <strong>requerida</strong>
-        </mat-error>
-        <mat-error *ngIf="errorHandling('descripcion','maxlength')">
-            La descripción debe tener como máximo <strong>100 carácteres</strong>
-        </mat-error>
-      </mat-form-field>
+      <div class="col-md">
+        <mat-form-field class="full-width">
+          <mat-label>Tipo de anotación</mat-label>
+          <mat-select formControlName="anotacion" (selectionChange)="calcularMonto()">
+            @for (anotacion of anotaciones; track anotacion) {
+              <mat-optgroup [label]="anotacion.descripcion" class="group-title">
+                @for (lista of anotacion.anotaciones; track lista) {
+                  <mat-option [value]="lista" class="group-content">{{lista.descripcion}}</mat-option>
+                }
+              </mat-optgroup>
+            }
+          </mat-select>
+          <mat-error *ngIf="errorHandling('anotacion','required')">
+              El tipo es <strong>requerido</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
+      <div class="col-md">
+        <mat-form-field class="full-width">
+          <mat-label>Descripcion</mat-label>
+          <input matInput type="text" formControlName="descripcion" (keydown)="agregarAnotacionEnter($event)" />
+          <mat-error *ngIf="errorHandling('descripcion','required')">
+              La descripción es <strong>requerida</strong>
+          </mat-error>
+          <mat-error *ngIf="errorHandling('descripcion','maxlength')">
+              La descripción debe tener como máximo <strong>100 carácteres</strong>
+          </mat-error>
+        </mat-form-field>
+      </div>
     </div>
       
     <div class="row my-3">
       <div class="col-md">
         <mat-form-field class="full-width">
-          <mat-label>Cantidad de horas</mat-label>
-          <input matInput type="time" formControlName="hora" (input)="calcularMonto()">
+          <mat-label>Cantidad de horas (opcional)</mat-label>
+          <input matInput #hora type="text" minlength="5" maxlength="5" formControlName="hora" (input)="onInputChange($event)" (keydown)="agregarAnotacionEnter($event); onKeyDown($event)" (click)="selectText($event)" (focus)="selectFirst($event)" (blur)="postAjuste($event)">
         </mat-form-field>
+        <!--
+        <mat-form-field class="full-width">
+          <mat-label>Cantidad de horas</mat-label>
+          <input matInput type="time" formControlName="hora">
+        </mat-form-field>
+        -->
       </div>
       <div class="col-md">
         <mat-form-field class="full-width">
           <mat-label>Monto</mat-label>
-          <input matInput type="text" formControlName="monto" />
+          <input matInput type="text" formControlName="monto" (change)="formatearMonto()" (keydown)="agregarAnotacionEnter($event)">
           <mat-error *ngIf="errorHandling('monto','required')">
               El monto es <strong>requerido</strong>
+          </mat-error>
+          <mat-error *ngIf="errorHandling('monto','min')">
+              El monto debe ser mínimo <strong>0</strong>
+          </mat-error>
+          <mat-error *ngIf="errorHandling('monto','max')">
+              El monto debe ser máximo <strong>999999999</strong>
+          </mat-error>
+          <mat-error *ngIf="errorHandling('monto','pattern')">
+              El monto tiene un formato <strong>inválido</strong>
           </mat-error>
         </mat-form-field>
       </div>
     </div>
+    <ng-container *ngIf="isCrear">
+      <div class="agregar-container">
+        <button mat-fab extended color="secondary" class="agregar-button" type="button" matTooltip="Agregar anotación" [disabled]="!anotacionForm.valid" (click)="agregarAnotacion()">Agregar <mat-icon>add</mat-icon></button>
+      </div>
+      <div>
+        <div class="agregados" *ngFor="let anotacion of agregados; let i = index">
+          <div class="anotacion-item">
+            <strong>{{ anotacion.anotacionDescripcion }}</strong> <span class="anotacion-descripcion">{{ anotacion.descripcion }}</span>: {{ anotacion.monto.toFixed(2) }}
+            <button mat-icon-button type="button" color="warn" matTooltip="Borrar anotación" (click)="borrarAgregado(i)"><mat-icon>delete</mat-icon></button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
   </mat-dialog-content>
-  
+
   <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close>Cancelar</button>
-    <button mat-button color="primary" type="submit" [disabled]="!anotacionForm.valid">Guardar</button>
+    <button mat-button type="button" (click)="cerrarDialog()">Cancelar</button>
+    <button mat-button color="primary" type="button" [disabled]="isCrear ? agregados.length == 0 : anotacionForm.invalid" (click)="guardarAnotacion()">Guardar</button>
   </mat-dialog-actions>
 </form>

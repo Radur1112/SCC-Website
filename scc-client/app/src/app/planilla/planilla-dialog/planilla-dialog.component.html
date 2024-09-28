@@ -1,55 +1,62 @@
 <mat-dialog-content class="mat-typography">
-  <a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
-    <mat-icon class="dark-color">close</mat-icon>
+  <a (click)="openAnotacionDialog()" class="descargar" matTooltip="Agregar anotación">
+    <mat-icon>add_circle</mat-icon>
   </a>
   <mat-card class="planilla-card">
     <mat-card-header>
       <mat-card-title>
-        <h4 class="primary-color">{{ planilla.usuarioNombre }}</h4>
+        <h4 class="primary-color">{{ planillaUsuario.usuarioNombre }}</h4>
       </mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <ng-container *ngIf="isAsalariado != 2">
         <div class="planilla-container">
           <div class="planilla-left">
-            <div class="planilla-item"><strong>Salario Base:</strong> <p class="m-0 editable" contenteditable (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, null, true)"><strong>{{ formatearNumero(planilla.salarioBase) }}</strong></p></div>
+            <div class="planilla-item"><strong>Salario Base:</strong> <p class="m-0 editable" contenteditable (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, null, true)"><strong>{{ formatearNumero(planillaUsuario.salarioBase) }}</strong></p></div>
             <ng-container *ngIf="aumentos">
               <div class="planilla-item" *ngFor="let tipo of aumentos">
-                <strong>{{ tipo.descripcion }} {{ tipo.fijo == 2 ? tipo.valor + '%' : tipo.fijo == 1 ? tipo.valor : '' }}:</strong>
-                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+                <strong>{{ tipo.descripcion }} {{ tipo.fijo == 1 ? tipo.valor + '%' : tipo.fijo == 2 ? tipo.valor : '' }}:</strong>
+                <p class="m-0" [class.editable]="(tipo.fijo != 1 && tipo.fijo != 2)" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ formatearNumero(tipo.monto) }}</p>
               </div>
             </ng-container>
-            <div class="planilla-item planilla-total"><strong>SALARIO BRUTO:</strong> <p class="m-0">{{ formatearNumero(planilla.salarioBruto) }}</p></div>
-            <div class="planilla-item planilla-total"><strong>SALARIO NETO:</strong> <p class="m-0">{{ formatearNumero(planilla.salarioNeto) }}</p></div>
+            <div class="planilla-item planilla-total"><strong>SALARIO BRUTO:</strong> <p class="m-0">{{ formatearNumero(planillaUsuario.salarioBruto) }}</p></div>
+            <div class="planilla-item planilla-total"><strong>SALARIO NETO:</strong> <p class="m-0">{{ formatearNumero(planillaUsuario.salarioNeto) }}</p></div>
           </div>
           <div class="planilla-right">
             <div class="planilla-item"><strong>Menos:</strong></div>
             <ng-container *ngIf="deducciones">
               <div class="planilla-item" *ngFor="let tipo of deducciones">
-                <strong>{{ tipo.descripcion }} {{ tipo.fijo == 2 ? tipo.valor + '%' : tipo.fijo == 1 ? tipo.valor : '' }}:</strong>
-                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+                <strong>{{ tipo.descripcion }} {{ tipo.fijo == 1 ? tipo.valor + '%' : tipo.fijo == 2 ? tipo.valor : '' }}:</strong>
+                <p class="m-0" [class.editable]="(tipo.fijo != 1 && tipo.fijo != 2)" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ formatearNumero(tipo.monto) }}</p>
               </div>
             </ng-container>
-            <div class="planilla-item planilla-total planilla-deducciones"><strong>TOTAL DEDUCCIONES:</strong>{{ formatearNumero(planilla.totalDeducciones) }}</div>
+            <div class="planilla-item planilla-total planilla-deducciones"><strong>TOTAL DEDUCCIONES:</strong>{{ formatearNumero(planillaUsuario.totalDeducciones) }}</div>
           </div>
         </div>
         <div class="planilla-footer">
-          <div class="planilla-left">
-            <div class="planilla-item"><strong>Otros Pagos: {{ showOtrosPagos }}</strong><p><button mat-icon-button class="my-auto" [matMenuTriggerFor]="menuOtroPago"><mat-icon>add_circle</mat-icon></button></p></div>
-            <div class="planilla-item"><strong>Total Deposito:</strong> <p class="m-0"><strong>{{ formatearNumero(planilla.salarioNeto) }}</strong></p></div>
-          </div>
-          <mat-menu #menuOtroPago="matMenu">
-            <div *ngFor="let top of tipoOtrosPagos">
-              <button mat-menu-item *ngIf="top.sp === 0 && !top.fijo" (click)="openAnotacionDialog(top)">
-                <span>
-                  {{ top.descripcion }}
-                </span>
-              </button>
+          <div class="planilla-up">
+            <div class="planilla-left">
+              <ng-container *ngIf="otrosPagos; else otroPago">
+                <div class="planilla-item" *ngFor="let tipo of otrosPagos">
+                  <strong>Otros Pagos: {{ tipo.descripcion }} {{ tipo.fijo == 1 ? tipo.valor + '%' : tipo.fijo == 2 ? tipo.valor : '' }}:</strong>
+                  <p class="m-0" [class.editable]="(tipo.fijo != 1 && tipo.fijo != 2)" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ formatearNumero(tipo.monto) }}</p>
+                </div>
+              </ng-container>
+              <ng-template #otroPago>
+                <div class="planilla-item"><strong>Otros Pagos:</strong><p></p></div>
+              </ng-template>
             </div>
-          </mat-menu>
-          <div class="planilla-right">
-            <div class="planilla-item"><strong>Vacaciones:</strong> <p class="m-0"><strong>{{ planilla.usuarioVacacion }}</strong></p></div>
-            <div class="planilla-item-fecha"><strong>Fecha:</strong> <p class="m-0"><strong>{{ planilla.fechaInicio | date: 'dd/MM/yyyy' }} - {{ planilla.fechaFinal | date: 'dd/MM/yyyy' }}</strong></p></div>
+            <div class="planilla-right">
+              <div class="planilla-item"><strong>Vacaciones:</strong> <p class="m-0"><strong>{{ planillaUsuario.usuarioVacacion }}</strong></p></div>
+            </div>
+          </div>
+          <div class="planilla-down">
+            <div class="planilla-left">
+              <div class="planilla-item"><strong>Total Deposito:</strong> <p class="m-0"><strong>{{ formatearNumero(planillaUsuario.totalDeposito) }}</strong></p></div>
+            </div>
+            <div class="planilla-right">
+              <div class="planilla-item-fecha"><strong>Fecha:</strong> <p class="m-0"><strong>{{ planillaUsuario.fechaInicio | date: 'dd/MM/yyyy' }} - {{ planillaUsuario.fechaFinal | date: 'dd/MM/yyyy' }}</strong></p></div>
+            </div>
           </div>
         </div>
       </ng-container>
@@ -57,29 +64,29 @@
       <ng-container *ngIf="isAsalariado == 2">
         <div>
           <div class="planilla-center">
-            <div class="planilla-item-fecha planilla-fecha"><strong>Fecha:</strong> <p class="m-0">{{ planilla.fechaInicio | date: 'dd/MM/yyyy' }} - {{ planilla.fechaFinal | date: 'dd/MM/yyyy' }}</p></div>
+            <div class="planilla-item-fecha planilla-fecha"><strong>Fecha:</strong> <p class="m-0">{{ planillaUsuario.fechaInicio | date: 'dd/MM/yyyy' }} - {{ planillaUsuario.fechaFinal | date: 'dd/MM/yyyy' }}</p></div>
             <br>
             <ng-container *ngIf="aumentos">
               <div class="planilla-item" *ngFor="let tipo of aumentos">
                 <strong>{{ tipo.descripcion }}:</strong>
-                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ formatearNumero(tipo.monto) }}</p>
               </div>
             </ng-container>
-            <div class="planilla-item planilla-total"><strong>BASE FACTURACION:</strong> <p class="m-0">{{ formatearNumero(planilla.baseFacturacion) }}</p></div>
+            <div class="planilla-item planilla-total"><strong>BASE FACTURACION:</strong> <p class="m-0">{{ formatearNumero(planillaUsuario.salarioBruto) }}</p></div>
             <ng-container *ngIf="otrosPagos">
               <div class="planilla-item" *ngFor="let tipo of otrosPagos">
                 <strong>{{ tipo.descripcion }}:</strong>
-                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ formatearNumero(tipo.monto) }}</p>
               </div>
             </ng-container>
-            <div class="planilla-item planilla-total"><strong>SUBTOTAL:</strong> <p class="m-0">{{ formatearNumero(planilla.salarioBruto) }}</p></div>
+            <div class="planilla-item planilla-total"><strong>SUBTOTAL:</strong> <p class="m-0">{{ formatearNumero(planillaUsuario.subTotal) }}</p></div>
             <ng-container *ngIf="deducciones">
               <div class="planilla-item" *ngFor="let tipo of deducciones">
                 <strong>{{ tipo.descripcion }}:</strong>
-                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (blur)="confirmarTexto($event, tipo)">{{ tipo.monto }}</p>
+                <p class="m-0" [class.editable]="tipo.fijo != 1 && tipo.fijo != 2" [attr.contenteditable]="(tipo.fijo != 1 && tipo.fijo != 2) ? true : null" (keydown)="onEnterPressed($event)" (blur)="confirmarTexto($event, tipo)">{{ formatearNumero(tipo.monto) }}</p>
               </div>
             </ng-container>
-            <div class="planilla-item planilla-total"><strong>TOTAL DESEMBOLSO:</strong> <p class="m-0">{{ formatearNumero(planilla.salarioNeto) }}</p></div>
+            <div class="planilla-item planilla-total"><strong>TOTAL DESEMBOLSO:</strong> <p class="m-0">{{ formatearNumero(planillaUsuario.totalDeposito) }}</p></div>
           </div>
         </div>
       </ng-container>
@@ -88,6 +95,6 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close>Cancelar</button>
+  <button mat-button (click)="cerrarDialog()">Cancelar</button>
   <button mat-button color="primary" (click)="guardarPlanilla()">Guardar</button>
 </mat-dialog-actions>

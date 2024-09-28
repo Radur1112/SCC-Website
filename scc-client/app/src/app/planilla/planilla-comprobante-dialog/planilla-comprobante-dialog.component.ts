@@ -46,12 +46,11 @@ export class PlanillaComprobanteDialogComponent {
     if (this.comprobante.otrosPagos) {
       this.otrosPagos = this.comprobante.otrosPagos;
     }
-    console.log(this.comprobante)
   }
 
   formatearNumero(valor: string) {
     valor = valor ?? '';
-    let perFormateado = valor.replace(/,/g, '.');
+    let perFormateado = (valor+'').replace(/,/g, '.');
     let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
@@ -71,7 +70,7 @@ export class PlanillaComprobanteDialogComponent {
     if (this.comprobante.comprobanteUbicacion) {
       window.open(this.comprobante.comprobanteUbicacion, '_blank');
     } else {
-      this.gService.exportarExcel(`planilla/comprobante/exportar/${this.comprobante.id}`).subscribe(blob => {
+      this.gService.exportarExcel(`planillaUsuario/comprobante/exportar/actual/${this.comprobante.id}`).subscribe(blob => {
 
         const nombre = `comprobante_${this.formatearNombre(this.comprobante.usuarioNombre)}_${moment(new Date(this.comprobante.fechaInicio)).format('YYYYMMDD')}_${moment(new Date(this.comprobante.fechaFinal)).format('YYYYMMDD')}.xlsx`;
 

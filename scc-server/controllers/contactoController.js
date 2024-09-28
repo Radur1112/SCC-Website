@@ -5,7 +5,6 @@ const recibirContactoForm = async (req, res) => {
 
   try {
     // Send email
-    console.log(datos)
     await enviarCorreoContacto(datos);
 
     res.status(200).json('Su información ha sido enviada correctamente.');

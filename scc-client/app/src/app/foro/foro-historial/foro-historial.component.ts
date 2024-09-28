@@ -17,6 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import moment from 'moment';
 
 @Component({
   selector: 'app-foro-historial',
@@ -38,6 +39,8 @@ export class ForoHistorialComponent {
 
   titulo: any;
   foroId: any;
+
+  foro: any;
   
   loading: boolean = true;
   
@@ -78,21 +81,36 @@ export class ForoHistorialComponent {
   getHistorial() {
     this.loading = true;
 
-    let query = '';
+    let query = 'forohistorial';
     if (this.foroId) {
-      query = `forohistorial/foro/${this.foroId}`
-    } else {
-      query = `forohistorial`
+      query += `/foro/${this.foroId}`
     }
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
+        this.foro = res.data;
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.paginator = this.paginator;
         this.dataSource.sort = this.sort;
         
         this.loading = false;
       }
+    });
+  }
+
+  descargarExcel() {
+    let query = `foroHistorial/exportar`;
+    if (this.foroId) {
+      query += `/${this.foroId}`
+    }
+    this.gService.exportarExcel(query).subscribe(blob => {
+
+      const nombre = `${this.foroId ? this.foro[0].foroTitulo : 'foros'}_historial_${moment().format('YYYYMMDD')}.xlsx`;
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = nombre;
+      link.click();
     });
   }
 }

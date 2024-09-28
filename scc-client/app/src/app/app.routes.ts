@@ -168,7 +168,7 @@ export const routes: Routes = [
       permisos: [1, 3, 5]
     } 
   },
-  { path: 'planilla/anotaciones/:fechaInicio/:fechaFinal', component: PlanillaAnotacionIndexComponent, canActivate:[AuthGuard],
+  { path: 'planilla/anotaciones/:id', component: PlanillaAnotacionIndexComponent, canActivate:[AuthGuard],
     data:{
       permisos: [1, 3, 5]
     } 

@@ -37,13 +37,34 @@
           </div>
         </div>
         <div class="planilla-footer">
-          <div class="planilla-left">
-            <div class="planilla-item"><strong>Otros Pagos: {{ showOtrosPagos }}</strong></div>
-            <div class="planilla-item"><strong>Total Deposito:</strong> <p class="m-0"><strong>{{ formatearNumero(comprobante.salarioNeto) }}</strong></p></div>
+          <div class="planilla-up">
+            <div class="planilla-left">
+              <ng-container *ngIf="otrosPagos; else otroPago">
+                <div class="planilla-item" *ngFor="let tipo of otrosPagos">
+                  <ng-container *ngIf="formatearNumero(tipo.monto) != '0.00'; else otroPagoo">
+                    <strong>Otros Pagos: {{ tipo.descripcion }} {{ tipo.fijo == 1 ? tipo.valor + '%' : tipo.fijo == 2 ? tipo.valor : '' }}:</strong>
+                    <p class="m-0">{{ formatearNumero(tipo.monto) }}</p>
+                  </ng-container>
+                  <ng-template #otroPagoo>
+                    <strong>Otros Pagos:</strong><p></p>
+                  </ng-template>
+                </div>
+              </ng-container>
+              <ng-template #otroPago>
+                <div class="planilla-item"><strong>Otros Pagos:</strong><p></p></div>
+              </ng-template>
+            </div>
+            <div class="planilla-right">
+              <div class="planilla-item"><strong>Vacaciones:</strong> <p class="m-0"><strong>{{ comprobante.usuarioVacacion }}</strong></p></div>
+            </div>
           </div>
-          <div class="planilla-right">
-            <div class="planilla-item"><strong>Vacaciones:</strong> <p class="m-0"><strong>{{ comprobante.usuarioVacacion }}</strong></p></div>
-            <div class="planilla-item-fecha"><strong>Fecha:</strong> <p class="m-0"><strong>{{ comprobante.fechaInicio | date: 'dd/MM/yyyy' }} - {{ comprobante.fechaFinal | date: 'dd/MM/yyyy' }}</strong></p></div>
+          <div class="planilla-down">
+            <div class="planilla-left">
+              <div class="planilla-item"><strong>Total Deposito:</strong> <p class="m-0"><strong>{{ formatearNumero(comprobante.totalDeposito) }}</strong></p></div>
+            </div>
+            <div class="planilla-right">
+              <div class="planilla-item-fecha"><strong>Fecha:</strong> <p class="m-0"><strong>{{ comprobante.fechaInicio | date: 'dd/MM/yyyy' }} - {{ comprobante.fechaFinal | date: 'dd/MM/yyyy' }}</strong></p></div>
+            </div>
           </div>
         </div>
       </ng-container>
@@ -59,14 +80,14 @@
                 <p class="m-0">{{ formatearNumero(tipo.monto) }}</p>
               </div>
             </ng-container>
-            <div class="planilla-item planilla-total"><strong>BASE FACTURACION:</strong> <p class="m-0">{{ formatearNumero(comprobante.baseFacturacion) }}</p></div>
+            <div class="planilla-item planilla-total"><strong>BASE FACTURACION:</strong> <p class="m-0">{{ formatearNumero(comprobante.salarioBruto) }}</p></div>
             <ng-container *ngIf="otrosPagos">
               <div class="planilla-item" *ngFor="let tipo of otrosPagos">
                 <strong>{{ tipo.descripcion }}:</strong>
                 <p class="m-0">{{ formatearNumero(tipo.monto) }}</p>
               </div>
             </ng-container>
-            <div class="planilla-item planilla-total"><strong>SUBTOTAL:</strong> <p class="m-0">{{ formatearNumero(comprobante.salarioBruto) }}</p></div>
+            <div class="planilla-item planilla-total"><strong>SUBTOTAL:</strong> <p class="m-0">{{ formatearNumero(comprobante.subTotal) }}</p></div>
             <ng-container *ngIf="deducciones">
               <div class="planilla-item" *ngFor="let tipo of deducciones">
                 <strong>{{ tipo.descripcion }}:</strong>

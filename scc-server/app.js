@@ -37,12 +37,9 @@ const usuarioQuizRouter = require('./routes/usuarioQuizRoutes');
 const usuarioQuizRespuestaRouter = require('./routes/usuarioQuizRespuestaRoutes');
 
 const planillaRouter = require('./routes/planillaRoutes');
-const aumentoRouter = require('./routes/aumentoRoutes');
-const tipoAumentoRouter = require('./routes/tipoAumentoRoutes');
-const deduccionRouter = require('./routes/deduccionRoutes');
-const tipoDeduccionRouter = require('./routes/tipoDeduccionRoutes');
-const otroPagoRouter = require('./routes/otroPagoRoutes');
-const tipoOtroPagoRouter = require('./routes/tipoOtroPagoRoutes');
+const planillaUsuarioRouter = require('./routes/planillaUsuarioRoutes');
+const planillaUsuarioAnotacionRouter = require('./routes/planillaUsuarioAnotacionRoutes');
+const anotacionRouter = require('./routes/anotacionRoutes');
 const usuarioSupervisorRouter = require('./routes/usuarioSupervisorRoutes');
 
 const foroRouter = require('./routes/foroRoutes');
@@ -114,12 +111,9 @@ app.use("/usuarioQuiz/", usuarioQuizRouter);
 app.use("/usuarioQuizRespuesta/", usuarioQuizRespuestaRouter);
 
 app.use("/planilla/", planillaRouter);
-app.use("/aumento/", aumentoRouter);
-app.use("/tipoAumento/", tipoAumentoRouter);
-app.use("/deduccion/", deduccionRouter);
-app.use("/tipoDeduccion/", tipoDeduccionRouter);
-app.use("/otroPago/", otroPagoRouter);
-app.use("/tipoOtroPago/", tipoOtroPagoRouter);
+app.use("/planillaUsuario/", planillaUsuarioRouter);
+app.use("/planillaUsuarioAnotacion/", planillaUsuarioAnotacionRouter);
+app.use("/anotacion/", anotacionRouter);
 app.use("/usuarioSupervisor/", usuarioSupervisorRouter)
 
 app.use("/foro/", foroRouter);

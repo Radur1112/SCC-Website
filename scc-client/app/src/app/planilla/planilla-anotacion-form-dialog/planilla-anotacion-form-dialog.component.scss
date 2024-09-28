@@ -1,0 +1,56 @@
+@use '../../../variables' as *;
+
+.group-title {
+    font-weight: bold;
+    font-size: 1em;
+    color: $primary-color;
+}
+
+.group-content {
+    font-weight: initial;
+    font-size: 0.9em;
+}
+
+.agregar-container {
+  display: flex;
+  justify-content: end;
+  align-items: center;
+}
+
+.agregar-button {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: none;
+  transition: all 0.15s;
+}
+
+.agregar-button:hover {
+  color: $secondary-color;
+}
+
+.agregados {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: start;
+}
+
+.anotacion-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.anotacion-descripcion {
+  flex: 1;
+  margin: 0 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+button {
+  flex-shrink: 0;
+}

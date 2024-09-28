@@ -17,6 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import moment from 'moment';
 
 @Component({
   selector: 'app-usuario-vacacion-index',
@@ -31,13 +32,15 @@ export class UsuarioVacacionIndexComponent {
   usuarioActual: any;
   usuarioId: any;
   
-  displayedColumns: string[] = ['usuarioIdentificacion', 'usuarioNombre', 'fechaInicio', 'comentario', 'estadoTexto'];
+  displayedColumns: string[] = ['usuarioIdentificacion', 'usuarioNombre', 'fechaInicio', 'comentario', 'estadoTexto', 'supervisorNombre'];
   expandedElement: any | null;
   dataUsuario = new Array();
   dataSource: MatTableDataSource<any>;
 
   fechas:any;
   usuarios: any;
+
+  isSupervisor: boolean = false;
 
   estados = {
     0: 'Rechazado',
@@ -65,12 +68,14 @@ export class UsuarioVacacionIndexComponent {
     this.route.paramMap.subscribe(params => {
       this.usuarioId = params.get('id');
       
-      this.getVacaciones();
-    });
-    this.authService.usuarioActual.subscribe((x) => {
-      if (x && Object.keys(x).length !== 0) {
-        this.usuarioActual = x.usuario;
-      }
+      this.authService.usuarioActual.subscribe((x) => {
+        if (x && Object.keys(x).length !== 0) {
+          this.usuarioActual = x.usuario;
+          this.isSupervisor = this.usuarioActual.idTipoUsuario == 3 || this.usuarioActual.idTipoUsuario == 1;
+          
+          this.getVacaciones();
+        }
+      });
     });
   }
 
@@ -83,8 +88,12 @@ export class UsuarioVacacionIndexComponent {
     this.loading = true;
     let query = `vacacion`;
     if (this.usuarioId !== null) {
-      query = `vacacion/usuario/${this.usuarioId}`
+      query += `/usuario/${this.usuarioId}`
+    } else if (this.usuarioActual.idTipoUsuario == 3) {
+      query += `/supervisor/${this.usuarioActual.id}`
     }
+    console.log(this.usuarioId)
+    console.log(this.usuarioActual.idTipoContrato)
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
@@ -98,6 +107,22 @@ export class UsuarioVacacionIndexComponent {
         
         this.loading = false;
       }
+    });
+  }
+
+  descargarExcel() {
+    let query = `vacacion/exportar`;
+    if (this.usuarioActual.idTipoUsuario == 3) {
+      query += `/supervisor/${this.usuarioActual.id}`
+    }
+    this.gService.exportarExcel(query).subscribe(blob => {
+
+      const nombre = `vacaciones_${moment().format('YYYYMMDD')}.xlsx`;
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = nombre;
+      link.click();
     });
   }
 }

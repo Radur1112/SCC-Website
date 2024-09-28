@@ -38,7 +38,7 @@ export class UsuarioIncapacidadIndexComponent {
   usuarioActual: any;
   usuarioId: any;
   
-  displayedColumns: string[] = ['expandir', 'usuarioIdentificacion', 'usuarioNombre', 'fechaInicio', 'estadoTexto'];
+  displayedColumns: string[] = ['expandir', 'usuarioIdentificacion', 'usuarioNombre', 'fechaInicio', 'estadoTexto', 'supervisorNombre'];
   expandedElement: any | null;
   dataUsuario = new Array();
   dataSource: MatTableDataSource<any>;
@@ -71,13 +71,13 @@ export class UsuarioIncapacidadIndexComponent {
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
       this.usuarioId = params.get('id');
+      this.authService.usuarioActual.subscribe((x) => {
+        if (x && Object.keys(x).length !== 0) {
+          this.usuarioActual = x.usuario;
       
-      this.getIncapacidades();
-    });
-    this.authService.usuarioActual.subscribe((x) => {
-      if (x && Object.keys(x).length !== 0) {
-        this.usuarioActual = x.usuario;
-      }
+          this.getIncapacidades();
+        }
+      });
     });
   }
 
@@ -90,7 +90,9 @@ export class UsuarioIncapacidadIndexComponent {
     this.loading = true;
     let query = `incapacidad`;
     if (this.usuarioId !== null) {
-      query = `incapacidad/usuario/${this.usuarioId}`
+      query += `/usuario/${this.usuarioId}`
+    } else if (this.usuarioActual.idTipoUsuario == 3) {
+      query += `/supervisor/${this.usuarioActual.id}`
     }
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({

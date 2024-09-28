@@ -58,7 +58,7 @@ export interface comproabanteInterface {
 export class PlanillaComprobanteIndexComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
 
-  displayedColumns: string[] = ['numero', 'fecha', 'salarioNeto', 'acciones'];
+  displayedColumns: string[] = ['numero', 'fecha', 'totalDeposito', 'acciones'];
   dataComprobante = [];
   dataSource: MatTableDataSource<comproabanteInterface>;
 
@@ -92,13 +92,15 @@ export class PlanillaComprobanteIndexComponent {
   getComprobantes() {
     this.loading = true;
 
-    this.gService.get(`planilla/comprobantes/${this.usuarioId}`)
+    this.gService.get(`planillaUsuario/usuario/${this.usuarioId}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.usuarioNombre = res.data[0].usuarioNombre;
-        this.dataSource = new MatTableDataSource(res.data);
-        this.dataSource.sort = this.sort;
-        this.dataSource.paginator = this.paginator;
+        if (res.data.length > 0) {
+          this.usuarioNombre = res.data[0].usuarioNombre;
+          this.dataSource = new MatTableDataSource(res.data);
+          this.dataSource.sort = this.sort;
+          this.dataSource.paginator = this.paginator;
+        }
         
         this.loading = false;
       }
@@ -107,7 +109,7 @@ export class PlanillaComprobanteIndexComponent {
 
   formatearNumero(valor: string) {
     valor = valor ?? '';
-    let perFormateado = valor.replace(/,/g, '.');
+    let perFormateado = (valor+'').replace(/,/g, '.');
     let formateado = parseFloat(perFormateado.replace(/[^\d.-]/g, ''));
     
     if (isNaN(formateado)) {
@@ -124,7 +126,7 @@ export class PlanillaComprobanteIndexComponent {
   }
 
   mostrarComprobante(idPlanilla: any) {
-    this.gService.get(`planilla/comprobante/preview/${idPlanilla}`)
+    this.gService.get(`planillaUsuario/comprobante/preview/${idPlanilla}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         const comprobante = res.data;

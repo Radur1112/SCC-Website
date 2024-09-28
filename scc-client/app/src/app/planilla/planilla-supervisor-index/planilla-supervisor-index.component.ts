@@ -17,6 +17,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { PlanillaSupervisorAnotacionDialogComponent } from '../planilla-supervisor-anotacion-dialog/planilla-supervisor-anotacion-dialog.component';
+import { PlanillaAnotacionFormDialogComponent } from '../planilla-anotacion-form-dialog/planilla-anotacion-form-dialog.component';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 
 export interface usuarioInterface {
   id: any;
@@ -40,12 +42,13 @@ export interface usuarioInterface {
 })
 export class PlanillaSupervisorIndexComponent {
   destroy$: Subject<boolean> = new Subject<boolean>();
-
-  usuarioActual: any;
   
-  displayedColumns: string[] = ['identificacion', 'nombre', 'correo', 'puesto', 'tipoContrato', 'acciones'];
+  displayedColumns: string[] = ['usuarioIdentificacion', 'usuarioNombre', 'usuarioCorreo', 'puestoDescripcion', 'tipoContratoDescripcion', 'acciones'];
   dataUsuario = new Array();
   dataSource: MatTableDataSource<usuarioInterface>;
+
+  usuarioActual: any;
+  planillaActual: any;
 
   fechas:any;
   usuarios: any;
@@ -57,6 +60,7 @@ export class PlanillaSupervisorIndexComponent {
   loading: boolean = true;
 
   constructor(private gService:GenericService,
+    private alerta: AlertaService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
     private dialog: MatDialog,
@@ -71,7 +75,7 @@ export class PlanillaSupervisorIndexComponent {
     this.authService.usuarioActual.subscribe((x) => {
       if (x && Object.keys(x).length !== 0) {
         this.usuarioActual = x.usuario;
-        this.getUsuarios();
+        this.getActual();
       }
     });
   }
@@ -81,12 +85,28 @@ export class PlanillaSupervisorIndexComponent {
     this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
-  getUsuarios() {
+  getActual() {
     this.loading = true;
 
-    let query = `planilla/usuarios`;
+    this.gService.get(`planilla/actual`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        if (res.data) {
+          this.planillaActual = res.data;
+          this.getPlanillaUsuarios();
+        } else {
+          this.loading = false;
+        }
+      }
+    });
+  }
+
+  getPlanillaUsuarios() {
+    this.loading = true;
+
+    let query = `planillaUsuario/planilla/${this.planillaActual.id}`;
     if (this.usuarioActual.idTipoUsuario == 3) {
-      query = `planilla/supervisor/${this.usuarioActual.id}`
+      query += `/supervisor/${this.usuarioActual.id}`
     }
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
@@ -99,30 +119,41 @@ export class PlanillaSupervisorIndexComponent {
     });
   }
 
-  mostrarAnotaciones(idUsuario: any) {
-    this.gService.get(`planilla/usuario/${idUsuario}`)
+  mostrarAnotaciones(idPlanillaUsuario: any) {
+    this.gService.get(`planillaUsuario/${idPlanillaUsuario}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.openPlanillaDialog(res);
+        this.openAnotacionDialog(res.data);
       }
     });
   }
 
-  openPlanillaDialog(res: any): void {
-    let width = '1200px';
+  openAnotacionDialog(planillaUsuario: any) {
+    let width = '600px';
     let data = { 
-      idUsuarioActual: this.usuarioActual.id,
-      planilla: res.data,
-      
+      isCrear: true,
+      planillaUsuario: planillaUsuario,
+      idUsuarioActual: this.usuarioActual.id
     };
     
-    const dialogRef = this.dialog.open(PlanillaSupervisorAnotacionDialogComponent, {
+    const dialogRef = this.dialog.open(PlanillaAnotacionFormDialogComponent, {
       data,
-      width
+      width,
+      disableClose: true
     });
   
     dialogRef.afterClosed().subscribe(result => {
-      if (result) {
+      if (result && result.length > 0) {
+        this.crearAnotaciones(result);
+      }
+    });
+  }
+
+  crearAnotaciones(anotaciones: any[]) {
+    this.gService.post(`planillaUsuarioAnotacion/multiple`, anotaciones)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        this.alerta.mensaje('Anotacion', 'Anotaciones guardadas correctamente', TipoMessage.success);
       }
     });
   }

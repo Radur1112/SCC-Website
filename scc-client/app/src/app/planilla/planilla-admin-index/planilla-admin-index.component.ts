@@ -49,8 +49,9 @@ export class PlanillaAdminIndexComponent {
 
   usuarioActual: any;
   isPlanillero: any;
+  planillaActual: any;
   
-  displayedColumns: string[] = ['identificacion', 'nombre', 'correo', 'puestoDescripcion', 'tipoContratoDescripcion', 'acciones'];
+  displayedColumns: string[] = ['usuarioIdentificacion', 'usuarioNombre', 'usuarioCorreo', 'puestoDescripcion', 'tipoContratoDescripcion', 'acciones'];
   dataUsuario = new Array();
   dataSource: MatTableDataSource<usuarioInterface>;
 
@@ -105,7 +106,7 @@ export class PlanillaAdminIndexComponent {
       }
     });
 
-    this.getUsuarios();
+    this.getActual();
   }
 
   busqueda(event: Event) {
@@ -122,9 +123,7 @@ export class PlanillaAdminIndexComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.alerta.mensaje('Planilla', 'planillas creadas correctamente', TipoMessage.success);
-        this.getFechaActual();
-        this.getFechas();
-        this.getUsuarios();
+        this.getActual();
       }
     });
   }
@@ -133,26 +132,46 @@ export class PlanillaAdminIndexComponent {
     this.confirmationService.confirm()
       .subscribe(result => {
         if (result) {
-          this.gService.get(`planilla/completar`)
+          this.gService.get(`planillaUsuario/completar/${this.planillaActual.id}`)
           .pipe(takeUntil(this.destroy$)).subscribe({
             next:(res) => {
               this.alerta.mensaje('Planilla', 'El envío del comprobante al correo electrónico podrá tardar varios minutos', TipoMessage.warning);
               this.alerta.mensaje('Planilla', 'planillas completadas y creadas correctamente', TipoMessage.success);
-              this.getFechaActual();
-              this.getFechas();
-              this.getUsuarios();
+              this.getActual();
             }
           });
         }
       });
   }
 
-  getUsuarios() {
+  getActual() {
+    this.loading = true;
+    this.gService.get(`planilla/actual`)
+    .pipe(takeUntil(this.destroy$)).subscribe({
+      next:(res) => {
+        if (res.data) {
+          this.planillaActual = res.data;
+          this.selectedFecha.setValue({
+            fechaInicio: new Date(res.data.fechaInicio),
+            fechaFinal: new Date(res.data.fechaFinal)
+          });
+          
+          this.getFechas();
+          this.getPlanillaUsuarios();
+        } else {
+          this.loading = false;
+          this.reiniciarValores();
+        }
+      }
+    });
+  }
+
+  getPlanillaUsuarios() {
     this.loading = true;
 
-    let query = `planilla/usuarios`;
+    let query = `planillaUsuario/planilla/${this.planillaActual.id}`;
     if (this.usuarioActual.idTipoUsuario == 3) {
-      query = `planilla/supervisor/${this.usuarioActual.id}`
+      query += `/supervisor/${this.usuarioActual.id}`
     }
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
@@ -160,9 +179,6 @@ export class PlanillaAdminIndexComponent {
         this.dataSource = new MatTableDataSource(res.data);
         this.dataSource.sort = this.sort;
         this.dataSource.paginator = this.paginator;
-        
-        this.getFechaActual();
-        this.getFechas();
         
         this.loading = false;
       }
@@ -189,19 +205,18 @@ export class PlanillaAdminIndexComponent {
       }
     });
   }
-
-  getFechaActual() {
-    this.gService.get(`planilla/fechaActual`)
-    .pipe(takeUntil(this.destroy$)).subscribe({
-      next:(res) => {
-        if (res.data) {
-          this.selectedFecha.setValue({
-            fechaInicio: new Date(res.data.fechaInicio),
-            fechaFinal: new Date(res.data.fechaFinal)
-          });
-        }
-      }
+  
+  reiniciarValores() {
+    this.planillaActual = null;
+    this.selectedFecha.setValue({
+      fechaInicio: null,
+      fechaFinal: null
     });
+    this.lastDate = null;
+    this.dataSource = new MatTableDataSource([]);
+    this.dataSource.sort = this.sort;
+    this.dataSource.paginator = this.paginator;
+
   }
 
   actualizarFechas() {
@@ -211,7 +226,7 @@ export class PlanillaAdminIndexComponent {
         fechaFinal: this.formatearFecha(this.selectedFecha.value.fechaFinal)
       }
 
-      this.gService.post(`planilla/fechas`, fechas)
+      this.gService.post(`planilla/${this.planillaActual.id}`, fechas)
       .pipe(takeUntil(this.destroy$)).subscribe({
         next:(res) => {
           this.alerta.mensaje('Planilla', 'Rango de fechas actualizado correctamente', TipoMessage.success);
@@ -228,38 +243,39 @@ export class PlanillaAdminIndexComponent {
     return `${year}-${month}-${day}`;
   }
 
-  mostrarPlanilla(usuario: any) {
-    this.gService.get(`planilla/usuario/${usuario.id}`)
+  mostrarPlanilla(planillaUsuario: any) {
+    this.gService.get(`planillaUsuario/${planillaUsuario.id}`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        this.openPlanillaDialog(res, usuario.idTipoContrato, usuario.id);
+        this.openPlanillaDialog(res.data, planillaUsuario.usuarioIdTipoContrato, planillaUsuario.usuarioId);
       }
     });
   }
 
-  openPlanillaDialog(res: any, isAsalariado?: any, usuarioId?: any): void {
+  openPlanillaDialog(planillaUsuario: any, isAsalariado?: any, usuarioId?: any): void {
     let width = isAsalariado != 2 ? '1200px' : '600px';
     let data = { 
       idUsuarioActual: this.usuarioActual.id,
-      planilla: res.data,
+      planillaUsuario: planillaUsuario,
       isAsalariado: isAsalariado,
       usuarioId: usuarioId
     };
     
     const dialogRef = this.dialog.open(PlanillaDialogComponent, {
       data,
-      width
+      width,
+      disableClose: true
     });
   
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-          this.alerta.mensaje('Planilla', 'Planilla actualizada correctamente', TipoMessage.success);
+        
       }
     });
   }
 
   descargarPlanilla() {
-    this.gService.exportarExcel(`planilla/actual/exportar`).subscribe(blob => {
+    this.gService.exportarExcel(`planillaUsuario/resumen/exportar/${this.planillaActual.id}`).subscribe(blob => {
 
       const nombre = `resumen_planilla__${moment(new Date(this.selectedFecha.value.fechaInicio)).format('YYYYMMDD')}_${moment(new Date(this.selectedFecha.value.fechaFinal)).format('YYYYMMDD')}.xlsx`;
 
