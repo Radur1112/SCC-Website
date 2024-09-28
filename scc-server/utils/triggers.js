@@ -10,7 +10,6 @@ const create_planilla_insert_usuario = async (idUsuario) => {
     let idPlanillaUsuario;
 
     const [planilla] = await connection.query(`SELECT * FROM planilla WHERE estado = 1`);
-
     if (planilla.length > 0) {
       const [usuario] = await connection.query(`SELECT salario FROM usuario WHERE estado != 0 AND idPuesto NOT IN (1, 2) AND id = ?`, [idUsuario]);
 
@@ -19,7 +18,7 @@ const create_planilla_insert_usuario = async (idUsuario) => {
 
         const [planillaUsuario] = await connection.query(`
           SELECT pu.* 
-          FROM planillaUsuario pu
+          FROM planillausuario pu
           INNER JOIN planilla pl ON pl.id = pu.idPlanilla
           WHERE pl.estado = 1 AND pu.idUsuario = ?`, [idUsuario]);
   

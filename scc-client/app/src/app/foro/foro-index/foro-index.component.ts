@@ -163,7 +163,6 @@ export class ForoIndexComponent {
     this.gService.post(`foro`, foro)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(foro)
         const archivoPromise = foro.archivos && foro.archivos.length > 0 ? this.crearArchivos(res.data.insertId, foro.archivos) : Promise.resolve();
         const respuestaPromise = foro.respuestas && foro.respuestas.length > 0 ? this.crearRespuestas(res.data.insertId, foro.respuestas) : Promise.resolve();
       
@@ -207,7 +206,6 @@ export class ForoIndexComponent {
     this.gService.put(`foro`, foro)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
-        console.log(foro)
         const archivoCreatePromise = foro.archivos && foro.archivos.length > 0 ? this.crearArchivos(foro.id, foro.archivos) : Promise.resolve();
         const archivoUpdatePromise = foro.archivosBorrar && foro.archivosBorrar.length > 0 ? this.actualizarArchivos(foro.id, foro.archivosBorrar) : Promise.resolve();
         const respuestaPromise = foro.respuestasBorrarIds || foro.respuestasNuevas ? this.actualizarRespuestas(foro.id, {respuestasBorrarIds: foro.respuestasBorrarIds, respuestasNuevas: foro.respuestasNuevas}) : Promise.resolve();

@@ -1043,8 +1043,7 @@ async function validarDatos(data) {
           break;
       }
     }
-    console.log(fila)
-
+    
     datos.push(fila)
     fila = {};
   });

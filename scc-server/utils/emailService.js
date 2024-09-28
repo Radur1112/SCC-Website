@@ -136,7 +136,7 @@ const enviarCorreoComprobante = async (formData, ubicacionCV) => {
     html: '<h3>Ajunto comprobante.<h3/>',
     attachments: [
       {
-        filename: ubicacionCV.split('\\').pop(),
+        filename: ubicacionCV.split('\\').pop().split('/').pop(),
         path: ubicacionCV
       }
     ]

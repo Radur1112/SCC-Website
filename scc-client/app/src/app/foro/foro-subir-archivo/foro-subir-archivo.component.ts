@@ -30,7 +30,6 @@ export class ForoSubirArchivoComponent {
 
   constructor(private alerta: AlertaService) {
     this.uploader.onAfterAddingFile = (file) => { 
-      console.log(file)
       file.withCredentials = false; 
       if (this.uploader.queue.length > 10) {
       } else {

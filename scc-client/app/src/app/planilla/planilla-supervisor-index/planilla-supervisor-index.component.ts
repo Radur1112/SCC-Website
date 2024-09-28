@@ -16,7 +16,6 @@ import { MatPaginatorIntl } from '@angular/material/paginator';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
-import { PlanillaSupervisorAnotacionDialogComponent } from '../planilla-supervisor-anotacion-dialog/planilla-supervisor-anotacion-dialog.component';
 import { PlanillaAnotacionFormDialogComponent } from '../planilla-anotacion-form-dialog/planilla-anotacion-form-dialog.component';
 import { AlertaService, TipoMessage } from '../../services/alerta.service';
 
