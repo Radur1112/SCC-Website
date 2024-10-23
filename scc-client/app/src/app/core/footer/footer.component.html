@@ -1,49 +1,79 @@
 <footer class="footer">
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            <div class="col-md-12 text-center">
-                <h3 class="mt-5 mb-5">
-                    SCC Inc
-                </h3>
-                <div class="menu row justify-content-sm-center mb-2">
-                    <div class="col-sm-2 col-xl-1 mb-2">
-                        <a routerLink="/inicio" routerLinkActive="active-link" class="routerLinkA">Inicio</a>
-                    </div>
-                    <div class="col-sm-2 col-xl-1 mb-2">
-                        <a routerLink="/sobre-nosotros" routerLinkActive="active-link" class="routerLinkA">Sobre nosotros</a>
-                    </div>
-                    <div class="col-sm-2 col-xl-1 mb-2">
-                        <a routerLink="/reclutamiento" routerLinkActive="active-link" class="routerLinkA">Únete a nosotros</a>
-                    </div>
-                    <div class="col-sm-2 col-xl-1 mb-2">
-                        <a routerLink="/contacto" routerLinkActive="active-link" class="routerLinkA">Contáctenos</a>
-                    </div>
-                </div>
-                <div class="row justify-content-center mt-5 mb-5">
-                    <div class="col-md-1 col-3 mb-2">
-                        <button mat-fab class="social whats" (click)="redirectToPage('https://wa.me/60102022')" matTooltip="WhatsApp">
-                            <i class="fa-brands fa-whatsapp"></i>
-                        </button>
-                    </div>
-                    <div class="col-md-1 col-3 mb-2">
-                        <button mat-fab class="social" (click)="redirectToPage('https://www.facebook.com/sccinc.cr')" matTooltip="Facebook">
-                            <i class="fa-brands fa-facebook"></i>
-                        </button>
-                    </div>
-                    <div class="col-md-1 col-3 mb-2">
-                        <button mat-fab class="social" (click)="redirectToPage('https://www.linkedin.com/company/scc-inc-centro-de-contacto/')"  matTooltip="LinkedIn">
-                            <i class="fa-brands fa-linkedin"></i>
-                        </button>
-                    </div>
-                </div>
+  <div class="container-fluid">
+    <div class="footer-content">
+      <div class="principal">
+        <div class="nombre-contacto">
+          <h2 class="nombre">
+            <strong>SCC Inc</strong>
+          </h2>
+          <div class="contacto">
+            <div>
+              <mat-icon>call</mat-icon>
+              <p>(+506) 6096 6491</p>
             </div>
-        </div>
-        <div class="row mt-5">
-            <div class="col-md-12 text-center">
-                <p class="copyright">
-                    Copyright ©2024 SCC Inc
-                </p>    
+            <div>
+              <mat-icon>mail</mat-icon>
+              <p>info&#64;sccincr.net</p>
             </div>
+            <div>
+              <mat-icon>pin_drop</mat-icon>
+              <p>Provincia 02 Alajuela, Cantón 01 Alajuela, Carretera el coyol, calle San Isidro Av 4. Cien metros norte y cincuenta metros oeste de La Iglesia de la Localidad.</p>
+            </div>
+          </div>
         </div>
+  
+        <mat-divider class="principal-divider my-4"></mat-divider>
+      </div>
+  
+      <div class="secundario">
+        <div class="links mb-2">
+          <div class="">
+            <a routerLink="/inicio" routerLinkActive="active-link" class="routerLinkA">Inicio</a>
+          </div>
+          <div class="">
+            <a routerLink="/sobre-nosotros" routerLinkActive="active-link" class="routerLinkA">Sobre nosotros</a>
+          </div>
+          <div class="">
+            <a routerLink="/reclutamiento" routerLinkActive="active-link" class="routerLinkA">Únete a nosotros</a>
+          </div>
+          <div class="">
+            <a routerLink="/contacto" routerLinkActive="active-link" class="routerLinkA">Contáctenos</a>
+          </div>
+        </div>
+  
+        <mat-divider class="secundario-divider my-4"></mat-divider>
+        
+        <div class="col-lg-3 red-social">
+          <div class="mb-2">
+            <button mat-fab class="social whats" (click)="redirectToPage('https://wa.me/+50660966491')" matTooltip="WhatsApp">
+              <i class="fa-brands fa-whatsapp"></i>
+            </button>
+          </div>
+          <div class="mb-2">
+            <button mat-fab class="social" (click)="redirectToPage('https://www.instagram.com/sccinc_cc/?next=%2F')" matTooltip="Instagram">
+              <i class="fa-brands fa-instagram"></i>
+            </button>
+          </div>
+          <div class="mb-2">
+            <button mat-fab class="social" (click)="redirectToPage('https://www.facebook.com/profile.php?id=61565443605506&locale=es_LA')" matTooltip="Facebook">
+              <i class="fa-brands fa-facebook"></i>
+            </button>
+          </div>
+          <div class="mb-2">
+            <button mat-fab class="social" (click)="redirectToPage('https://www.linkedin.com/company/scc-inc-centro-de-contacto/')"  matTooltip="LinkedIn">
+              <i class="fa-brands fa-linkedin"></i>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+    <div class="row mt-5">
+      <div class="col-md-12 text-center">
+        <p class="copyright">
+          Copyright ©2024 SCC Inc
+        </p>    
+      </div>
+    </div>
+  </div>
 </footer>
+  

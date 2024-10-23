@@ -2,6 +2,9 @@
   <a routerLink="/capacitacion" class="go-back" matTooltip="Ir atras">
     <mat-icon class="light-color">arrow_back</mat-icon>
   </a>
+  <a (click)="descargarExcel()" class="descargar" matTooltip="Descargar incapacidades" *ngIf="isSupervisor">
+    <mat-icon class="light-color">download</mat-icon>
+  </a>
   <div class="mx-auto">
     <mat-card-header class="content-container-center">
       <mat-card-title class="light-color">

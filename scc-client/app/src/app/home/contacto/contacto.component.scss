@@ -118,10 +118,11 @@
     fill: $primary-color;
 }
 
-.social-container {
-    max-height: 75px;
+.container-social {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
 
 .social {
     height: 70px;
@@ -251,6 +252,13 @@
         height: 45px;
         width: 45px;
         fill: $primary-color;
+    }
+    
+    .social {
+        height: 55px;
+        width: 55px;
+        font-size: 35px;
+        margin: 10px;
     }
 
     mat-card-content {

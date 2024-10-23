@@ -10,7 +10,7 @@ UPDATE planilla pl INNER JOIN usuario u ON u.id = pl.idUsuario SET pl.estado = 1
 DELETE FROM planillahistorial WHERE id = 1;
 DELETE ph FROM comprobanteplanilla ph INNER JOIN planilla pl ON pl.id = ph.idPlanilla WHERE pl.fechaInicio < '2024-08-12';
 
-SELECT * FROM usuario;
+SELECT * FROM usuario WHERE estado != 0 ORDER BY siguienteVacacion;
 SELECT * FROM tipousuario;
 SELECT * FROM tipocontrato;
 SELECT * FROM puesto;
@@ -20,8 +20,8 @@ SELECT * FROM incapacidadarchivo;
 SELECT * FROM vacacion;
 SELECT * FROM notificacion;
 
-UPDATE vacacion SET estado = 2 WHERE id > 0;
-UPDATE usuario SET vacacion = 2 WHERE id > 0;
+UPDATE usuario SET siguienteVacacion = fechaIngreso WHERE id > 0;
+UPDATE usuario SET vacacion = 0 WHERE id > 0 AND vacacion IS NOT NULL;
 
 SELECT * FROM video;
 SELECT * FROM modulo;
@@ -82,18 +82,12 @@ DELETE FROM planilla WHERE id > 0;
 ALTER TABLE planilla AUTO_INCREMENT = 1;
 
 
-DELETE FROM tipoaumento WHERE id > 0;
-ALTER TABLE tipoaumento AUTO_INCREMENT = 1;
-DELETE FROM tipodeduccion WHERE id > 0;
-ALTER TABLE tipodeduccion AUTO_INCREMENT = 1;
-DELETE FROM tipootropago WHERE id > 0;
-ALTER TABLE tipootropago AUTO_INCREMENT = 1;
-DELETE FROM aumento WHERE id > 0;
-ALTER TABLE aumento AUTO_INCREMENT = 1;
-DELETE FROM deduccion WHERE id > 0;
-ALTER TABLE deduccion AUTO_INCREMENT = 1;
-DELETE FROM otropago WHERE id > 0;
-ALTER TABLE otropago AUTO_INCREMENT = 1;
+DROP TABLE aumento;
+DROP TABLE deduccion;
+DROP TABLE otropago;
+DROP TABLE tipoaumento;
+DROP TABLE tipodeduccion;
+DROP TABLE tipootropago;
 
 DELETE FROM usuarioquizrespuesta WHERE id > 0;
 ALTER TABLE usuarioquizrespuesta AUTO_INCREMENT = 1;

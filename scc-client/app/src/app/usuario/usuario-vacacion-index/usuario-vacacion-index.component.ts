@@ -92,6 +92,7 @@ export class UsuarioVacacionIndexComponent {
     } else if (this.usuarioActual.idTipoUsuario == 3) {
       query += `/supervisor/${this.usuarioActual.id}`
     }
+    
     this.gService.get(query)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {

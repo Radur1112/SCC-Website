@@ -1,36 +1,186 @@
 @use '../../../variables' as *;
 
 .footer {
-    width: 100%;
-    background-color: $primary-color;
-    color: #ffffff;
-    font-size: 16px;
-    border-radius: 55px 55px 0 0;
+  width: 100%;
+  background-color: $primary-color;
+  color: #ffffff;
+  font-size: 16px;
+  border-radius: 55px 55px 0 0;
+  padding: 50px 50px 10px;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: auto;
+  display: flex;
+  gap: 90px;
 }
 
 a {
-    color: #ffffff;
+  color: #ffffff;
 }
 
 a:hover {
-    color: $secondary-color;
+  color: $secondary-color;
 }
 
 .social {
-    height: 50px;
-    width: 50px;
-    color: $secondary-color;
-    background-color: $primary-color;
-    border: 2px solid $secondary-color;
-    font-size: 30px;
-    transition: all 0.3s;
+  height: 50px;
+  width: 50px;
+  color: $secondary-color;
+  background-color: $primary-color;
+  border: 2px solid $secondary-color;
+  font-size: 30px;
+  transition: all 0.3s;
 }
 
 .social:hover {
-    color: #ffffff;
-    border-color: #ffffff;
+  color: #ffffff;
+  border-color: #ffffff;
 }
 
 .whats {
-    font-size: 33px;
+  font-size: 33px;
+}
+
+.mat-divider {
+  border-top-color: rgb(255, 255, 255, 0.15) !important;
+}
+
+mat-icon {
+  flex-shrink: 0;
+}
+
+.principal {
+  flex: 1;
+}
+
+.nombre-contacto {
+  display: flex;
+  justify-content: start;
+  align-items: start;
+  text-align: start;
+  gap: 20px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.nombre-contacto .contacto div {
+  display: flex;
+  justify-content: start;
+  align-items: start;
+  text-align: justify;
+  gap: 5px;
+}
+
+.nombre-contacto .contacto {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+}
+
+.nombre-contacto .nombre {
+  flex-shrink: 0;
+}
+
+.principal-divider {
+  display: none;
+}
+
+
+.secundario {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  width: 100%;
+  padding: 0 30px;
+  order: 3;
+}
+
+.secundario-divider {
+  width: 100%;
+  order: 2;
+}
+
+.red-social {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 70px;
+  order: 1;
+}
+
+
+@media screen and (max-width: 991.98px) {
+  .footer {
+    padding: 30px 20px 10px;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .nombre-contacto {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: start;
+    text-align: start;
+    gap: 20px;
+  }
+
+  .nombre-contacto .nombre {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+  }
+
+  .nombre-contacto .contacto {
+    padding: 0;
+  }
+
+  .principal-divider {
+    display: block;
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 0;
+    order: 1;
+  }
+  
+  .secundario-divider {
+    order: 2;
+  }
+  
+  .red-social {
+    order: 3;
+  }
+}
+
+@media screen and (max-width: 575.98px) {
+
+  .red-social {
+    gap: 30px;
+  }
 }

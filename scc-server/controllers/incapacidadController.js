@@ -1,4 +1,7 @@
 const db = require('../utils/db.js');
+const xlsx = require('xlsx');
+const exceljs = require('exceljs');
+const moment = require('moment');
 const { format } = require('date-fns');
 const { es } = require('date-fns/locale');
 
@@ -533,55 +536,143 @@ async function enviarNotificacion(aceptado, id) {
   insert_notificacion(datos);
 }
 
-/* 
-module.exports.crearConArchivos = async (req, res, next) => {
-  const connection = await db.getConnection();
-
+module.exports.exportarExcel = async(req, res, next) => {
   try {
-    await connection.beginTransaction();
-
-    const datos = req.body;
-    const archivos = req.files;
-
-    const crearDatos = {
-      idUsuario: datos.idUsuario,
-      razon: datos.razon,
-      fechaInicio: datos.fechaInicio,
-      fechaFinal: datos.fechaFinal,
-    };
-
-    const [data] = await connection.query(`INSERT INTO ${nombreTabla} SET ?`, [crearDatos]);
-    const idIncapacidad = data.insertId;
-
-    const archivosPromises = archivos.map((archivo) => {
-      const crearArchivoDatos = {
-        idIncapacidad,
-        ubicacion: `${req.protocol}://${req.get('host')}/${archivo.path.replace(/\\/g, '/')}`,
-      };
-
-      return connection.query(`INSERT INTO incapacidadarchivo SET ?`, [crearArchivoDatos]);
-    });
-
-    await Promise.all(archivosPromises);
-
-    await connection.commit();
-
-    res.status(201).json({
-      status: true,
-      message: `${nombreTabla} y archivos creados`,
-      data: { idIncapacidad },
-    });
+    const data = await db.query(`
+      SELECT i.*,
+        u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion,
+        u2.nombre AS supervisorNombre
+      FROM ${nombreTabla} i
+      INNER JOIN usuario u ON u.id = i.idUsuario
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE u.estado != 0
+      GROUP BY i.id
+      ORDER BY i.fechaCreado DESC`);
+    if(data) {
+      crearExport(res, data[0]);
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
   } catch (error) {
-    await connection.rollback();
-
-    console.error(error);
+    console.log(error);
     res.status(500).send({
       success: false,
-      message: `Error en registrar ${nombreTabla}`,
-      error: error.message,
-    });
-  } finally {
-    connection.release();
+      message: 'Error al obtener datos',
+      error: error
+    })
   }
-};
-*/
+}
+
+module.exports.exportarExcelByIdSupervisor = async(req, res, next) => {
+  try {
+    const id = req.params.id;
+    if (!id) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+
+    const data = await db.query(`
+      SELECT i.*,
+        u.nombre AS usuarioNombre, u.identificacion AS usuarioIdentificacion,
+        u2.nombre AS supervisorNombre
+      FROM ${nombreTabla} i
+      INNER JOIN usuario u ON u.id = i.idUsuario
+      INNER JOIN usuariosupervisor us ON us.idUsuario = u.id
+      LEFT JOIN usuario u2 ON u2.id = i.idSupervisor
+      WHERE u.estado != 0 AND us.idSupervisor = ?
+      GROUP BY i.id
+      ORDER BY i.fechaCreado DESC`, [id]);
+    if(data) {
+      crearExport(res, data[0]);
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'No se encontraron datos',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: 'Error al obtener datos',
+      error: error
+    })
+  }
+}
+
+async function crearExport(res, data) {
+  try {
+    const workbook = await crearExcel(data);
+    const nombre = `incapacidades_${moment().format('YYYYMMDD')}.xlsx`;
+    
+    workbook.xlsx.writeBuffer()
+      .then(buffer => {
+        res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        res.setHeader('Content-Disposition', `attachment; filename="${nombre}"`);
+        res.send(buffer);
+      })
+      .catch(err => {
+        console.log(err);
+        res.status(500).send({
+          success: false,
+          message: 'Error al generar el achivo de Excel',
+        });
+      });
+  } catch (error) {
+    console.error('Error creating Excel file:', error);
+  }
+}
+
+async function crearExcel(data) {
+  try {
+    let workbook = new exceljs.Workbook();
+    const hoja = workbook.addWorksheet('Incapacidades');
+
+    const configurarHoja = (worksheet, incapacidades) => {
+      const headers = [
+        { header: 'Identificación', width: 15 },
+        { header: 'Nombre completo', width: 30 },
+        { header: 'Fechas de incapacidad', width: 60 },
+        { header: 'Razón', width: 30 },
+        { header: 'Estado', width: 15 },
+        { header: 'Revisado por', width: 30 }
+      ];
+      worksheet.columns = headers;
+      worksheet.getRow(1).font = { bold: true };
+      
+      const estados = {
+        0: 'Rechazado',
+        1: 'Confirmado',
+        2: 'Pendiente'
+      };
+
+      incapacidades.forEach(incapacidad => {
+        const formattedInicio = format(incapacidad.fechaInicio, "d 'de' MMMM, y - hh:mm a", { locale: es });
+        const formattedFinal = format(incapacidad.fechaFinal, "d 'de' MMMM, y - hh:mm a", { locale: es });
+        const fechas = `${formattedInicio} / ${formattedFinal}`;
+
+        let row = [
+          incapacidad.usuarioIdentificacion,
+          incapacidad.usuarioNombre,
+          fechas,
+          incapacidad.razon ?? 'Sin razón',
+          estados[incapacidad.estado],
+          incapacidad.supervisorNombre ?? 'No especificado'
+        ];
+
+        worksheet.addRow(row);
+      });
+    };
+
+    configurarHoja(hoja, data);
+
+    return workbook;
+  } catch (error) {
+    console.error('Error creating Excel file:', error);
+  }
+}

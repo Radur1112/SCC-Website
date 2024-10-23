@@ -24,10 +24,12 @@ const upload = multer({ storage: storage });
 const incapacidadController = require("../controllers/incapacidadController");
 
 router.get('/', verifyToken([1, 3]), incapacidadController.get);
+router.get('/exportar', verifyToken([1]), incapacidadController.exportarExcel);
 router.get('/pendientes', verifyToken([1, 3]), incapacidadController.getPendientes);
 router.get('/:id', verifyToken([1, 3]), incapacidadController.getById);
 router.get("/usuario/:id", verifyToken([0]), incapacidadController.getByIdUsuario);
 router.get("/supervisor/:id", verifyToken([0]), incapacidadController.getByIdSupervisor);
+router.get('/exportar/supervisor/:id', verifyToken([1, 3]), incapacidadController.exportarExcelByIdSupervisor);
 router.get("/noRechazado/usuario/:id", verifyToken([0]), incapacidadController.getNoRechazadoByIdUsuario);
 router.get('/pendientes/supervisor/:id', verifyToken([1, 3]), incapacidadController.getPendientesByIdSupervisor);
 

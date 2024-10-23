@@ -17,6 +17,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { animate, state, style, transition, trigger } from '@angular/animations';
+import moment from 'moment';
 
 @Component({
   selector: 'app-usuario-incapacidad-index',
@@ -46,6 +47,8 @@ export class UsuarioIncapacidadIndexComponent {
   fechas:any;
   usuarios: any;
 
+  isSupervisor: boolean = false;
+
   estados = {
     0: 'Rechazado',
     1: 'Confirmado',
@@ -74,6 +77,7 @@ export class UsuarioIncapacidadIndexComponent {
       this.authService.usuarioActual.subscribe((x) => {
         if (x && Object.keys(x).length !== 0) {
           this.usuarioActual = x.usuario;
+          this.isSupervisor = this.usuarioActual.idTipoUsuario == 3 || this.usuarioActual.idTipoUsuario == 1;
       
           this.getIncapacidades();
         }
@@ -112,5 +116,21 @@ export class UsuarioIncapacidadIndexComponent {
 
   toggleRow(element: any): void {
     this.expandedElement = this.expandedElement === element ? null : element;
+  }
+
+  descargarExcel() {
+    let query = `incapacidad/exportar`;
+    if (this.usuarioActual.idTipoUsuario == 3) {
+      query += `/supervisor/${this.usuarioActual.id}`
+    }
+    this.gService.exportarExcel(query).subscribe(blob => {
+
+      const nombre = `incapacidades_${moment().format('YYYYMMDD')}.xlsx`;
+
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = nombre;
+      link.click();
+    });
   }
 }
