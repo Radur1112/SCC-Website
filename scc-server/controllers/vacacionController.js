@@ -391,7 +391,47 @@ module.exports.rechazarVacacion = async (req, res, next) => {
   }
 };
 
-async function enviarNotificacion(aceptado, id) {
+module.exports.cancelarVacacion = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const estado = req.params.estado;
+    if (!id || !estado) {
+      return res.status(404).send({
+        success: false,
+        message: 'Id inválido',
+      });
+    }
+
+    const datos = req.body;
+
+    const data = await db.query(`UPDATE ${nombreTabla} SET estado = 3, idSupervisor = ? WHERE id = ?`, [datos.idSupervisor, id]);
+    if (data) {
+      if (estado == 1 || estado == 2) {
+        update_usuario_after_vacacion(id, false);
+      }
+      enviarNotificacion(false, id, true);
+
+      res.status(201).json({
+          status: true,
+          message: `${nombreTabla} actualizado`
+      });
+    } else {
+      res.status(404).send({
+        success: false,
+        message: 'Error en UPDATE',
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: `Error en actualizar ${nombreTabla}`,
+      error: error
+    });
+  }
+};
+
+async function enviarNotificacion(aceptado, id, cancelado) {
   const [data] = await db.query(`SELECT v.*, u.correo AS usuarioCorreo FROM ${nombreTabla} v INNER JOIN usuario u ON u.id = v.idUsuario WHERE v.id = ?`, [id]);
   const vacacion = data[0];
 
@@ -410,7 +450,7 @@ async function enviarNotificacion(aceptado, id) {
       html: `Su solicitud de vacaciones del ${fechaInicio} al ${fechaFinal} ha sido aprobada`,
       usuarioCorreo: vacacion.usuarioCorreo
     };
-  } else {
+  } else if (!cancelado) {
     datos = {
       idUsuario: vacacion.idUsuario,
       titulo: 'Vacacion rechazada',
@@ -419,6 +459,17 @@ async function enviarNotificacion(aceptado, id) {
       asunto: 'Vacacion rechazada',
       color: 3,
       html: `Su solicitud de vacaciones del ${fechaInicio} al ${fechaFinal} ha sido rechazada`,
+      usuarioCorreo: vacacion.usuarioCorreo
+    };
+  } else {
+    datos = {
+      idUsuario: vacacion.idUsuario,
+      titulo: 'Vacacion cancelada',
+      descripcion: 'Su solicitud de vacaciones ha sido cancelada',
+      destino: `/vacacion/historial/${vacacion.idUsuario}`,
+      asunto: 'Vacacion cancelada',
+      color: 3,
+      html: `Su solicitud de vacaciones del ${fechaInicio} al ${fechaFinal} ha sido cancelada`,
       usuarioCorreo: vacacion.usuarioCorreo
     };
   }

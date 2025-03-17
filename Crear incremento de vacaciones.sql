@@ -225,5 +225,4 @@ BEGIN
       OR (YEAR(today) = YEAR(siguienteVacacion) AND MONTH(today) = MONTH(siguienteVacacion) AND  DAY(today) >= DAY(siguienteVacacion)));
 END; //
 DELIMITER ;  
-           
        

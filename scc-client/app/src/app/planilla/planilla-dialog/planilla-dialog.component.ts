@@ -35,6 +35,7 @@ export class PlanillaDialogComponent {
 
   newAnotaciones: any[] = [];
 
+  salarioInicial: any;
   modificarSalario: any;
 
   noti: any = 0;
@@ -51,6 +52,8 @@ export class PlanillaDialogComponent {
     this.usuarioId = data.usuarioId;
     this.planillaUsuario = data.planillaUsuario;
     this.isAsalariado = data.isAsalariado;
+
+    this.salarioInicial = this.planillaUsuario.salarioBase;
 
     this.bindAnotaciones();
   }
@@ -335,7 +338,7 @@ export class PlanillaDialogComponent {
   }
 
   guardarPlanilla() {
-    const salarioPromise = this.modificarSalario && this.stringToFloat(this.modificarSalario) != this.stringToFloat(this.planillaUsuario.salarioBase) ? this.actualizarSalario() : Promise.resolve();
+    const salarioPromise = (this.modificarSalario || this.modificarSalario == 0) && this.stringToFloat(this.modificarSalario) != this.stringToFloat(this.salarioInicial) ? this.actualizarSalario() : Promise.resolve();
     const anotacionesPromise = this.newAnotaciones.length > 0 ? this.crearAnotaciones() : Promise.resolve();
     Promise.all([salarioPromise, anotacionesPromise])
     .then(() => {

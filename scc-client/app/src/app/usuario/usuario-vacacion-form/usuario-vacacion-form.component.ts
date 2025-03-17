@@ -23,7 +23,7 @@ import { ForoSubirArchivoComponent } from "../../foro/foro-subir-archivo/foro-su
 @Component({
   selector: 'app-usuario-vacacion-form',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule, MatButtonModule, MatInputModule, MatSelectModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatCardModule, MatIconModule, MatTooltipModule, ForoSubirArchivoComponent],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule, MatButtonModule, MatInputModule, MatSelectModule, MatCheckboxModule, MatDatepickerModule, MatNativeDateModule, MatCardModule, MatIconModule, MatTooltipModule],
   templateUrl: './usuario-vacacion-form.component.html',
   styleUrl: './usuario-vacacion-form.component.scss',
   providers: [DatePipe]
@@ -34,7 +34,7 @@ export class UsuarioVacacionFormComponent {
   vacacionForm: FormGroup;
   
   usuarioActual: any;
-  vacacionActual: number = 0;
+  vacacionActual: number = -1;
   vacacionesSolicitadas: any = '0.00';
 
   maxDate: Date;
@@ -376,7 +376,7 @@ export class UsuarioVacacionFormComponent {
       if (this.vacacionActual % 1 != 0.00) {
         newMaxDate.setDate(newMaxDate.getDate() + 1);
       }
-      if (this.vacacionActual < 0) {
+      if (this.vacacionActual < 1) {
         newMaxDate.setDate(newMaxDate.getDate() - 1);
       }
       this.maxDate = new Date(newMaxDate);
@@ -423,17 +423,19 @@ export class UsuarioVacacionFormComponent {
     return stringValue.padStart(padLength, '0');
   }
 
+  //Aqui se verifican los dias disponibles, se cambia dentro del while para los dias disponibles (2 == 0, 1 == -1), y asi
+  //Y el if the days == 1 verifica que si le siguiente dia es domingo que le sume uno mas para que pueda ocupar el lunes instead
   getBusinessDays(startDate: Date, days: number) {
     let count = 0;
     let currentDate = new Date(startDate);
 
-    while (days >= 1) {
+    while (days >= 2) {
         count++;
         if (currentDate.getDay() !== 0) {
           days--;
         }
 
-        if (days == 0 && currentDate.getDay() == 6) {
+        if (days == 1 && currentDate.getDay() == 6) {
           count++;
         } 
         currentDate.setDate(currentDate.getDate() + 1);
@@ -527,11 +529,12 @@ export class UsuarioVacacionFormComponent {
     return hours * 60 + minutes;
   };
 
+  //Validación de que no se exceda del numero de vacaciones que posee
   verifyDisponible() {
     const fechaInicio = this.vacacionForm.get('fechaInicio');
 
     if (fechaInicio) {
-      if (this.vacacionActual - this.vacacionesSolicitadas < -1) {
+      if (this.vacacionActual - this.vacacionesSolicitadas < 0) {
         fechaInicio.setErrors({'disponible': true});
       } else {
         fechaInicio.setErrors(null);

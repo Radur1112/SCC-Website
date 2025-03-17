@@ -21,6 +21,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { ForoFormDialogComponent } from '../foro-form-dialog/foro-form-dialog.component';
 import { ConvertLineBreaksService } from '../../services/convert-line-breaks.service';
+import { ForoDetalleDialogComponent } from '../foro-detalle-dialog/foro-detalle-dialog.component';
 
 @Component({
   selector: 'app-foro-detalle',
@@ -38,11 +39,13 @@ export class ForoDetalleComponent {
   foroId: any;
   foro: any;
 
-  filtroRespuestas: any = [];
+  filtroRespuestas: any[] = [];
   respuestas: any = [];
 
   foroArchivos: any = [];
   foroRespuestas: any = [];
+
+  encuestaRespondida: boolean = false;
 
   respuestaForm: FormGroup;
 
@@ -116,7 +119,12 @@ export class ForoDetalleComponent {
       next:(res) => {
         this.respuestas = res.data;
         this.filtroRespuestas = this.respuestas;
-
+        if (this.filtroRespuestas && this.filtroRespuestas.length > 0 && this.filtroRespuestas.find(f => f.idUsuario == this.usuarioActual.id)) {
+          this.encuestaRespondida = true;
+        } else {
+          this.encuestaRespondida = false;
+        }
+        
         this.loadingR = false;
       }
     });
@@ -309,6 +317,23 @@ export class ForoDetalleComponent {
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
         this.getForo();
+      }
+    });
+  }
+
+  verRespuestas() {
+    let width = '1200px';
+    let data = { 
+      respuestas: this.filtroRespuestas
+    };
+    
+    const dialogRef = this.dialog.open(ForoDetalleDialogComponent, {
+      data,
+      width
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
       }
     });
   }

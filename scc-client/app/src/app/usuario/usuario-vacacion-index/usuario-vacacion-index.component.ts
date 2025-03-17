@@ -18,6 +18,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSelectModule } from '@angular/material/select';
 import { animate, state, style, transition, trigger } from '@angular/animations';
 import moment from 'moment';
+import { AlertaService, TipoMessage } from '../../services/alerta.service';
 
 @Component({
   selector: 'app-usuario-vacacion-index',
@@ -45,7 +46,8 @@ export class UsuarioVacacionIndexComponent {
   estados = {
     0: 'Rechazado',
     1: 'Confirmado',
-    2: 'Pendiente'
+    2: 'Pendiente',
+    3: 'Cancelado'
   };
 
   @ViewChild(MatPaginator) paginator: MatPaginator;
@@ -56,6 +58,7 @@ export class UsuarioVacacionIndexComponent {
   constructor(private gService:GenericService,
     private authService: AuthService,
     private confirmationService: ConfirmationService,
+    private alerta: AlertaService,
     private dialog: MatDialog,
     private router:Router,
     private route:ActivatedRoute,
@@ -73,6 +76,10 @@ export class UsuarioVacacionIndexComponent {
           this.usuarioActual = x.usuario;
           this.isSupervisor = this.usuarioActual.idTipoUsuario == 3 || this.usuarioActual.idTipoUsuario == 1;
           
+          if (this.isSupervisor && !this.usuarioId) {
+            this.displayedColumns.push('accion');
+          }
+
           this.getVacaciones();
         }
       });
@@ -122,6 +129,26 @@ export class UsuarioVacacionIndexComponent {
       link.href = window.URL.createObjectURL(blob);
       link.download = nombre;
       link.click();
+    });
+  }
+
+  cancelarVacacion(id: any, estado: any) {
+    this.confirmationService.confirm()
+    .subscribe(result => {
+      if (result) {
+        const datos = {
+          id: id,
+          idSupervisor: this.usuarioActual.id
+        }
+    
+        this.gService.put2(`vacacion/cancelar/${id}/${estado}`, datos)
+        .pipe(takeUntil(this.destroy$)).subscribe({
+          next:(res) => {
+            this.alerta.mensaje('Vacación', 'Vacaciones canceladas correctamente', TipoMessage.success);
+            this.getVacaciones();
+          }
+        });
+      }
     });
   }
 }

@@ -18,6 +18,8 @@ router.post("/", verifyToken([0]), vacacionController.crear);
 
 router.put("/confirmar/:id", verifyToken([1, 3]), vacacionController.confirmarVacacion);
 router.put("/rechazar/:id", verifyToken([1, 3]), vacacionController.rechazarVacacion);
+router.put("/cancelar/:id", verifyToken([1, 3]), vacacionController.cancelarVacacion);
+router.put("/cancelar/:id/:estado", verifyToken([1, 3]), vacacionController.cancelarVacacion);
 
 
 module.exports = router;

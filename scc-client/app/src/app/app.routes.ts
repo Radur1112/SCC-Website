@@ -70,12 +70,12 @@ export const routes: Routes = [
   },
   { path: 'incapacidad/historial', component: UsuarioIncapacidadIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: ['Todos']
+      permisos: [1, 3]
     } 
   },
   { path: 'incapacidad/historial/:id', component: UsuarioIncapacidadIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: [1, 3]
+      permisos: ['Todos']
     } 
   },
   { path: 'vacacion', component: UsuarioVacacionFormComponent, canActivate:[AuthGuard],
@@ -91,12 +91,12 @@ export const routes: Routes = [
   },
   { path: 'vacacion/historial', component: UsuarioVacacionIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: ['Todos']
+      permisos: [1, 3]
     } 
   },
   { path: 'vacacion/historial/:id', component: UsuarioVacacionIndexComponent, canActivate:[AuthGuard],
     data:{
-      permisos: [1, 3]
+      permisos: ['Todos']
     } 
   },
 

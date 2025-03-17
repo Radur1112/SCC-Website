@@ -77,7 +77,7 @@
       </mat-card>
       
       <ng-container *ngIf="foro.tipoForoDescripcion == 'Encuesta'; else noEncuesta">
-        <ng-container *ngIf="filtroRespuestas && filtroRespuestas.length > 0; else noRespuesta">
+        <ng-container *ngIf="encuestaRespondida; else noRespuesta">
           <div class="respuesta-borde">
             <div class="content-container-center primary-color my-5 py-5">
               <h3>Esta encuesta ya fue respondida</h3>
@@ -99,7 +99,10 @@
         </ng-template>
         
         <ng-container *ngIf="isAdmin">
-          <h4 class="primary-color mt-5 mb-3">Gráfico de respuestas</h4>
+          <div class="titulo-grafico mt-5 mb-3">
+            <h4 class="primary-color">Gráfico de respuestas</h4>
+            <a class="ver-respuestas" (click)="verRespuestas()">ver respuestas</a>
+          </div>
           <div class="content-container-center primary-color mb-5">
               <div class="progress-bar-container full-width mx-auto mb-3" *ngFor="let respuesta of foroRespuestas">
                 <mat-progress-bar class="progress-bar" mode="determinate" color="accent" [value]="respuesta.cantRespuestas * 100 / respuestas.length"></mat-progress-bar>

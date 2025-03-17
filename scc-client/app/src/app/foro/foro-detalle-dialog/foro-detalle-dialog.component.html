@@ -1,0 +1,36 @@
+<a [mat-dialog-close]="false" class="close-dialog" matTooltip="Ir atras">
+  <mat-icon class="dark-color">close</mat-icon>
+</a>
+<mat-dialog-content class="mat-typography">
+  <h4 class="primary-color my-3">Respuestas</h4>
+  <ng-container *ngIf="dataSource && dataSource.data.length > 0; else noDatos">
+    <div class="table-container mx-auto">
+
+      <table mat-table [dataSource]="dataSource" matSort>
+        <ng-container matColumnDef="usuarioNombre">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Usuario </th>
+          <td mat-cell *matCellDef="let row"> {{ row.usuarioNombre }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fechaCreado">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Fecha </th>
+          <td mat-cell *matCellDef="let row"> {{ row.fechaCreado | date: 'd \'de\' MMMM, y - hh:mm aa' }} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="respuesta">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Respuesta </th>
+          <td mat-cell *matCellDef="let row"> {{ row.respuesta }} </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+    </div>
+  </ng-container>
+  <ng-template #noDatos>
+    <h3 class="secondary-color no-data">
+      No hay respuestas
+    </h3>
+  </ng-template>
+</mat-dialog-content>

@@ -17,7 +17,7 @@ import { MatIconModule } from '@angular/material/icon';
 @Component({
   selector: 'app-foro-form-dialog',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatTooltipModule, MatDialogModule, MatSelectModule, ForoSubirArchivoComponent, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, MatButtonModule, MatInputModule, MatCardModule, MatTooltipModule, MatDialogModule, MatSelectModule, ForoSubirArchivoComponent, MatIconModule],
   templateUrl: './foro-form-dialog.component.html',
   styleUrl: './foro-form-dialog.component.scss'
 })

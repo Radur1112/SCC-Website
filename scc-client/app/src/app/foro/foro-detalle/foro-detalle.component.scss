@@ -211,6 +211,24 @@
   padding: 0 15px;
 }
 
+.titulo-grafico {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.ver-respuestas {
+  color: rgb(0, 0, 0, 0.8);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.ver-respuestas:hover {
+  color: $primary-color;
+}
+
 
 
 :host {
