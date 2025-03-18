@@ -96,13 +96,23 @@ module.exports.crear = async (req, res, next) => {
 
     let idPlanilla;
     const [planillaActiva] = await db.query(`SELECT * FROM ${nombreTabla} WHERE estado = 1`);
-
+    
     if (planillaActiva.length === 0) {
       const [planillaPreviaResult] = await connection.query(`SELECT * FROM ${nombreTabla} WHERE estado = 2 ORDER BY fechaFinal DESC LIMIT 1;`);
       const planillaPrevia = planillaPreviaResult[0] || null;
+      
+      let fecha_inicio, fecha_final;
+      
+      const fechaFinal = moment(planillaPrevia.fechaFinal).tz('America/Costa_Rica');
+      const today = moment().tz('America/Costa_Rica');
 
-      const fecha_inicio = planillaPrevia ? moment(planillaPrevia.fechaFinal).tz('America/Costa_Rica').add(1, 'days').format('YYYY-MM-DD') : moment().tz('America/Costa_Rica').format('YYYY-MM-DD');
-      const fecha_final = moment(fecha_inicio).tz('America/Costa_Rica').add(15, 'days').format('YYYY-MM-DD');
+      if (fechaFinal.date() <= 15) {
+        fecha_inicio = fechaFinal.date(16).format('YYYY-MM-DD');
+        fecha_final = fechaFinal.endOf('month').format('YYYY-MM-DD');
+      } else {
+        fecha_inicio = fechaFinal.startOf('month').add(1, 'month').format('YYYY-MM-DD');
+        fecha_final = fechaFinal.date(15).format('YYYY-MM-DD');
+      }
       
       const [planillaResult] = await connection.query(`INSERT INTO ${nombreTabla} (fechaInicio, fechaFinal) VALUES (?, ?)`, [fecha_inicio, fecha_final]);
       idPlanilla = planillaResult.insertId;
@@ -173,7 +183,7 @@ module.exports.actualizar = async (req, res, next) => {
       fechaFinal: datos.fechaFinal,
     }
     
-    const data = await db.query(`UPDATE ${nombreTabla} SET fechaInicio = ?, fechaFinal = ?`, [fechas.fechaInicio, fechas.fechaFinal]);
+    const data = await db.query(`UPDATE ${nombreTabla} SET fechaInicio = ?, fechaFinal = ? WHERE id = ?`, [fechas.fechaInicio, fechas.fechaFinal, id]);
     if(data) {
       res.status(200).send({
         success: true,

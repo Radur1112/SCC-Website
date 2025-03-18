@@ -93,9 +93,9 @@ export class PlanillaAdminIndexComponent {
 
     const currentDate = new Date();
     this.minDate = new Date(2024, 6, 15);
-    this.maxDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + 6, currentDate.getDate());
+    this.maxDate = new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), currentDate.getDate());
 
-      this.dataSource = new MatTableDataSource(this.dataUsuario)
+    this.dataSource = new MatTableDataSource(this.dataUsuario)
   }
 
   ngOnInit(): void {
@@ -156,7 +156,6 @@ export class PlanillaAdminIndexComponent {
             fechaFinal: new Date(res.data.fechaFinal)
           });
           
-          this.getFechas();
           this.getPlanillaUsuarios();
         } else {
           this.loading = false;
@@ -189,6 +188,7 @@ export class PlanillaAdminIndexComponent {
     this.gService.get(`planilla/fechas`)
     .pipe(takeUntil(this.destroy$)).subscribe({
       next:(res) => {
+        console.log(res.data)
         if (res.data) {
           const fechaInicio = new Date(res.data.fechaInicio);
           const fechaFinal = new Date(res.data.fechaFinal);
@@ -226,7 +226,7 @@ export class PlanillaAdminIndexComponent {
         fechaFinal: this.formatearFecha(this.selectedFecha.value.fechaFinal)
       }
 
-      this.gService.post(`planilla/${this.planillaActual.id}`, fechas)
+      this.gService.put2(`planilla/${this.planillaActual.id}`, fechas)
       .pipe(takeUntil(this.destroy$)).subscribe({
         next:(res) => {
           this.alerta.mensaje('Planilla', 'Rango de fechas actualizado correctamente', TipoMessage.success);

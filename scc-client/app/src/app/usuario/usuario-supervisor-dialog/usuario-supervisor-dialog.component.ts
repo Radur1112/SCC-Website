@@ -39,7 +39,6 @@ export interface usuarioInterface {
   standalone: true,
   imports: [
     CommonModule, 
-    RouterLink, 
     MatFormFieldModule, 
     MatInputModule, 
     MatButtonModule, 
